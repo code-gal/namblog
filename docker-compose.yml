@@ -1,0 +1,62 @@
+services:
+  namblog:
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    # image: namblog:latest
+    # 本地构建使用上面的 build 配置
+    # 生产环境使用下面的 image 配置
+    image: ghcr.io/code-gal/namblog:latest
+    # image: ghcr.io/code-gal/namblog:0.8.0  # 或指定具体版本
+    container_name: namblog
+    restart: unless-stopped
+    ports:
+      - "5000:8080"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      # 注意：建议在 data/config/config.json 中配置（支持热重载）
+      # 环境变量仅用于覆盖配置文件中的值（可选）
+      # 支持的环境变量示例：
+      # - AI__ApiKey=sk-xxx
+      # - AI__BaseUrl=https://api.openai.com/v1
+      # - AI__Model=gpt-4
+      # - Jwt__Secret=your-secret-key
+      # - MCP__AuthToken=your-mcp-token
+      # - Blog__Domain=https://yourdomain.com
+      # - Cors__AllowedOrigins=https://yourdomain.com
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # 可选：PostgreSQL 数据库（如果不使用 SQLite）
+  # 使用步骤：
+  # 1. 取消注释 postgres 服务和 volumes 配置
+  # 2. 在 data/config/config.json 中设置：
+  #    "DatabaseProvider": "PostgreSQL",
+  #    "ConnectionStrings": {
+  #      "PostgreSQL": "Host=postgres;Port=5432;Database=namblog;Username=namblog;Password=your_password"
+  #    }
+  # 3. 或通过环境变量设置（在 namblog 服务的 environment 中添加）：
+  #    - DatabaseProvider=PostgreSQL
+  #    - ConnectionStrings__PostgreSQL=Host=postgres;Port=5432;Database=namblog;Username=namblog;Password=your_password
+  #
+  # postgres:
+  #   image: postgres:17-alpine
+  #   container_name: namblog-postgres
+  #   restart: unless-stopped
+  #   environment:
+  #     - POSTGRES_DB=namblog
+  #     - POSTGRES_USER=namblog
+  #     - POSTGRES_PASSWORD=your_password  # 请修改为强密码
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"  # 可选：暴露端口用于外部管理工具访问
+
+# volumes:
+  # postgres_data:

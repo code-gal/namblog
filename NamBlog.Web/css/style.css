@@ -1,0 +1,390 @@
+/* Global Styles */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+/* Line Clamp Utility - 限制文本行数 */
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Custom Scrollbar - 全局滚动条（页面主滚动条） */
+html::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+html::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+html::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+html::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.dark html::-webkit-scrollbar-thumb {
+    background: #475569;
+}
+
+.dark html::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+}
+
+/* EasyMDE Customization */
+/* 核心：让EasyMDE在flex容器中正确工作 */
+.EasyMDEContainer {
+    display: flex !important;
+    flex-direction: column;
+    flex: 1 1 0; /* 作为父容器的flex子项，占满可用高度 */
+    min-height: 0; /* 关键：允许flex子元素收缩 */
+    overflow: hidden;
+}
+
+/* 工具栏固定高度 */
+.EasyMDEContainer .editor-toolbar {
+    flex-shrink: 0;
+}
+
+/* 核心修复：CodeMirror必须有明确的flex属性才能在容器内滚动 */
+.EasyMDEContainer .CodeMirror {
+    flex: 1 1 0; /* 关键：占据剩余空间，允许收缩到0 */
+    min-height: 0; /* 关键：允许收缩 */
+    height: 100% !important; /* 避免在某些布局链路下塌陷为0导致内容不可见 */
+    border-color: #e5e7eb;
+    border-radius: 0.375rem;
+    overflow: hidden; /* CodeMirror-scroll会处理滚动 */
+}
+
+/* CodeMirror内部滚动容器 */
+.EasyMDEContainer .CodeMirror-scroll {
+    height: 100% !important;
+    min-height: 0;
+}
+
+/* 状态栏固定在底部 */
+.EasyMDEContainer .editor-statusbar {
+    flex-shrink: 0;
+    background: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+    padding: 8px 10px;
+}
+
+.dark .EasyMDEContainer .editor-statusbar {
+    background: #1f2937;
+    border-top-color: #4b5563;
+    color: #9ca3af;
+}
+
+.dark .EasyMDEContainer .CodeMirror {
+    border-color: #4b5563;
+    background-color: #1f2937;
+    color: #e5e7eb;
+}
+
+/* EasyMDE Dark Mode - CodeMirror内部元素 */
+.dark .CodeMirror-lines {
+    color: #e5e7eb;
+}
+
+.dark .CodeMirror-cursor {
+    border-left-color: #e5e7eb;
+}
+
+.dark .CodeMirror-selected {
+    background: #374151;
+}
+
+.dark .CodeMirror-line::selection,
+.dark .CodeMirror-line > span::selection,
+.dark .CodeMirror-line > span > span::selection {
+    background: #374151;
+}
+
+/* EasyMDE Dark Mode - 预览模式 */
+.dark .editor-preview,
+.dark .editor-preview-side {
+    background-color: #1f2937;
+    color: #e5e7eb;
+}
+
+.dark .editor-preview h1,
+.dark .editor-preview h2,
+.dark .editor-preview h3,
+.dark .editor-preview h4,
+.dark .editor-preview h5,
+.dark .editor-preview h6 {
+    color: #f3f4f6;
+}
+
+.dark .editor-preview code {
+    background-color: #374151;
+    color: #e5e7eb;
+}
+
+.dark .editor-preview pre {
+    background-color: #111827;
+    color: #e5e7eb;
+}
+
+.dark .editor-preview blockquote {
+    border-left-color: #4b5563;
+    color: #d1d5db;
+}
+
+.dark .editor-preview table {
+    border-color: #4b5563;
+}
+
+.dark .editor-preview table thead {
+    background-color: #374151;
+}
+
+.dark .editor-preview table tr {
+    border-color: #4b5563;
+}
+
+.dark .editor-preview a {
+    color: #60a5fa;
+}
+
+.dark .editor-preview hr {
+    border-color: #4b5563;
+}
+
+/* EasyMDE Dark Mode - 工具栏 */
+.dark .editor-toolbar {
+    border-color: #4b5563;
+    background-color: #374151;
+}
+
+.dark .editor-toolbar i {
+    color: #e5e7eb;
+}
+
+.dark .editor-toolbar a.active,
+.dark .editor-toolbar a:hover {
+    background-color: #4b5563;
+    border-color: #4b5563;
+}
+
+.dark .editor-toolbar button {
+    color: #e5e7eb;
+}
+
+.dark .editor-toolbar button:hover {
+    background-color: #4b5563;
+}
+
+/* EasyMDE Dark Mode - 侧边预览 */
+.dark .editor-preview-side {
+    border-left-color: #4b5563;
+}
+
+/* Fix EasyMDE Fullscreen Z-Index */
+.editor-toolbar.fullscreen,
+.CodeMirror-fullscreen {
+    z-index: 60 !important; /* Higher than NavBar (z-40) */
+}
+
+/* Article Content Isolation - Reset potentially conflicting styles */
+.article-content {
+    /* Don't use 'all: initial' as it breaks everything */
+    isolation: isolate;
+    contain: layout style;
+}
+
+/* Ensure article content doesn't break layout */
+.article-content img {
+    max-width: 100%;
+    height: auto;
+}
+
+.article-content table {
+    max-width: 100%;
+    overflow-x: auto;
+    display: block;
+}
+
+.article-content pre {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+/* Prevent article content from affecting global styles */
+.article-content * {
+    box-sizing: border-box;
+}
+/* HTML Preview Isolation in Editor */
+.html-preview-content {
+    /* Use containment instead of resetting all */
+    isolation: isolate;
+    contain: layout style;
+}
+
+/* Toast Transition Animations */
+.toast-enter-active, .toast-leave-active {
+    transition: all 0.3s ease;
+}
+
+.toast-enter-from {
+    opacity: 0;
+    transform: translateX(2rem);
+}
+
+.toast-leave-to {
+    opacity: 0;
+    transform: translateY(-1rem);
+}
+
+/* iframe for Article Content - Full isolation */
+.article-iframe {
+    width: 100%;
+    min-height: 600px;
+    border: none;
+    background: white;
+}
+
+.dark .article-iframe {
+    background: #1f2937;
+}
+
+/* iframe for Editor HTML Preview - Full isolation */
+.html-preview-frame,
+iframe[title="HTML预览"] {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: white;
+}
+
+.dark .html-preview-frame,
+.dark iframe[title="HTML预览"] {
+    background: #1f2937;
+}
+
+/* Prevent preview content from affecting editor layout */
+.html-preview-content img {
+    max-width: 100%;
+    height: auto;
+}
+
+.html-preview-content table {
+    max-width: 100%;
+    overflow-x: auto;
+    display: block;
+}
+
+.html-preview-content pre {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.html-preview-content * {
+    box-sizing: border-box;
+}
+
+/* Fade-in Animation for Error Panel */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Line Clamp Utility - 限制文本行数 (2行) */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* 移动端浮动面板动画 */
+/* 淡入淡出遮罩层 */
+.fade-enter-active, .fade-leave-active {
+    transition: opacity 0.3s ease;
+}
+
+.fade-enter-from, .fade-leave-to {
+    opacity: 0;
+}
+
+/* 从右侧滑入滑出 */
+.slide-left-enter-active, .slide-left-leave-active {
+    transition: transform 0.3s ease;
+}
+
+.slide-left-enter-from, .slide-left-leave-to {
+    transform: translateX(100%);
+}
+
+/* ========== Sidebar 侧边栏样式 ========== */
+
+/* 桌面端侧边栏：sticky定位，与主内容顶部对齐，高度不超过视口 */
+.sidebar-desktop {
+    position: sticky;
+    top: 5rem; /* 导航栏高度 */
+    max-height: calc(100vh - 6rem); /* 视口高度减去顶部空间 */
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+}
+
+/* 侧边栏hover时显示滚动条 */
+.sidebar-desktop:hover {
+    scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+}
+
+.sidebar-desktop::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar-desktop::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar-desktop::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 2px;
+    transition: background 0.2s;
+}
+
+.sidebar-desktop:hover::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.5);
+}
+
+/* 暗色模式 */
+.dark .sidebar-desktop:hover {
+    scrollbar-color: rgba(75, 85, 99, 0.5) transparent;
+}
+
+.dark .sidebar-desktop:hover::-webkit-scrollbar-thumb {
+    background: rgba(75, 85, 99, 0.5);
+}
+/* EasyMDE Custom Fullscreen Button - 只在小屏显示 */
+/* 隐藏大屏幕上的自定义全屏按钮 */
+@media (min-width: 1024px) {
+    .editor-toolbar button[title*="全屏编辑（移动端优化）"] {
+        display: none !important;
+    }
+}
+
+/* 在小屏幕上隐藏原生的分屏和全屏按钮（它们会被EasyMDE的no-mobile类自动隐藏） */

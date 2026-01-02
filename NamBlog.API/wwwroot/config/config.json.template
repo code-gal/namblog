@@ -1,0 +1,101 @@
+{
+  "_comment": "==================== NamBlog 用户自定义配置模板 ====================",
+  "_usage": "1. 复制此文件为 config.json；2. 修改需要覆盖的配置项；3. 支持热重载（AI、Blog、Cors 配置修改后自动生效）",
+  "_warning": "⚠️ 请勿在此文件中配置 Storage.DataRootPath，数据目录路径仅能通过环境变量修改",
+  "DatabaseProvider": "SQLite",
+  "ConnectionStrings": {
+    "PostgreSQL": "Host=localhost;Port=5432;Database=namblog;Username=postgres;Password=your_password",
+    "Description": "切换 DatabaseProvider 即可在 SQLite/PostgreSQL 之间切换"
+  },
+  "Admin": {
+    "_comment": "【管理员账号配置】,建议修改",
+    "Username": "admin",
+    "PasswordHash": "$2a$11$pJbV5oQYLp0oizvwKNgPQucOT6oX3aaN6OkSKQssvnUbnazlE08RO",
+    "_tip": "PasswordHash 是登录密码的 Bcrypt 哈希值（默认密码：admin123），可在 https://bcrypt-generator.com/ 生成"
+  },
+  "Jwt": {
+    "_comment": "【JWT 认证配置】生产环境必须修改 Secret",
+    "Secret": "your-256-bit-secret-key-at-least-32-chars-long",
+    "Issuer": "NamBlog",
+    "Audience": "NamBlog.Admin",
+    "ExpirationMinutes": 10080,
+    "_tip": "ExpirationMinutes: JWT 过期时间（分钟），默认 10080 = 7 天。无状态认证，客户端需自行清理过期 Token"
+  },
+  "AI": {
+    "_comment": "【AI 配置】支持热重载，修改后无需重启",
+    "ApiKey": "sk-xxxxxx",
+    "BaseUrl": "https://api.openai.com/v1",
+    "Model": "gpt-4",
+    "MaxTokens": "50000",
+    "Temperature": "0.7",
+    "_tip1": "Model 可选值：需兼容openai api格式（取决于你的 API 提供商）",
+    "_tip2": "Temperature 范围 0.0-2.0，值越高创意性越强，越低结果越稳定。建议 0.5-0.7",
+    "_tip3": "MaxTokens 建议 10000-50000，过小可能导致生成的 HTML 不完整"
+  },
+  "MCP": {
+    "_comment": "【MCP 协议配置】用于 AI 工具集成（如 Claude Desktop）",
+    "AuthToken": "namblog-mcp-2025-secure-token-change-in-production",
+    "ServerName": "NamBlog MCP Server",
+    "ServerVersion": "1.0.0",
+    "ProtocolVersion": "2025-11-25",
+    "_tip": "生产环境必须修改 AuthToken，这是 MCP 客户端连接时的认证令牌"
+  },
+  "Blog": {
+    "_comment": "【博客基本信息】支持热重载，修改后无需重启，替换图像为你自己的",
+    "BlogName": "我的技术博客",
+    "Blogger": "博主昵称",
+    "Icon": "/resources/icon/favicon.ico",
+    "Email": "your-email@example.com",
+    "Domain": "https://yourdomain.com",
+    "Slogan": "AI 驱动的现代博客系统",
+    "Avatar": "/resources/icon/avatar.jpg",
+    "OuterChains": [
+      {
+        "Name": "GitHub",
+        "Link": "https://github.com/yourusername",
+        "SVG": "/resources/icon/github.svg"
+      },
+      {
+        "Name": "Email",
+        "Link": "mailto:your-email@example.com",
+        "SVG": "/resources/icon/email.svg"
+      }
+    ],
+    "_tip1": "Icon/Avatar/SVG 路径使用 /resources/ 开头（对应 data/resources/ 目录）",
+    "_tip2": "OuterChains 是博客外链列表，可以添加 Twitter、微博、知乎等社交媒体链接"
+  },
+  "Cors": {
+    "_comment": "【跨域配置】如果前端跨域部署，请添加你的前端域名，多个域名用逗号分隔",
+    "AllowedOrigins": "https://yourdomain.com",
+    "_tip": "生产环境移除 localhost 域名，只保留实际部署的域名"
+  },
+  "FileWatcher": {
+    "_comment": "【文件监控配置】自动同步 Markdown 文件到数据库",
+    "Enabled": true,
+    "AutoPublish": false,
+    "_tip1": "Enabled 启用 Markdown 文件监控，自动同步文件系统和数据库。设为 false 可禁用文件监控（适合只通过 GraphQL API 管理文章的场景）。",
+    "_tip2": "AutoPublish 控制通过文件监控新创建的文章是否自动发布（公开）"
+  },
+  "Logging": {
+    "_comment": "【日志配置】可以按需调整各模块的日志级别",
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning",
+      "Microsoft.AspNetCore": "Warning",
+      "Microsoft.EntityFrameworkCore": "Warning",
+      "Microsoft.EntityFrameworkCore.Database.Command": "Warning",
+      "NamBlog.API.Application.Services.ArticleQueryService": "Warning",
+      "NamBlog.API.Application.Services.ArticleCommandService": "Information",
+      "NamBlog.API.Application.Services.AuthService": "Information",
+      "NamBlog.API.EntryPoint.MCP": "Warning",
+      "NamBlog.API.Infrastructure.Services.FileWatcherService": "Information",
+      "NamBlog.API.Infrastructure.Agents.OpenAIService": "Warning"
+    },
+    "_tip1": "日志级别：Trace < Debug < Information < Warning < Error < Critical",
+    "_tip2": "生产环境推荐：查询服务(ArticleQueryService)和MCP设为Warning以减少日志量，命令服务(ArticleCommandService)和认证(AuthService)保持Information用于审计",
+    "_tip3": "AI服务(OpenAIService)设为Warning可减少日志，如需监控AI调用成本和性能可改为Information",
+    "_tip4": "开发调试时可临时将某个服务改为Debug级别查看详细日志"
+  },
+  "AllowedHosts": "*",
+  "_allowedHosts_tip": "允许的主机名，* 表示允许所有。生产环境建议指定具体域名，如：yourdomain.com"
+}

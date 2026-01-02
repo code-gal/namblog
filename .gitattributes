@@ -1,0 +1,70 @@
+###############################################################################
+# 1. 基础设置
+###############################################################################
+* text=auto eol=lf
+
+###############################################################################
+# 2. 配置文件与文档
+###############################################################################
+*.yml           text eol=lf
+*.yaml          text eol=lf
+*.md            text eol=lf
+*.txt           text
+*.json          text eol=lf
+*.xml           text
+*.config        text
+# 处理 PowerShell 脚本 (Test 目录中常见)
+*.ps1           text eol=lf
+# Shell 脚本
+*.sh            text eol=lf
+
+###############################################################################
+# 3. 前端与代码 (Vue & C#)
+###############################################################################
+*.vue           text eol=lf
+*.js            text eol=lf
+*.ts            text eol=lf
+*.scss          text eol=lf
+*.css           text eol=lf
+*.html          text eol=lf
+*.cs            text diff=csharp
+*.sln           merge=binary
+*.csproj        merge=binary
+*.user          core.whitespace=cr-at-eol
+
+###############################################################################
+# 4. 二进制文件处理 (针对你的 data 目录)
+###############################################################################
+# 显式标记 SQLite 数据库为二进制，防止 Git 尝试“修复”换行符导致数据库损坏
+*.db            binary
+*.db-shm        binary
+*.db-wal        binary
+# 常见图片和图标
+*.jpg           binary
+*.png           binary
+*.gif           binary
+*.ico           binary
+
+###############################################################################
+# 5. GitHub 语言统计优化 (Linguist)
+###############################################################################
+# 排除构建产物和包管理目录
+**/dist/*         linguist-vendored
+**/node_modules/* linguist-vendored
+# 如果 wwwroot 下全是第三方库则保持现状，如果只有 lib 文件夹是外来的，建议改用：
+**/wwwroot/lib/*  linguist-vendored
+
+# 标记文档目录（不计入代码量）
+**/DevDocs/*      linguist-documentation
+**/Learns/*       linguist-documentation
+*.md              linguist-documentation
+
+###############################################################################
+# 6. 打包忽略 (Export Settings)
+###############################################################################
+.gitignore      export-ignore
+.gitattributes  export-ignore
+/Test/          export-ignore
+/DevDocs/       export-ignore
+/Learns/        export-ignore
+*.db            export-ignore

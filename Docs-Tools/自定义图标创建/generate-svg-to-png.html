@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NamBlog PWA 图标生成器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #2962FF;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .preview-item {
+            text-align: center;
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 12px;
+            transition: transform 0.2s;
+        }
+
+        .preview-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .preview-item canvas {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 180px;
+            height: auto;
+        }
+
+        .preview-item h3 {
+            margin-top: 12px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .preview-item p {
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            min-width: 150px;
+            background: #2962FF;
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background: #0039CB;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(41, 98, 255, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.secondary {
+            background: #00B0FF;
+        }
+
+        button.secondary:hover {
+            background: #0091EA;
+        }
+
+        .success {
+            background: #00E676;
+            color: white;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .instructions {
+            background: #E3F2FD;
+            border-left: 4px solid #2962FF;
+            padding: 16px;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+
+        .instructions h3 {
+            color: #2962FF;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .instructions ol {
+            margin-left: 20px;
+            color: #555;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .instructions code {
+            background: rgba(41, 98, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            🎨 NamBlog PWA 图标生成器
+        </h1>
+        <p class="subtitle">基于最新设计生成所有PWA所需的PNG图标</p>
+
+        <div class="preview-grid">
+            <div class="preview-item">
+                <canvas id="canvas192" width="192" height="192"></canvas>
+                <h3>icon-192.png</h3>
+                <p>Android Chrome</p>
+            </div>
+
+            <div class="preview-item">
+                <canvas id="canvas512" width="512" height="512"></canvas>
+                <h3>icon-512.png</h3>
+                <p>Android 启动画面</p>
+            </div>
+
+            <div class="preview-item">
+                <canvas id="canvasMaskable" width="512" height="512"></canvas>
+                <h3>icon-maskable-512.png</h3>
+                <p>Android 自适应图标</p>
+            </div>
+
+            <div class="preview-item">
+                <canvas id="canvasApple" width="180" height="180"></canvas>
+                <h3>apple-touch-icon.png</h3>
+                <p>iOS 主屏幕</p>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button onclick="downloadAll()">📥 下载全部图标 (4个文件)</button>
+            <button class="secondary" onclick="downloadSingle('192')">下载 192px</button>
+            <button class="secondary" onclick="downloadSingle('512')">下载 512px</button>
+            <button class="secondary" onclick="downloadSingle('maskable')">下载 Maskable</button>
+            <button class="secondary" onclick="downloadSingle('apple')">下载 Apple</button>
+        </div>
+
+        <div class="success" id="success">
+            ✅ 图标已生成！请将下载的PNG文件放到：<code>NamBlog.Web/icons/</code>
+        </div>
+
+        <div class="instructions">
+            <h3>📋 使用说明</h3>
+            <ol>
+                <li>点击"下载全部图标"按钮，自动下载4个PNG文件</li>
+                <li>将下载的文件移动到 <code>NamBlog.Web/icons/</code> 目录</li>
+                <li>运行部署脚本：<code>.\deploy-frontend.ps1</code></li>
+                <li>重启后端并访问 <code>http://localhost:5000</code></li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        // SVG源代码（直接嵌入）
+        const svgSource = `<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#2962FF;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#00B0FF;stop-opacity:1" />
+        </linearGradient>
+        <linearGradient id="aiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#00E676;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#69F0AE;stop-opacity:1" />
+        </linearGradient>
+        <radialGradient id="glowGrad">
+            <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:0.8" />
+            <stop offset="100%" style="stop-color:#00B0FF;stop-opacity:0" />
+        </radialGradient>
+    </defs>
+    <circle cx="64" cy="64" r="64" fill="url(#primaryGrad)"/>
+    <g transform="translate(64, 64)">
+        <rect x="-20" y="-28" width="40" height="56" rx="4" fill="white" opacity="0.95"/>
+        <path d="M 20,-28 L 20,-16 L 8,-28 Z" fill="white" opacity="0.7"/>
+        <line x1="-12" y1="-18" x2="-4" y2="-18" stroke="url(#primaryGrad)" stroke-width="2" stroke-linecap="round"/>
+        <line x1="-14" y1="-14" x2="14" y2="-14" stroke="url(#primaryGrad)" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="-12" cy="-4" r="1.5" fill="url(#primaryGrad)"/>
+        <line x1="-8" y1="-4" x2="14" y2="-4" stroke="url(#primaryGrad)" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="-12" cy="4" r="1.5" fill="url(#primaryGrad)"/>
+        <line x1="-8" y1="4" x2="14" y2="4" stroke="url(#primaryGrad)" stroke-width="1.5" stroke-linecap="round"/>
+        <rect x="-14" y="12" width="28" height="12" rx="2" fill="url(#primaryGrad)" opacity="0.2"/>
+        <text x="0" y="21" font-family="monospace" font-size="8" fill="url(#primaryGrad)" text-anchor="middle" opacity="0.8">&lt;/&gt;</text>
+        <circle cx="0" cy="-42" r="4" fill="url(#aiGrad)"/>
+        <circle cx="36" cy="-21" r="4" fill="url(#aiGrad)"/>
+        <circle cx="36" cy="21" r="4" fill="url(#aiGrad)"/>
+        <circle cx="0" cy="42" r="4" fill="url(#aiGrad)"/>
+        <circle cx="-36" cy="21" r="4" fill="url(#aiGrad)"/>
+        <circle cx="-36" cy="-21" r="4" fill="url(#aiGrad)"/>
+        <path d="M 0,-42 L 36,-21 L 36,21 L 0,42 L -36,21 L -36,-21 Z" fill="none" stroke="white" stroke-width="1" opacity="0.3"/>
+        <line x1="0" y1="-42" x2="0" y2="42" stroke="white" stroke-width="0.5" opacity="0.2"/>
+        <line x1="-36" y1="-21" x2="36" y2="21" stroke="white" stroke-width="0.5" opacity="0.2"/>
+        <line x1="-36" y1="21" x2="36" y2="-21" stroke="white" stroke-width="0.5" opacity="0.2"/>
+    </g>
+    <circle cx="64" cy="64" r="58" fill="none" stroke="white" stroke-width="1" opacity="0.3"/>
+    <g transform="translate(96, 96)">
+        <circle cx="0" cy="0" r="10" fill="url(#aiGrad)" opacity="0.9"/>
+        <path d="M -3,-2 L 0,3 L 3,-2" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <line x1="0" y1="-4" x2="0" y2="3" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+    </g>
+</svg>`;
+
+        // SVG转Canvas
+        function renderSVG(canvas, size, isMaskable = false) {
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+
+            return new Promise((resolve) => {
+                img.onload = function() {
+                    ctx.clearRect(0, 0, size, size);
+
+                    if (isMaskable) {
+                        // Maskable图标：需要额外的安全区背景
+                        // 绘制全背景
+                        const gradient = ctx.createLinearGradient(0, 0, size, size);
+                        gradient.addColorStop(0, '#2962FF');
+                        gradient.addColorStop(1, '#00B0FF');
+                        ctx.fillStyle = gradient;
+                        ctx.fillRect(0, 0, size, size);
+
+                        // 在中心绘制缩小的图标（80%）
+                        const iconSize = size * 0.8;
+                        const offset = (size - iconSize) / 2;
+                        ctx.drawImage(img, offset, offset, iconSize, iconSize);
+                    } else {
+                        // 普通图标：直接绘制
+                        ctx.drawImage(img, 0, 0, size, size);
+                    }
+
+                    resolve();
+                };
+
+                img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgSource)));
+            });
+        }
+
+        // 下载单个图标
+        async function downloadSingle(type) {
+            let canvas, filename;
+
+            switch(type) {
+                case '192':
+                    canvas = document.getElementById('canvas192');
+                    filename = 'icon-192.png';
+                    break;
+                case '512':
+                    canvas = document.getElementById('canvas512');
+                    filename = 'icon-512.png';
+                    break;
+                case 'maskable':
+                    canvas = document.getElementById('canvasMaskable');
+                    filename = 'icon-maskable-512.png';
+                    break;
+                case 'apple':
+                    canvas = document.getElementById('canvasApple');
+                    filename = 'apple-touch-icon.png';
+                    break;
+            }
+
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+
+            showSuccess();
+        }
+
+        // 下载全部
+        async function downloadAll() {
+            await downloadSingle('192');
+            setTimeout(() => downloadSingle('512'), 200);
+            setTimeout(() => downloadSingle('maskable'), 400);
+            setTimeout(() => downloadSingle('apple'), 600);
+        }
+
+        // 显示成功提示
+        function showSuccess() {
+            const el = document.getElementById('success');
+            el.style.display = 'block';
+            setTimeout(() => {
+                el.style.display = 'none';
+            }, 5000);
+        }
+
+        // 页面加载时生成预览
+        window.onload = async function() {
+            await renderSVG(document.getElementById('canvas192'), 192);
+            await renderSVG(document.getElementById('canvas512'), 512);
+            await renderSVG(document.getElementById('canvasMaskable'), 512, true);
+            await renderSVG(document.getElementById('canvasApple'), 180);
+        };
+    </script>
+</body>
+</html>

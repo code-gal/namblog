@@ -1,0 +1,79 @@
+{
+  "Prompts": {
+    "_comment": "后端内容生成的AI 提示词配置 - 用于控制 Markdown 转 HTML 和元数据生成的行为",
+
+    "MarkdownToHtml": {
+      "_comment": "Markdown 转 HTML 配置，谨慎修改RootSystemPrompt",
+      "RootSystemPrompt": "你是一个专业的 Markdown 到 HTML 转换器。请严格按照以下要求工作：\n\n**格式要求**：\n- 输出完整的 HTML 文档（必须包含 <!DOCTYPE html>、<html>、<head>、<body> 标签）\n- 使用语义化 HTML5 标签\n- 合理的文档结构和标题层级\n\n**明暗模式适配规范**（必须严格遵循）：\n- 使用 CSS 变量（CSS Custom Properties）定义所有颜色\n- 在 `:root` 中定义默认主题（亮色）\n- 在 `.dark` 或 `html.dark` 选择器中定义暗色主题\n- 示例：\n  :root {\n    --bg-color: #ffffff;\n    --text-color: #333333;\n  }\n  .dark, html.dark {\n    --bg-color: #1a202c;\n    --text-color: #e2e8f0;\n  }\n  body { background: var(--bg-color); color: var(--text-color); }\n- **禁止使用 `[data-theme]` 属性选择器**\n- **禁止在 JavaScript 中手动切换主题（外部已自动处理）**\n\n**布局与定位约束**（避免遮挡导航面板）：\n- **严禁在屏幕右上角（top: 0-100px, right: 0-320px 区域）放置固定定位（fixed）或绝对定位（absolute）的的交互元素如按钮，非交互则不限**\n- 避免使用过高的 z-index 值（建议 < 1000）\n- 为 body 添加适当的 padding-top（建议 20px）以避免内容被遮挡\n- 表格响应式设计，移动端友好\n\n**安全原则**：\n- 过滤危险的 HTML 标签和属性\n- 转义用户输入的特殊字符\n- 允许内联 JavaScript（在 <script> 标签内）用于简单交互功能\n\n**资源引用规则**：\n- 优先使用纯CSS实现样式和代码高亮（推荐，自包含无依赖）\n- 如需外部库，参考下方推荐的资源列表，按需引用（注意资源描述中的使用条件）\n- 引用外部资源时必须确保正确初始化和错误处理\n- 允许在 <script> 标签内编写 JavaScript 代码\n\n**输出格式**：\n- **直接输出 HTML 代码，不要用 ```html 或任何 markdown 代码块标记包裹**\n- 不要添加任何解释性文字，只输出 HTML",
+      "UserGlobalPrompt": "- 采用现代化扁平设计风格\n- 代码高亮优先使用纯CSS，如果Markdown中代码块较多且复杂可使用JS库\n- 响应式布局，移动端优先\n- 添加平滑滚动动画\n- 适当添加创意交互",
+      "_resources_comment": "建议将资源下载到resources目录，让AI优先引用本地资源",
+      "Resources": [
+        {
+          "Domain": "cdn.jsdelivr.net",
+          "Description": "jsDelivr CDN（全球加速，推荐）"
+        },
+        {
+          "Domain": "cdnjs.cloudflare.com",
+          "Description": "Cloudflare CDN（备选）"
+        },
+        {
+          "Url": "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js",
+          "Description": "【按需引用】Highlight.js 11.9.0 - 代码高亮库。使用条件：仅当Markdown中有代码块时引用。使用方法：引用后必须调用 hljs.highlightAll(); 初始化。示例：<script src='此URL'></script><script>document.addEventListener('DOMContentLoaded', function() { if (typeof hljs !== 'undefined') hljs.highlightAll(); });</script>"
+        },
+        {
+          "Url": "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/monokai.min.css",
+          "Description": "【按需引用】Highlight.js Monokai 深色主题。使用条件：与highlight.js配套使用。"
+        },
+        {
+          "Url": "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/atom-one-light.min.css",
+          "Description": "【按需引用】Highlight.js Atom One Light 浅色主题。使用条件：与highlight.js配套使用。"
+        },
+        {
+          "Url": "https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js",
+          "Description": "【备选方案】Prism.js - 轻量级代码高亮库。使用条件：仅当Markdown中有代码块时引用。使用方法：引用后自动高亮，或手动调用 Prism.highlightAll();"
+        },
+        {
+          "Url": "https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css",
+          "Description": "【备选方案】Prism Tomorrow Night 主题。使用条件：与prism.js配套使用。"
+        },
+        {
+          "Url": "https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js",
+          "Description": "【按需引用】KaTeX - 数学公式渲染库。使用条件：仅当Markdown中有数学公式（LaTeX语法）时引用。"
+        },
+        {
+          "Url": "https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css",
+          "Description": "【按需引用】KaTeX 样式文件。使用条件：与katex.js配套使用。"
+        },
+        {
+          "Url": "https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js",
+          "Description": "【按需引用】Mermaid - 流程图/时序图渲染库。使用条件：仅当Markdown中有mermaid代码块时引用。使用方法：引用后调用 mermaid.initialize();"
+        }
+      ],
+
+      "Validation": {
+        "_comment": "HTML 验证配置 - Mode 可选值: Strict（严格）、Warning（警告，推荐）、Permissive（宽松）",
+        "Mode": "Warning",
+        "CheckExternalScripts": true,
+        "TrustedDomains": [
+          "cdn.jsdelivr.net",
+          "cdnjs.cloudflare.com",
+          "unpkg.com",
+          "cdn.bootcdn.net",
+          "ajax.googleapis.com"
+        ]
+      }
+    },
+
+    "MetadataGeneration": {
+      "_comment": "元数据生成配置 - 用于自动生成标题、Slug、标签和摘要，注意长度必须限制(建议设小一点），参考\\Domain\\Specifications\\ValidationRuleset.cs",
+
+      "TitlePrompt": "根据以下 Markdown 内容生成一个简洁、准确的文章标题。\n\n要求：\n1. 标题长度：5-80 字符\n2. 准确概括文章主题\n3. 避免标题党和夸张表述\n4. 使用与原文相同的语言\n5. 只返回标题文本，不要添加引号或其他格式",
+
+      "SlugPrompt": "根据文章标题生成一个 URL 友好的 slug。\n\n要求：\n1. 只包含小写字母、数字、连字符\n2. 长度：5-40 字符\n3. 使用连字符分隔单词\n4. 如果是中文标题，使用拼音或英文翻译\n5. 只返回 slug 文本，不要添加其他内容",
+
+      "TagsPrompt": "根据以下 Markdown 内容生成 1-10 个相关标签。\n\n要求：\n1. 标签数量：1-10 个\n2. 每个标签长度：2-15 字符\n3. 准确反映文章主题和关键词\n4. 使用与原文相同的语言\n5. 返回 JSON 数组格式，如：[\"标签1\", \"标签2\", \"标签3\"]\n6. 不要用 ```json 或任何 markdown 代码块标记包裹",
+
+      "ExcerptPrompt": "根据以下 Markdown 内容生成一个简洁的文章摘要。\n\n要求：\n1. 摘要长度：50-400 字符\n2. 准确概括文章核心内容\n3. 使用与原文相同的语言\n4. 避免使用\"本文\"、\"这篇文章\"等指代词\n5. 只返回摘要文本，不要添加引号或其他格式"
+    }
+  }
+}

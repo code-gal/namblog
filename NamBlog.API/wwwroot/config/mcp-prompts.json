@@ -1,0 +1,35 @@
+{
+  "_comment": "MCP客户端使用的提示词模板配置 - 用于指导 AI 如何使用博客管理工具",
+  "prompts": {
+    "create_article": {
+      "name": "创建博客文章",
+      "description": "指导 AI 如何组合工具创建一篇完整的博客文章，包括选择分类、标签等步骤",
+      "template": "请帮我创建一篇关于「{{topic}}」的博文，按以下步骤操作：\n\n**步骤 1：了解博客结构**\n- 查看现有的分类和标签，使用 `get_categories_statistics` 工具获取分类和 `get_tags_statistics`获取标签列表\n- 选择最合适的分类或自定义（必选，只能一个）\n- 选择 3-5 个相关标签（可从现有标签中选择，也可以创建新标签）\n\n**步骤 2：创建文章**\n使用 `submit_article_version` 工具创建文章，参数说明：\n- title: 简洁有力的标题（5-80 字符）\n- slug: URL 友好的标识（5-40 字符，小写字母+数字+连字符）\n- content: Markdown 格式的文章内容\n- category: 选定的分类名称\n- tags: 标签数组（1-8 个，每个 2-15 字符）\n- excerpt: 文章摘要（50-400 字符）\n- isFeatured: 是否为精选文章（true/false）\n- customPrompt: （可选）自定义 HTML 生成提示词\n\n**步骤 3：生成 HTML 版本**\n- 使用 `convert_markdown_to_html` 工具为文章生成 HTML 版本\n- 可以使用 customPrompt 参数自定义样式偏好\n\n**注意事项**：\n- 标题要吸引人但不要标题党\n- Markdown 内容要结构清晰，包含代码示例（如适用）\n- 摘要要准确概括核心内容\n- 首次创建时默认为草稿状态（isPublished: false），用户满意后可建议用`toggle_publish`工具改为发布。",
+      "parameters": [
+        {
+          "name": "topic",
+          "description": "文章主题或关键词",
+          "required": false
+        }
+      ]
+    },
+    "optimize_article": {
+      "name": "优化文章质量",
+      "description": "指导 AI 如何检查和优化现有文章，提高文章质量和可读性",
+      "template": "我需要优化一篇文章，请按以下步骤操作：\n\n**步骤 1：获取文章信息**\n- 使用 `get_article_metadata` 工具获取文章的完整元数据\n- 使用 `get_article_markdown` 工具获取 Markdown 原文\n\n**步骤 2：质量检查清单**\n请检查以下方面：\n\n✓ **标题优化**\n  - 是否简洁有力（5-80 字符）\n  - 是否准确概括文章主题\n  - 是否避免标题党\n\n✓ **内容结构**\n  - 标题层级是否合理（H1 > H2 > H3）\n  - 段落划分是否清晰\n  - 是否有目录/大纲\n\n✓ **可读性**\n  - 语言是否流畅\n  - 是否有错别字\n  - 代码示例是否正确\n\n✓ **元数据**\n  - 分类是否准确\n  - 标签是否相关（3-5 个为宜）\n  - 摘要是否简洁（50-400 字符）\n\n✓ **Markdown 格式**\n  - 代码块是否指定语言\n  - 链接是否有效\n  - 列表格式是否正确\n\n**步骤 3：应用优化**\n- 如只修改元数据而不发布新版本使用 `save_article` 工具（保留原 id）\n- 如需发布新版本（用新 markdown 生成html）使用 `submit_article_version` 工具\n- 重新生成 HTML：使用 `convert_markdown_to_html` 工具\n\n**步骤 4：发布建议**\n- 确认所有检查项通过后，建议设置 `isPublished: true`\n- 使用 `toggle_publish` 工具发布文章",
+      "parameters": []
+    },
+    "metadata_guidelines": {
+      "name": "文章元数据规范",
+      "description": "文章元数据的格式要求和长度限制，确保数据符合后端验证规则",
+      "template": "**文章元数据规范**\n\n以下是后端验证规则，所有字段必须符合这些要求：\n\n**1. 标题 (title)**\n- 长度：5-80 字符\n- 不能为空\n- 避免特殊符号（除了中英文标点）\n\n**2. Slug (slug)**\n- 长度：5-40 字符\n- 只能包含：小写字母、数字、连字符（-）\n- 格式示例：`my-article-title`、`python-tutorial-2024`\n- 不能以连字符开头或结尾\n\n**3. 分类 (category)**\n- 长度：2-20 字符\n- 必选，只能选择一个\n- 优先从现有分类中选择（使用 `get_categories_statistics` 查看）\n\n**4. 标签 (tags)**\n- 数量：1-10 个\n- 每个标签长度：2-15 字符\n- 优先从现有标签中选择（使用 `get_tags_statistics` 查看）\n- 可以创建新标签，但要确保相关性\n\n**5. 摘要 (excerpt)**\n- 长度：50-400 字符\n- 简洁概括文章核心内容\n- 避免使用\"本文\"、\"这篇文章\"等指代词\n\n**6. Markdown 内容 (content)**\n- 最小长度：10 字符\n- 格式：标准 Markdown 语法\n- 支持：代码块、表格、列表、图片、链接等\n\n**7. 自定义提示词 (customPrompt)**\n- 长度：0-2000 字符\n- 可选字段\n- 用于自定义 HTML 生成的样式偏好\n\n**验证失败时的处理**：\n- 后端会返回详细的错误信息\n- 请根据错误信息调整对应字段",
+      "parameters": []
+    },
+    "html_guidelines": {
+      "name": "HTML 提交规范",
+      "description": "手动提交 HTML 版本时的安全和样式规范要求",
+      "template": "**HTML 提交规范**\n\n如需手动提交 HTML 版本（而不是使用 `convert_markdown_to_html` 自动生成），请遵循以下规范：\n\n**1. 文档结构要求**\n- 必须是完整的 HTML 文档\n- 必须包含：`<!DOCTYPE html>`、`<html>`、`<head>`、`<body>` 标签\n- 使用语义化 HTML5 标签（`<article>`、`<section>`、`<nav>` 等）\n\n**2. 样式要求**\n- 支持浏览器明暗模式自适应（使用 `prefers-color-scheme`）\n- 响应式设计，移动端友好\n- 代码块使用语法高亮（推荐 highlight.js）\n\n**3. 安全原则**\n✅ **允许**：\n- 内联 JavaScript（`<script>` 标签内）用于简单交互\n- 外部脚本资源（从可信 CDN）\n- 内联 CSS 和外部样式表\n- SVG、Canvas 等现代 HTML5 特性\n\n❌ **禁止**：\n- 危险的 HTML 标签（`<iframe>`、`<embed>` 等，除非明确需要）\n- 内联事件处理器（`onclick`、`onerror` 等）\n- 不安全的协议（`javascript:`、`data:` 等）\n\n**4. 外部资源规范**\n**可信 CDN 域名列表**（来自后端配置）：\n- cdn.jsdelivr.net\n- cdnjs.cloudflare.com\n- unpkg.com\n- cdn.bootcdn.net\n- ajax.googleapis.com\n\n**推荐资源**（来自后端配置）：\n- Highlight.js：`https://cdn.jsdelivr.net/npm/highlight.js@11/highlight.min.js`\n- Monokai 主题：`https://cdn.jsdelivr.net/npm/highlight.js@11/styles/monokai.min.css`\n\n**5. 验证模式**\n后端有三种验证模式（在 prompts.json 配置）：\n- **Strict（严格）**：阻止非可信域名的脚本，验证失败返回错误\n- **Warning（警告）**：记录警告但允许生成（推荐）\n- **Permissive（宽松）**：不检查外部脚本（不推荐生产环境）\n\n当前模式可通过 `resources://recommended` 资源查看。\n\n**6. 输出格式**\n- 直接输出 HTML 代码\n- **不要用** ```html 或任何 markdown 代码块标记包裹\n- 不要添加解释性文字\n\n**提交方式**：\n使用工具提交时，HTML 内容作为字符串参数传递，后端会自动保存到文件系统。",
+      "parameters": []
+    }
+  }
+}

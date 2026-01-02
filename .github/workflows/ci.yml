@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Build and Docker Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+          cache: true
+          cache-dependency-path: NamBlog.API/NamBlog.API.csproj
+
+      - name: Restore dependencies
+        run: dotnet restore NamBlog.API/NamBlog.API.csproj
+
+      - name: Build
+        run: dotnet build NamBlog.API/NamBlog.API.csproj --configuration Release --no-restore
+
+      - name: Build Docker image (no deploy)
+        run: docker build -t namblog:test .

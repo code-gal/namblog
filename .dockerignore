@@ -1,0 +1,43 @@
+# Git 相关
+.git/
+.gitignore
+.gitattributes
+
+# VS Code
+.vscode/
+.vs/
+
+# .NET 构建输出
+**/bin/
+**/obj/
+**/data/
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+
+# 测试和文档
+Test/
+DevDocs/
+Docs-Tools/
+*.md
+LICENSE.txt
+
+# 本地数据
+*.db
+*.db-shm
+*.db-wal
+
+# 日志
+*.log
+
+# 环境配置
+.env
+appsettings.Development.json
+
+# Docker 相关
+Dockerfile
+.dockerignore
+docker-compose.yml
+DOCKER_DEPLOYMENT.md

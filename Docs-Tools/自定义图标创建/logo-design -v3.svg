@@ -1,0 +1,30 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="avatarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#2962FF;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#00B0FF;stop-opacity:1" />
+        </linearGradient>
+        <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#00E676;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#69F0AE;stop-opacity:1" />
+        </linearGradient>
+    </defs>
+
+    <circle cx="64" cy="64" r="62" fill="#FFFFFF"/>
+
+    <g opacity="0.1" fill="#2962FF">
+        <rect x="30" y="35" width="70" height="70" rx="10" transform="rotate(-5 64 64)"/>
+        <rect x="35" y="30" width="70" height="70" rx="10" transform="rotate(3 64 64)"/>
+    </g>
+
+    <g transform="translate(32, 32) scale(1.1)" stroke="url(#avatarGrad)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <path d="M10 24C10 24 22 18 30 24C38 30 50 24 50 24" opacity="0.95"/>
+        <path d="M10 40C10 40 22 34 30 40C38 46 50 40 50 40" opacity="0.95"/>
+        <path d="M24 8C24 8 18 22 24 32C30 42 24 52 24 52"/>
+        <path d="M40 8C40 8 34 22 40 32C46 42 40 52 40 52"/>
+    </g>
+
+    <circle cx="92" cy="92" r="6" fill="url(#accentGrad)">
+        <animate attributeName="opacity" values="0.8;1;0.8" dur="3s" repeatCount="indefinite" />
+    </circle>
+</svg>

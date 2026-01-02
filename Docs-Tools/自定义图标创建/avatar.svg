@@ -1,0 +1,37 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="humanGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:#1A237E;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#283593;stop-opacity:1" />
+        </linearGradient>
+        <linearGradient id="aiFlowGrad" x1="0%" y1="50%" x2="100%" y2="50%">
+             <stop offset="0%" style="stop-color:#00E5FF;stop-opacity:1" />
+             <stop offset="100%" style="stop-color:#2979FF;stop-opacity:1" />
+        </linearGradient>
+        <filter id="avatarGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+            <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+    </defs>
+
+    <circle cx="64" cy="64" r="62" fill="#F5F7FA"/>
+    <path d="M64 2V126 M2 64H126" stroke="#E8EAF6" stroke-width="1"/>
+
+    <path d="M45 110C45 110 35 105 30 95C25 85 28 70 32 60C36 50 42 45 42 35C42 20 52 15 60 18C68 21 72 30 70 40C68 50 64 55 64 55"
+          fill="url(#humanGrad)" />
+
+    <g filter="url(#avatarGlow)">
+        <circle cx="62" cy="42" r="6" fill="#00E5FF">
+             <animate attributeName="r" values="6;7;6" dur="3s" repeatCount="indefinite" />
+        </circle>
+
+        <path d="M62 42 C 75 42, 80 50, 85 60 C 90 70, 75 75, 75 85 M 80 55 C 95 55, 105 65, 105 75 M 95 50 V 95 M 80 50 V 90"
+              stroke="url(#aiFlowGrad)" stroke-width="4" stroke-linecap="round" fill="none"/>
+
+        <circle cx="95" cy="50" r="3" fill="white"/>
+        <circle cx="80" cy="90" r="3" fill="white"/>
+    </g>
+</svg>
