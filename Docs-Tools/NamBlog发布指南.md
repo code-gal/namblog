@@ -2,6 +2,25 @@
 
 ## 发布步骤
 
+1. **代码推送到 GitHub**（至少默认分支 `main` ），确保仓库里已经存在：
+	- `.github/workflows/release.yml`
+	- `.github/workflows/ci.yml`
+
+2. **推送Tag**。
+	- 只 push 分支时，只会触发 `CI`（`ci.yml`）
+	- 只有 push 形如 `vX.Y.Z` 的 tag（例如 `v0.8.0`）才会触发 `Release and Build`（`release.yml`）
+
+3. **确保 tag 指向的提交里包含 `release.yml`**。
+	- GitHub Actions 运行时会使用“tag 指向的那次提交”里的 workflow 文件。
+
+4. **仓库 Actions 权限设置**：
+	- 进入 GitHub 仓库 → Settings → Actions → General → Workflow permissions
+	- 建议选 **Read and write permissions**（否则即使 workflow 里写了 `contents: write` / `packages: write` 也可能受限）
+
+5. **GHCR 镜像包可见性**：
+	- 首次推送镜像成功后，Packages 里可能默认是 Private。
+	- 如果你希望“用户无需登录即可拉取”，需要把该 Package 的 Visibility 改为 **Public**。
+
 ```bash
 # 使用脚本（推荐）
 .\release.ps1 -Version "0.8.0" -Message "Initial release"  # Windows
@@ -9,10 +28,22 @@
 
 # 或手动
 git tag -a v0.8.0 -m "Release v0.8.0"
-git push origin v0.8.0
+git push github v0.8.0
 ```
 
 GitHub Actions 自动执行：创建 Release、构建 Docker 镜像（amd64/arm64）、推送到 GHCR。
+
+## 常见问题：为什么只看到 CI 成功，但没有 Release 和镜像？
+
+这通常意味着只 push 了分支提交（触发 `CI`），但**没有 push tag**（不会触发 `release.yml`）。
+
+请检查：
+- GitHub 仓库页面 → Tags 是否存在 `v0.8.0`（或你期望的 tag）
+- Actions 页面是否出现名为 `Release and Build` 的工作流运行记录
+
+如果 tag 存在但仍然没有 `Release and Build`：
+- 确认该 tag 指向的提交包含 `.github/workflows/release.yml`
+- 检查仓库 Settings → Actions → Workflow permissions 是否允许写入（Release / Packages 需要写权限）
 
 ## Docker 标签策略
 
@@ -58,7 +89,7 @@ image: ghcr.io/code-gal/namblog:latest
 ```bash
 # 删除标签
 git tag -d v0.8.1
-git push origin :refs/tags/v0.8.1
+git push github :refs/tags/v0.8.1
 
 # 在 GitHub 删除 Release
 ```

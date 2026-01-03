@@ -33,6 +33,8 @@
   <a href="Docs-Tools/images/edit(desktop-dark).png"><img src="Docs-Tools/images/edit(desktop-dark).png" alt="编辑器-深色" width="49%"/></a>
 </p>
 
+<video width="630" height="300" src="https://github.com/user-attachments/assets/d63d4c97-ea3c-42fb-91f8-79d66395107c" controls></video>
+
 ## 主要功能
 
 ### 创作
