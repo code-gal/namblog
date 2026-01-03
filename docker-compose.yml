@@ -26,12 +26,6 @@ services:
       # - MCP__AuthToken=your-mcp-token
       # - Blog__Domain=https://yourdomain.com
       # - Cors__AllowedOrigins=https://yourdomain.com
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
 
   # 可选：PostgreSQL 数据库（如果不使用 SQLite）
   # 使用步骤：
