@@ -14,6 +14,7 @@ services:
       - "5000:8080"
     volumes:
       - ./data:/app/data
+      # - /etc/localtime:/etc/localtime:ro
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       # 注意：建议在 data/config/config.json 中配置（支持热重载）

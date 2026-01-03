@@ -30,14 +30,25 @@ const routes = [
 ];
 
 // 根据环境选择路由模式
-// 开发环境（Live Server）使用 Hash 模式
-// 生产环境（部署到后端 wwwroot）使用 History 模式以支持 SEO
+// 开发环境（本地/内网）使用 Hash 模式
+// 生产环境（公网域名）使用 History 模式以支持 SEO
 //
-// 判断逻辑：检测端口号
-// - Live Server 通常使用 5500, 5501 等高端口
-// - 后端服务使用 5000 (ASP.NET默认端口)
-const port = parseInt(location.port) || (location.protocol === 'https:' ? 443 : 80);
-const isDevelopment = port >= 5500; // Live Server 端口 >= 5500
+// 判断逻辑：检测 hostname
+// - localhost/127.0.0.1/私有IP段 为开发环境
+// - 公网域名/IP 为生产环境
+const isPrivateNetwork = (hostname) => {
+    // localhost 或回环地址
+    if (hostname === 'localhost' || hostname === '127.0.0.1') return true;
+    // 私有 IP 地址段：10.x.x.x, 172.16-31.x.x, 192.168.x.x
+    const privateIPPatterns = [
+        /^10\.\d{1,3}\.\d{1,3}\.\d{1,3}$/,           // 10.0.0.0 - 10.255.255.255
+        /^172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}$/,  // 172.16.0.0 - 172.31.255.255
+        /^192\.168\.\d{1,3}\.\d{1,3}$/               // 192.168.0.0 - 192.168.255.255
+    ];
+    return privateIPPatterns.some(pattern => pattern.test(hostname));
+};
+
+const isDevelopment = isPrivateNetwork(location.hostname);
 
 const routerHistory = isDevelopment
     ? createWebHashHistory()      // 开发：Hash 模式（#/article/xxx）
