@@ -399,9 +399,8 @@ export default {
             setTimeout(forceRelayout, 350);
         };
 
-        // 删除版本（关闭移动端浮动面板）
+        // 删除版本（不关闭移动端浮动面板，允许用户在面板内完成二次确认）
         const deleteVersion = () => {
-            state.isMobileHtmlPanel.value = false;
             deleteArticle();
         };
 

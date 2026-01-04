@@ -18,9 +18,9 @@ export function showToast(message, type = 'info', duration = 3000) {
         type,
         visible: true
     };
-    
+
     toasts.value.push(toast);
-    
+
     // 自动移除
     setTimeout(() => {
         removeToast(id);
@@ -42,10 +42,10 @@ export default {
         };
     },
     template: `
-        <div class="fixed top-4 right-4 z-50 space-y-2">
+        <div class="fixed top-20 right-4 z-[9999] space-y-2">
             <transition-group name="toast">
-                <div 
-                    v-for="toast in toasts" 
+                <div
+                    v-for="toast in toasts"
                     :key="toast.id"
                     :class="[
                         'px-6 py-3 rounded-lg shadow-lg text-white flex items-center space-x-3 min-w-[300px] max-w-md',
@@ -70,12 +70,12 @@ export default {
                             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
                         </svg>
                     </div>
-                    
+
                     <!-- Message -->
                     <div class="flex-1 text-sm font-medium">
                         {{ toast.message }}
                     </div>
-                    
+
                     <!-- Close Button -->
                     <button @click="removeToast(toast.id)" class="flex-shrink-0 ml-2 text-white hover:text-gray-200">
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
