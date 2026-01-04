@@ -44,10 +44,29 @@ dotnet run
 
 ### 前端配置说明
 
-前端可以复制到后端wwwroot目录，或者独立运行，支持三种方式在前端配置后端地址（优先级从高到低）：
+前端可以复制到后端wwwroot目录，或者独立运行。
+
+#### API 地址配置
+
+支持三种方式配置后端地址（优先级从高到低）：
 1. **构建时环境变量**：`API_BASE_URL`
 2. **运行时配置**：修改 `index.html` 中的 `window.APP_CONFIG.API_BASE_URL`
 3. **自动识别**：localhost/127.0.0.1 默认 `http://localhost:5000`，其他域名使用当前源
+
+#### 开发模式配置
+
+**Live Server 独立运行前端时**，需要在 `NamBlog.Web/index.html` 第 25 行启用开发模式：
+
+```javascript
+window.APP_CONFIG = {
+    DEV_MODE: true,  // 将 false 改为 true
+    API_BASE_URL: ...
+};
+```
+
+**部署到生产环境（wwwroot）时**，确保 `DEV_MODE: false`（默认值）。
+
+> ⚠️ **重要**：提交代码到仓库前，务必将 `DEV_MODE` 改回 `false`，避免影响其他开发者和生产部署。
 
 ---
 

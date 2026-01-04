@@ -8,12 +8,12 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📝%3C/text%3E%3C/svg%3E">
 
     <!-- PWA 配置 -->
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#3b82f6">
     <meta name="mobile-web-app-capable" content="yes">
 
     <!-- iOS 支持 -->
-    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="博客">
 
@@ -21,15 +21,25 @@
     <script>
         // 全局配置对象，可以在部署时通过服务器注入环境变量
         window.APP_CONFIG = {
+            // 开发模式标记：Live Server 独立运行时设为 true，生产环境默认 false
+            DEV_MODE: false,
+
             // API基础URL - 本地开发固定为后端端口5000
             API_BASE_URL: (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
                 ? 'http://localhost:5000'
                 : window.location.origin
         };
+
+        // 根据开发模式决定是否设置 base 标签
+        // 生产环境：设置 base 标签，使相对路径从根目录解析
+        // 开发环境：不设置 base，路径相对于 index.html 所在目录
+        if (!window.APP_CONFIG.DEV_MODE) {
+            document.write('<base href="/">');
+        }
     </script>
 
     <!-- Tailwind CSS -->
-    <script src="/libs/tailwindcss/tailwind.min.js"></script>
+    <script src="./libs/tailwindcss/tailwind.min.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -43,17 +53,17 @@
         }
     </script>
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="./css/style.css">
     <!-- EasyMDE -->
-    <link rel="stylesheet" href="/libs/easymde/easymde.min.css">
-    <script src="/libs/easymde/easymde.min.js"></script>
+    <link rel="stylesheet" href="./libs/easymde/easymde.min.css">
+    <script src="./libs/easymde/easymde.min.js"></script>
     <!-- Vue 3 (ESM) - Production Build -->
     <script type="importmap">
         {
             "imports": {
-                "vue": "/libs/vue/vue.esm-browser.prod.js",
-                "vue-router": "/libs/vue/vue-router.esm-browser.prod.js",
-                "@vue/devtools-api": "/libs/vue/index.js"
+                "vue": "./libs/vue/vue.esm-browser.prod.js",
+                "vue-router": "./libs/vue/vue-router.esm-browser.prod.js",
+                "@vue/devtools-api": "./libs/vue/index.js"
             }
         }
     </script>
@@ -61,6 +71,6 @@
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
     <div id="app"></div>
 
-    <script type="module" src="/js/main.js"></script>
+    <script type="module" src="./js/main.js"></script>
 </body>
 </html>

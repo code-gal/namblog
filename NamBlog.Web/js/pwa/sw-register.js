@@ -91,6 +91,12 @@ export function setupInstallPrompt() {
  * 初始化 PWA 功能
  */
 export async function initPWA() {
+    // 开发模式下禁用 PWA（Live Server 环境下 Service Worker 路径会有问题）
+    if (window.APP_CONFIG && window.APP_CONFIG.DEV_MODE) {
+        console.log('[PWA] 开发模式：已禁用 PWA 功能');
+        return null;
+    }
+
     // 注册 Service Worker
     const registration = await registerServiceWorker();
 
