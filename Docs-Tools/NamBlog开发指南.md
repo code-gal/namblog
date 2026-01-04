@@ -46,27 +46,32 @@ dotnet run
 
 前端可以复制到后端wwwroot目录，或者独立运行。
 
-#### API 地址配置
-
-支持三种方式配置后端地址（优先级从高到低）：
-1. **构建时环境变量**：`API_BASE_URL`
-2. **运行时配置**：修改 `index.html` 中的 `window.APP_CONFIG.API_BASE_URL`
-3. **自动识别**：localhost/127.0.0.1 默认 `http://localhost:5000`，其他域名使用当前源
-
 #### 开发模式配置
 
-**Live Server 独立运行前端时**，需要在 `NamBlog.Web/index.html` 第 25 行启用开发模式：
+采用**配置覆盖模式**（类似后端 `appsettings.Development.json`）：
 
-```javascript
-window.APP_CONFIG = {
-    DEV_MODE: true,  // 将 false 改为 true
-    API_BASE_URL: ...
-};
+**本地开发（Live Server）**：
+
+```bash
+# 1. 复制示例配置
+cp NamBlog.Web/config.local.example.js NamBlog.Web/config.local.js
+
+# 2. （可选）修改 config.local.js 自定义配置
+# 3. 启动 Live Server
 ```
 
-**部署到生产环境（wwwroot）时**，确保 `DEV_MODE: false`（默认值）。
+`config.local.js` 会覆盖 `index.html` 中的默认配置，且已在 `.gitignore` 中排除，不会提交到仓库。
 
-> ⚠️ **重要**：提交代码到仓库前，务必将 `DEV_MODE` 改回 `false`，避免影响其他开发者和生产部署。
+**生产部署**：
+- 无需任何配置文件
+- 直接使用 `index.html` 中的默认配置（`DEV_MODE: false`）
+- 零配置，自动适配生产环境
+
+#### API 地址配置
+
+支持两种方式配置后端地址：
+1. **本地开发**：在 `config.local.js` 中设置 `API_BASE_URL`
+2. **生产环境**：自动使用当前域名（`window.location.origin`）
 
 ---
 

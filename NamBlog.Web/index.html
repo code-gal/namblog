@@ -17,22 +17,27 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="博客">
 
-    <!-- 前端配置（通过服务器注入或环境变量） -->
+    <!-- 前端配置（默认生产环境配置） -->
     <script>
-        // 全局配置对象，可以在部署时通过服务器注入环境变量
+        // 默认配置（生产环境）
         window.APP_CONFIG = {
-            // 开发模式标记：Live Server 独立运行时设为 true，生产环境默认 false
+            // 开发模式标记：默认 false（生产环境）
             DEV_MODE: false,
 
-            // API基础URL - 本地开发固定为后端端口5000
-            API_BASE_URL: (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-                ? 'http://localhost:5000'
-                : window.location.origin
+            // API 基础 URL：默认使用当前域名
+            API_BASE_URL: window.location.origin
         };
+    </script>
 
+    <!-- 本地开发配置（可选，覆盖默认配置）-->
+    <!-- 开发时复制 config.local.example.js 为 config.local.js 并修改 -->
+    <!-- 必须在 base 标签之前加载，否则路径会解析错误 -->
+    <script src="./config.local.js" onerror="this.remove()"></script>
+
+    <script>
         // 根据开发模式决定是否设置 base 标签
-        // 生产环境：设置 base 标签，使相对路径从根目录解析
-        // 开发环境：不设置 base，路径相对于 index.html 所在目录
+        // 生产环境（DEV_MODE: false）：设置 base 标签，使相对路径从根目录解析
+        // 开发环境（DEV_MODE: true）：不设置 base，路径相对于 index.html 所在目录
         if (!window.APP_CONFIG.DEV_MODE) {
             document.write('<base href="/">');
         }
