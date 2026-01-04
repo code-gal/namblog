@@ -46,7 +46,7 @@ export default {
             }
         };
 
-        // 动态设置favicon
+        // 动态设置favicon和博客名称
         const updateFavicon = async () => {
             try {
                 const query = `
@@ -54,12 +54,14 @@ export default {
                         blog {
                             baseInfo {
                                 icon
+                                blogName
                             }
                         }
                     }
                 `;
                 const data = await request(query);
                 const iconUrl = data?.blog?.baseInfo?.icon;
+                const blogName = data?.blog?.baseInfo?.blogName;
 
                 if (iconUrl) {
                     // 查找或创建 link 元素
@@ -70,6 +72,14 @@ export default {
                         document.head.appendChild(link);
                     }
                     link.href = iconUrl;
+                }
+
+                if (blogName) {
+                    store.setBlogName(blogName);
+                    // 更新页面标题
+                    if (document.title === '加载中...' || document.title === 'NamBlog') {
+                        document.title = blogName;
+                    }
                 }
             } catch (e) {
                 console.error('Failed to load favicon:', e);

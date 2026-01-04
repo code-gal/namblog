@@ -13,6 +13,7 @@ export default {
 
         // Use computed property for reactivity from store
         const isLoggedIn = computed(() => store.isAuthenticated);
+        const blogName = computed(() => store.state.blogName);
         const categories = ref([]);
 
         const fetchCategories = async () => {
@@ -138,6 +139,7 @@ export default {
         };
 
         return {
+            blogName,
             toggleTheme,
             toggleSidebar,
             isSidebarOpen,
@@ -180,7 +182,7 @@ export default {
 
                         <!-- Logo -->
                         <router-link to="/" class="text-2xl font-bold text-primary dark:text-blue-400">
-                            NamBlog
+                            {{ blogName }}
                         </router-link>
                     </div>
 

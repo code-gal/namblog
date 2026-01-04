@@ -82,7 +82,8 @@ export default {
                     htmlContent.value = articleData.mainVersionHtml;
 
                     // 更新页面标题
-                    document.title = articleData.title + ' - NamBlog';
+                    const blogName = store.state.blogName || '博客';
+                    document.title = articleData.title + ' - ' + blogName;
                     store.setContext('article', slug);
 
                     // 渲染内容
@@ -97,7 +98,8 @@ export default {
                         htmlContent.value = defaultContent;
 
                         // 设置页面标题
-                        document.title = (slug === 'about' ? '关于' : '免责声明') + ' - NamBlog';
+                        const blogName = store.state.blogName || '博客';
+                        document.title = (slug === 'about' ? '关于' : '免责声明') + ' - ' + blogName;
                         store.setContext('article', slug);
 
                         // 渲染默认内容
@@ -118,7 +120,8 @@ export default {
                     htmlContent.value = defaultContent;
 
                     // 设置页面标题
-                    document.title = (slug === 'about' ? '关于' : '免责声明') + ' - NamBlog';
+                    const blogName = store.state.blogName || '博客';
+                    document.title = (slug === 'about' ? '关于' : '免责声明') + ' - ' + blogName;
                     store.setContext('article', slug);
 
                     // 渲染默认内容
