@@ -42,10 +42,17 @@ namespace NamBlog.API.Extensions
                 logger.LogInformation("初始化 IChatClient - BaseUrl: {BaseUrl}, Model: {Model}",
                     aiSettings.BaseUrl, aiSettings.Model);
 
+                // 配置超时时间为 10 分钟（生成长文章需要更多时间）
+                var clientOptions = new OpenAIClientOptions 
+                { 
+                    Endpoint = new Uri(aiSettings.BaseUrl),
+                    NetworkTimeout = TimeSpan.FromMinutes(10)
+                };
+
                 return new OpenAI.Chat.ChatClient(
                     model: aiSettings.Model,
                     credential: new System.ClientModel.ApiKeyCredential(aiSettings.ApiKey),
-                    options: new OpenAIClientOptions { Endpoint = new Uri(aiSettings.BaseUrl) })
+                    options: clientOptions)
                 .AsIChatClient();
             });
             //.UseDistributedCache()    // 不用缓存，会导致创建多个一样的html

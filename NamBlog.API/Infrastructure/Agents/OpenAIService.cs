@@ -106,7 +106,7 @@ namespace NamBlog.API.Infrastructure.Agents
         public async Task<Result<string>> RenderMarkdownToHtmlAsync(string markdown, string? customPrompt = null)
         {
             const int MaxRetries = 3;
-            const int TimeoutSeconds = 180;
+            const int TimeoutSeconds = 600; // 10 分钟，生成长文章需要更多时间
 
             // 组装最终提示词
             var systemPrompt = BuildFinalPrompt(customPrompt);
@@ -219,7 +219,7 @@ namespace NamBlog.API.Infrastructure.Agents
             string? customPrompt = null,
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            const int TimeoutSeconds = 180;
+            const int TimeoutSeconds = 600; // 10 分钟，生成长文章需要更多时间
 
             logger.LogInformation("开始流式生成HTML - Markdown长度: {Length}", markdown.Length);
 
