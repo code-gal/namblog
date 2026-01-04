@@ -16,6 +16,7 @@ export default {
         const isSidebarOpen = inject('isSidebarOpen');
         const isMobile = inject('isMobile');
         const closeSidebar = inject('closeSidebar');
+        const openSidebar = inject('openSidebar');
 
         const articles = ref([]);
         const pageInfo = ref(null);
@@ -173,6 +174,7 @@ export default {
             isSidebarOpen,
             isMobile,
             closeSidebar,
+            openSidebar,
             isLoading,
             error,
             handlePageChange

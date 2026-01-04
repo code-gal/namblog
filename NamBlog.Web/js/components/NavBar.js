@@ -16,6 +16,12 @@ export default {
         const blogName = computed(() => store.state.blogName);
         const categories = ref([]);
 
+        // Check if current page is a list page (home, category, tag)
+        const isListPage = computed(() => {
+            const ctx = store.state.context;
+            return ctx.type === 'home' || ctx.type === 'list';
+        });
+
         const fetchCategories = async () => {
             const query = `
                 query GetCategories {
@@ -152,7 +158,8 @@ export default {
             actionButtonConfig,
             categories,
             navigateToCategory,
-            isCategoryActive
+            isCategoryActive,
+            isListPage
         };
     },
     template: `
@@ -162,17 +169,9 @@ export default {
         ]">
             <div class="container mx-auto px-4">
                 <div class="flex justify-between items-center h-16">
-                    <!-- Left Side: Sidebar Toggle & Logo -->
+                    <!-- Left Side: Mobile Menu Button & Logo -->
                     <div class="flex items-center space-x-3">
-                        <!-- Sidebar Toggle Button (Desktop Only) -->
-                        <button @click="toggleSidebar" class="p-2 rounded-md text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none hidden md:block" title="切换侧边栏">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path v-if="isSidebarOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                                <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path>
-                            </svg>
-                        </button>
-
-                        <!-- Mobile Menu Button -->
+                        <!-- Mobile Menu Button (Categories) -->
                         <button @click="toggleMobileMenu" class="p-2 rounded-md text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none md:hidden" title="菜单">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path v-if="!isMobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
@@ -215,6 +214,14 @@ export default {
 
                     <!-- Right Side Actions -->
                     <div class="flex items-center space-x-2">
+                        <!-- Sidebar Toggle Button (List Pages Only, Mobile & Desktop) -->
+                        <button v-if="isListPage" @click="toggleSidebar" class="p-2 rounded-md text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none" :title="isSidebarOpen ? '关闭侧边栏' : '打开侧边栏'">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path v-if="isSidebarOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                            </svg>
+                        </button>
+
                         <!-- Theme Toggle -->
                         <button @click="toggleTheme" class="p-2 rounded-full text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none" title="切换主题">
                             <svg class="w-6 h-6 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>

@@ -59,18 +59,19 @@ export default {
             const deltaY = Math.abs(touchEndY.value - touchStartY.value);
             const screenWidth = window.innerWidth;
 
-            // 从右边缘向左滑动呼出侧边栏（边缘区域：屏幕右侧20px）
+            // 从右边缘向左滑动呼出侧边栏（边缘区域：屏幕右侧80px，扩大触发区域）
+            // 要求水平滑动距离大于垂直滑动距离，避免与垂直滚动冲突
             if (!isSidebarOpen.value &&
-                touchStartX.value > screenWidth - 20 &&
+                touchStartX.value > screenWidth - 80 &&
                 deltaX < -50 &&
-                deltaY < 50) {
+                Math.abs(deltaX) > deltaY) {
                 openSidebar();
             }
 
             // 在侧边栏打开时向右滑动关闭（滑动距离超过50px）
             if (isSidebarOpen.value &&
                 deltaX > 50 &&
-                deltaY < 50) {
+                Math.abs(deltaX) > deltaY) {
                 closeSidebar();
             }
 
