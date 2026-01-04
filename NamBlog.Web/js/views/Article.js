@@ -331,9 +331,10 @@ export default {
                         position: fixed;
                         top: 0;
                         right: 0;
-                        width: 80px;
-                        height: 80px;
+                        width: 40px;
+                        height: 40px;
                         z-index: 99998;
+                        cursor: pointer;
                     }
 
                     /* 折叠指示器 */
@@ -728,16 +729,8 @@ export default {
                 isOpen = false;
             };
 
-            // 桌面端：鼠标进入触发区域打开
-            navTrigger.addEventListener('mouseenter', openPanel);
-            navPanel.addEventListener('mouseleave', (e) => {
-                // 检查是否移动到面板外部
-                const rect = navPanel.getBoundingClientRect();
-                if (e.clientX < rect.left || e.clientX > rect.right ||
-                    e.clientY < rect.top || e.clientY > rect.bottom) {
-                    closePanel();
-                }
-            });
+            // 点击触发区域打开（移除了鼠标悬停触发避免误触发）
+            navTrigger.addEventListener('click', openPanel);
 
             // 点击指示器打开
             navIndicator.addEventListener('click', openPanel);
