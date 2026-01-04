@@ -58,7 +58,7 @@ export const editorTemplate = `
                             版本:
                         </label>
                         <select v-model="selectedVersion" @change="handleVersionChange"
-                                class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 dark:text-white transition-all focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm hover:shadow-md">
+                                class="w-48 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white transition-all focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm hover:shadow-md">
                             <option v-for="v in versions" :key="v.versionName" :value="v.versionName">
                                 {{ v.versionName }}
                             </option>
