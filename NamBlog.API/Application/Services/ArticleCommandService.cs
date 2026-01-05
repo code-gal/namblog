@@ -99,29 +99,29 @@ namespace NamBlog.API.Application.Services
                     excerpt: metadata.Excerpt,
                     tags: postTags);
 
-                // 7. 设置精选状态
-                if (command.IsFeatured == true)
-                {
-                    post.Feature();
-                }
-
-                // 8. 保存 Markdown 文件
+                // 7. 保存 Markdown 文件
                 await _fileService.SaveMarkdownAsync("", metadata.Slug, command.Markdown);
 
-                // 9. 持久化文章（获取 PostId）
+                // 8. 持久化文章（获取 PostId）
                 await _postRepository.AddAsync(post);
                 await _unitOfWork.SaveChangesAsync();
 
-                // 10. 创建版本
+                // 9. 创建版本
                 var version = post.SubmitNewVersion(aiPrompt: command.CustomPrompt);
 
-                // 11. 保存 HTML 文件
+                // 10. 保存 HTML 文件
                 await _fileService.SaveHtmlAsync("", metadata.Slug, version.VersionName, htmlResult.Value!);
 
-                // 12. 设置发布状态（必须在创建版本之后）
+                // 11. 设置发布状态（必须在创建版本之后）
                 if (command.IsPublished == true)
                 {
                     post.Publish(version);
+                }
+
+                // 12. 设置精选状态（必须在创建版本之后）
+                if (command.IsFeatured == true)
+                {
+                    post.Feature();
                 }
 
                 // 13. 保存版本和发布状态
@@ -322,26 +322,26 @@ namespace NamBlog.API.Application.Services
                     excerpt: metadata.Excerpt,
                     tags: postTags);
 
-                // 7. 应用精选状态
-                if (command.IsFeatured.GetValueOrDefault())
-                    post.Feature();
-
-                // 8. 保存Markdown文件
+                // 7. 保存Markdown文件
                 await _fileService.SaveMarkdownAsync(post.FilePath, post.FileName, command.Markdown);
 
-                // 9. 第一次持久化：保存Post（不包含版本，避免循环依赖）
+                // 8. 第一次持久化：保存Post（不包含版本，避免循环依赖）
                 await _postRepository.AddAsync(post);
                 await _unitOfWork.SaveChangesAsync();
 
-                // 10. 创建版本（此时Post.PostId已生成）
+                // 9. 创建版本（此时Post.PostId已生成）
                 var version = post.SubmitNewVersion(aiPrompt: command.CustomPrompt);
 
-                // 11. 保存HTML文件
+                // 10. 保存HTML文件
                 await _fileService.SaveHtmlAsync(post.FilePath, post.FileName, version.VersionName, htmlContent);
 
-                // 12. 应用发布状态
+                // 11. 应用发布状态
                 if (command.IsPublished.GetValueOrDefault())
                     post.Publish(version);
+
+                // 12. 应用精选状态（必须在版本创建之后）
+                if (command.IsFeatured.GetValueOrDefault())
+                    post.Feature();
 
                 // 13. 第二次持久化：保存版本和MainVersion关联
                 _postRepository.Update(post);
@@ -421,22 +421,13 @@ namespace NamBlog.API.Application.Services
                     _logger.LogInformation("文章元数据已更新 - Id: {Id}, Slug: {Slug}", command.Id, post.Slug);
                 }
 
-                // 6. 更新精选状态
-                if (command.IsFeatured.HasValue)
-                {
-                    if (command.IsFeatured.Value)
-                        post.Feature();
-                    else
-                        post.Unfeature();
-                }
-
-                // 7. 创建新版本
+                // 6. 创建新版本
                 var version = post.SubmitNewVersion(aiPrompt: command.CustomPrompt);
 
-                // 8. 保存 HTML
+                // 7. 保存 HTML
                 await _fileService.SaveHtmlAsync(post.FilePath, post.FileName, version.VersionName, htmlContent);
 
-                // 9. 更新发布状态
+                // 8. 更新发布状态
                 if (command.IsPublished.HasValue)
                 {
                     if (command.IsPublished.Value)
@@ -444,7 +435,14 @@ namespace NamBlog.API.Application.Services
                     else
                         post.Unpublish();
                 }
-
+                // 9. 更新精选状态（必须在版本创建之后）
+                if (command.IsFeatured.HasValue)
+                {
+                    if (command.IsFeatured.Value)
+                        post.Feature();
+                    else
+                        post.Unfeature();
+                }
                 // 10. 持久化
                 _postRepository.Update(post);
                 await _unitOfWork.SaveChangesAsync();

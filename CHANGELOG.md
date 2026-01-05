@@ -10,6 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Planned
 - i18n
 
+## [0.8.4] - 2026-01-05
+
+### Fixed
+- 🐛 修复文章提交时因精选状态设置时机错误导致的"post has no versions"异常
+- 🐛 修正 SaveArticleAsync 和 SubmitArticleAsync 中精选/发布状态的业务流程顺序
+- 🐛 修正 FileWatcherService 中自动发布功能的执行顺序
+- 🔧 统一所有场景下的版本创建和状态设置流程：创建文章 → 创建版本 → 设置状态 → 持久化
+
+### Technical
+- 确保所有领域规则得到正确执行（Feature/Publish 必须在版本创建后调用）
+- 消除可能导致前端收到 HTML 错误页面而非 JSON 响应的异常场景
+
 ## [0.8.3] - 2026-01-05
 
 ### Changed

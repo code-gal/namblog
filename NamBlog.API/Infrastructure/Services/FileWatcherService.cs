@@ -307,16 +307,17 @@ namespace NamBlog.API.Infrastructure.Services
                 // 10. 保存 HTML 文件
                 await fileService.SaveHtmlAsync(filePath, fileName, version.VersionName, html);
 
-                // 11. 根据配置决定是否自动发布
+                // 11. 第二次保存：先保存版本到数据库
+                context.Posts.Update(post);
+                await context.SaveChangesAsync();
+
+                // 12. 根据配置决定是否自动发布（必须在版本保存后）
                 if (_fileWatcherSettings.AutoPublish)
                 {
                     post.Publish();
+                    await context.SaveChangesAsync();
                     logger.LogInformation("MD监控 - 创建-文章已自动发布（配置项 AutoPublish=true）");
                 }
-
-                // 12. 第二次保存：保存版本和MainVersion关联
-                context.Posts.Update(post);
-                await context.SaveChangesAsync();
 
                 logger.LogInformation(
                     "MD监控 - 创建-自动创建文章成功 - 标题: {Title}, Slug: {Slug}, PostId: {PostId}, 已发布: {Published}",
