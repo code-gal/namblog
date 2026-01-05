@@ -75,11 +75,6 @@ if ($tagExists) {
     exit 1
 }
 
-# 更新 VERSION 文件
-Write-Host "更新 VERSION 文件..." -ForegroundColor Yellow
-Set-Content -Path "VERSION" -Value $Version
-git add VERSION
-
 # 更新 .csproj 文件中的版本号
 Write-Host "更新 .csproj 版本号..." -ForegroundColor Yellow
 $csprojPath = "NamBlog.API\NamBlog.API.csproj"
@@ -111,7 +106,7 @@ if ($changelogUpdated -ne "y" -and $changelogUpdated -ne "Y") {
 Write-Host "提交版本更新..." -ForegroundColor Yellow
 try {
     git commit -m "chore: bump version to $Version"
-    git push origin $currentBranch
+    git push github $currentBranch
 } catch {
     Write-Host "⚠️  提交可能已存在，继续..." -ForegroundColor Yellow
 }
@@ -122,7 +117,7 @@ git tag -a "v$Version" -m $Message
 
 # 推送标签
 Write-Host "推送标签到远程仓库..." -ForegroundColor Yellow
-git push origin "v$Version"
+git push github "v$Version"
 
 Write-Host ""
 Write-Host "✅ 发布成功!" -ForegroundColor Green

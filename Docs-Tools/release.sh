@@ -80,11 +80,6 @@ if git rev-parse "v${VERSION}" >/dev/null 2>&1; then
     exit 1
 fi
 
-# 更新 VERSION 文件
-echo -e "${YELLOW}更新 VERSION 文件...${NC}"
-echo "${VERSION}" > VERSION
-git add VERSION
-
 # 更新 .csproj 文件中的版本号
 echo -e "${YELLOW}更新 .csproj 版本号...${NC}"
 CSPROJ_PATH="NamBlog.API/NamBlog.API.csproj"
@@ -116,7 +111,7 @@ fi
 # 提交更改
 echo -e "${YELLOW}提交版本更新...${NC}"
 git commit -m "chore: bump version to ${VERSION}" || true
-git push origin $CURRENT_BRANCH
+git push github $CURRENT_BRANCH
 
 # 创建标签
 echo -e "${YELLOW}创建标签 v${VERSION}...${NC}"
@@ -124,7 +119,7 @@ git tag -a "v${VERSION}" -m "${MESSAGE}"
 
 # 推送标签
 echo -e "${YELLOW}推送标签到远程仓库...${NC}"
-git push origin "v${VERSION}"
+git push github "v${VERSION}"
 
 echo ""
 echo -e "${GREEN}✅ 发布成功!${NC}"
@@ -136,6 +131,6 @@ echo "  2. 构建 Docker 镜像"
 echo "  3. 推送到 GitHub Container Registry"
 echo ""
 echo "查看进度:"
-echo "  Actions: https://github.com/$(git config --get remote.origin.url | sed 's/.*github.com[:/]\(.*\)\.git/\1/')/actions"
-echo "  Releases: https://github.com/$(git config --get remote.origin.url | sed 's/.*github.com[:/]\(.*\)\.git/\1/')/releases"
+echo "  Actions: https://github.com/$(git config --get remote.github.url | sed 's/.*github.com[:/]\(.*\)\.git/\1/')/actions"
+echo "  Releases: https://github.com/$(git config --get remote.github.url | sed 's/.*github.com[:/]\(.*\)\.git/\1/')/releases"
 echo ""

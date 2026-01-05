@@ -29,25 +29,47 @@ jobs:
       - name: Generate Release Notes
         id: release_notes
         run: |
+          VERSION=${{ steps.get_version.outputs.VERSION }}
+
+          # 从 CHANGELOG.md 提取中文版本说明
+          if [ -f "CHANGELOG.md" ]; then
+            # 提取当前版本的中文内容
+            CHANGELOG_CN=$(sed -n "/## \[$VERSION\]/,/## \[/p" CHANGELOG.md | sed '$d' | tail -n +2)
+          else
+            CHANGELOG_CN=""
+          fi
+
           # 获取上一个标签
           PREV_TAG=$(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1) 2>/dev/null || echo "")
 
-          # 生成变更日志
+          # 生成英文变更日志（从 git commit）
           if [ -z "$PREV_TAG" ]; then
-            CHANGELOG=$(git log --pretty=format:"- %s (%h)" --no-merges)
+            CHANGELOG_EN=$(git log --pretty=format:"- %s (%h)" --no-merges)
           else
-            CHANGELOG=$(git log ${PREV_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges)
+            CHANGELOG_EN=$(git log ${PREV_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges)
           fi
 
-          # 将变更日志保存到文件
-          echo "## 🚀 What's Changed" > release_notes.md
+          # 生成 Release Notes（中文优先，英文在后）
+          if [ -n "$CHANGELOG_CN" ]; then
+            echo "## 📝 更新说明 / Release Notes" > release_notes.md
+            echo "" >> release_notes.md
+            echo "$CHANGELOG_CN" >> release_notes.md
+            echo "" >> release_notes.md
+            echo "---" >> release_notes.md
+            echo "" >> release_notes.md
+          else
+            echo "## 📝 Release Notes" > release_notes.md
+            echo "" >> release_notes.md
+          fi
+
+          echo "## 🚀 What's Changed (Auto-generated)" >> release_notes.md
           echo "" >> release_notes.md
-          echo "$CHANGELOG" >> release_notes.md
+          echo "$CHANGELOG_EN" >> release_notes.md
           echo "" >> release_notes.md
           echo "## 📦 Docker Image" >> release_notes.md
           echo "" >> release_notes.md
           echo '```bash' >> release_notes.md
-          echo "docker pull ghcr.io/${{ github.repository }}:${{ steps.get_version.outputs.VERSION }}" >> release_notes.md
+          echo "docker pull ghcr.io/${{ github.repository }}:$VERSION" >> release_notes.md
           echo "# 或使用 latest 标签" >> release_notes.md
           echo "docker pull ghcr.io/${{ github.repository }}:latest" >> release_notes.md
           echo '```' >> release_notes.md

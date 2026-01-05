@@ -10,6 +10,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Planned
 - i18n
 
+## [0.8.3] - 2026-01-05
+
+### Changed
+- 🔧 改进发布工作流，GitHub Release 现在同时显示中文和英文说明
+- 🔧 修复发布脚本使用正确的 Git 远程仓库名称（`github` 而非 `origin`）
+- 🔧 移除 VERSION 文件，版本信息统一由 Git tags 和 .csproj 管理
+- 📝 重构发布指南文档，详细说明自动化脚本的 10 项功能
+- 🔧 恢复 .csproj 中的完整版本号配置（AssemblyVersion、FileVersion、InformationalVersion）
+
+### Technical
+- Release Notes 现在从 CHANGELOG.md 提取中文内容，从 git commit 生成英文内容
+- 发布脚本自动化：检查状态、更新版本号、提交推送、创建标签
+- 双语 Release Notes 支持 Atom/RSS 订阅
+
 ## [0.8.2] - 2026-01-05
 
 ### Added
