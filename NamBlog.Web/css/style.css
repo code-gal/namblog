@@ -39,6 +39,50 @@ html::-webkit-scrollbar-thumb:hover {
     background: #64748b;
 }
 
+/* 编辑器专用滚动条样式 - 用于prompt列表、textarea等 */
+.editor-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.editor-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 3px;
+}
+
+.editor-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.6);
+    border-radius: 3px;
+    transition: background 0.2s;
+}
+
+.editor-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(107, 114, 128, 0.8);
+}
+
+/* 暗色模式下的编辑器滚动条 */
+.dark .editor-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.dark .editor-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.7);
+}
+
+.dark .editor-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.9);
+}
+
+/* Firefox滚动条样式 */
+.editor-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(156, 163, 175, 0.6) transparent;
+}
+
+.dark .editor-scrollbar {
+    scrollbar-color: rgba(100, 116, 139, 0.7) transparent;
+}
+
 /* EasyMDE Customization */
 /* 核心：让EasyMDE在flex容器中正确工作 */
 .EasyMDEContainer {
@@ -68,6 +112,95 @@ html::-webkit-scrollbar-thumb:hover {
 .EasyMDEContainer .CodeMirror-scroll {
     height: 100% !important;
     min-height: 0;
+}
+
+/* CodeMirror滚动条容器 - 深色模式下的背景色 */
+.CodeMirror-vscrollbar,
+.CodeMirror-hscrollbar {
+    background: transparent !important;
+}
+
+.CodeMirror-scrollbar-filler,
+.CodeMirror-gutter-filler {
+    background: transparent !important;
+}
+
+/* CodeMirror滚动条样式 - 使用更高优先级的选择器 */
+.EasyMDEContainer .CodeMirror-scroll::-webkit-scrollbar,
+.EasyMDEContainer .CodeMirror-vscrollbar::-webkit-scrollbar,
+.EasyMDEContainer .CodeMirror-hscrollbar::-webkit-scrollbar,
+.CodeMirror-scroll::-webkit-scrollbar,
+.CodeMirror-vscrollbar::-webkit-scrollbar,
+.CodeMirror-hscrollbar::-webkit-scrollbar {
+    width: 6px !important;
+    height: 6px !important;
+}
+
+.EasyMDEContainer .CodeMirror-scroll::-webkit-scrollbar-track,
+.EasyMDEContainer .CodeMirror-vscrollbar::-webkit-scrollbar-track,
+.EasyMDEContainer .CodeMirror-hscrollbar::-webkit-scrollbar-track,
+.CodeMirror-scroll::-webkit-scrollbar-track,
+.CodeMirror-vscrollbar::-webkit-scrollbar-track,
+.CodeMirror-hscrollbar::-webkit-scrollbar-track {
+    background: transparent !important;
+    border-radius: 3px;
+}
+
+.EasyMDEContainer .CodeMirror-scroll::-webkit-scrollbar-thumb,
+.EasyMDEContainer .CodeMirror-vscrollbar::-webkit-scrollbar-thumb,
+.EasyMDEContainer .CodeMirror-hscrollbar::-webkit-scrollbar-thumb,
+.CodeMirror-scroll::-webkit-scrollbar-thumb,
+.CodeMirror-vscrollbar::-webkit-scrollbar-thumb,
+.CodeMirror-hscrollbar::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.6) !important;
+    border-radius: 3px;
+}
+
+.EasyMDEContainer .CodeMirror-scroll::-webkit-scrollbar-thumb:hover,
+.EasyMDEContainer .CodeMirror-vscrollbar::-webkit-scrollbar-thumb:hover,
+.EasyMDEContainer .CodeMirror-hscrollbar::-webkit-scrollbar-thumb:hover,
+.CodeMirror-scroll::-webkit-scrollbar-thumb:hover,
+.CodeMirror-vscrollbar::-webkit-scrollbar-thumb:hover,
+.CodeMirror-hscrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(107, 114, 128, 0.8) !important;
+}
+
+/* 深色模式下的CodeMirror滚动条 */
+.dark .EasyMDEContainer .CodeMirror-scroll::-webkit-scrollbar-track,
+.dark .EasyMDEContainer .CodeMirror-vscrollbar::-webkit-scrollbar-track,
+.dark .EasyMDEContainer .CodeMirror-hscrollbar::-webkit-scrollbar-track,
+.dark .CodeMirror-scroll::-webkit-scrollbar-track,
+.dark .CodeMirror-vscrollbar::-webkit-scrollbar-track,
+.dark .CodeMirror-hscrollbar::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+
+.dark .EasyMDEContainer .CodeMirror-scroll::-webkit-scrollbar-thumb,
+.dark .EasyMDEContainer .CodeMirror-vscrollbar::-webkit-scrollbar-thumb,
+.dark .EasyMDEContainer .CodeMirror-hscrollbar::-webkit-scrollbar-thumb,
+.dark .CodeMirror-scroll::-webkit-scrollbar-thumb,
+.dark .CodeMirror-vscrollbar::-webkit-scrollbar-thumb,
+.dark .CodeMirror-hscrollbar::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.7) !important;
+}
+
+.dark .EasyMDEContainer .CodeMirror-scroll::-webkit-scrollbar-thumb:hover,
+.dark .EasyMDEContainer .CodeMirror-vscrollbar::-webkit-scrollbar-thumb:hover,
+.dark .EasyMDEContainer .CodeMirror-hscrollbar::-webkit-scrollbar-thumb:hover,
+.dark .CodeMirror-scroll::-webkit-scrollbar-thumb:hover,
+.dark .CodeMirror-vscrollbar::-webkit-scrollbar-thumb:hover,
+.dark .CodeMirror-hscrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(203, 213, 225, 0.9) !important;
+}
+
+/* CodeMirror滚动条角落 */
+.EasyMDEContainer .CodeMirror-scroll::-webkit-scrollbar-corner,
+.EasyMDEContainer .CodeMirror-vscrollbar::-webkit-scrollbar-corner,
+.EasyMDEContainer .CodeMirror-hscrollbar::-webkit-scrollbar-corner,
+.CodeMirror-scroll::-webkit-scrollbar-corner,
+.CodeMirror-vscrollbar::-webkit-scrollbar-corner,
+.CodeMirror-hscrollbar::-webkit-scrollbar-corner {
+    background: transparent !important;
 }
 
 /* 状态栏固定在底部 */

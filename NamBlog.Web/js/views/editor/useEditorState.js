@@ -42,6 +42,7 @@ export function useEditorState() {
     const customPromptRows = ref(8); // 自定义prompt展开时的行数
     const promptListRef = ref(null); // prompt列表引用
     const customPromptRef = ref(null); // 自定义prompt块引用
+    const historyPromptRefs = ref([]); // 历史prompt块引用数组
 
     // 清除草稿确认
     const clearDraftConfirm = ref(false); // 清除草稿确认状态
@@ -104,6 +105,7 @@ export function useEditorState() {
         customPromptRows,
         promptListRef,
         customPromptRef,
+        historyPromptRefs,
 
         // 清除草稿
         clearDraftConfirm,

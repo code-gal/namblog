@@ -38,12 +38,20 @@ export default {
                 state.isHtmlCollapsed.value = true; // 移动端默认折叠HTML
             }
 
-            // 添加点击外部折叠自定义prompt的监听
+            // 添加点击外部折叠prompt的监听（包括自定义块和历史块）
             const handleClickOutside = (event) => {
+                // 检查自定义提示词块
                 if (state.isCustomPromptExpanded.value && state.customPromptRef.value) {
-                    // 检查点击是否在自定义提示词块外部
                     if (!state.customPromptRef.value.contains(event.target)) {
                         state.isCustomPromptExpanded.value = false;
+                    }
+                }
+
+                // 检查历史提示词块
+                if (state.expandedPromptIndex.value >= 0 && state.promptListRef.value) {
+                    // 检查点击是否在prompt列表容器外部
+                    if (!state.promptListRef.value.contains(event.target)) {
+                        state.expandedPromptIndex.value = -1;
                     }
                 }
             };
@@ -230,6 +238,43 @@ export default {
             let html = state.htmlContent.value;
             if (!html) return '';
 
+            // 注入滚动条样式（支持深色/浅色模式）
+            const scrollbarStyle = `
+<style>
+/* 滚动条样式 - 浅色模式 */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.6);
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(107, 114, 128, 0.8);
+}
+/* 滚动条样式 - 深色模式 */
+.dark ::-webkit-scrollbar-thumb,
+html.dark ::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.7);
+}
+.dark ::-webkit-scrollbar-thumb:hover,
+html.dark ::-webkit-scrollbar-thumb:hover {
+    background: rgba(203, 213, 225, 0.9);
+}
+/* Firefox */
+html {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(156, 163, 175, 0.6) transparent;
+}
+html.dark {
+    scrollbar-color: rgba(148, 163, 184, 0.7) transparent;
+}
+</style>`;
+
             // 注入错误监听脚本（必须在HTML最前面，确保能捕获所有错误）
             const errorListener = `
 <script>
@@ -278,13 +323,16 @@ export default {
 })();
 </script>`;
 
-            // 在HTML最前面注入监听脚本（优先级最高）
+            // 组合注入内容
+            const injectedContent = scrollbarStyle + errorListener;
+
+            // 在HTML最前面注入内容（优先级最高）
             if (html.includes('<head>')) {
-                html = html.replace('<head>', '<head>' + errorListener);
+                html = html.replace('<head>', '<head>' + injectedContent);
             } else if (html.includes('<html>')) {
-                html = html.replace('<html>', '<html>' + errorListener);
+                html = html.replace('<html>', '<html>' + injectedContent);
             } else {
-                html = errorListener + html;
+                html = injectedContent + html;
             }
 
             // 如果当前是夜间模式，注入dark类到<html>标签（仅用于预览，不影响原始HTML）
@@ -407,6 +455,7 @@ export default {
         const selectHistoryPrompt = (index) => promptHelpers.selectHistoryPrompt(index, state);
         const selectCustomPrompt = () => promptHelpers.selectCustomPrompt(state);
         const toggleCustomPromptExpand = () => promptHelpers.toggleCustomPromptExpand(state);
+        const toggleHistoryPromptExpand = (index) => promptHelpers.toggleHistoryPromptExpand(index, state);
         const handleCustomPromptClick = () => promptHelpers.handleCustomPromptClick(state);
         const scrollToCustomPrompt = () => promptHelpers.scrollToCustomPrompt(state);
         const copyPrompt = (prompt) => promptHelpers.copyPrompt(prompt);
@@ -442,6 +491,7 @@ export default {
             selectHistoryPrompt,
             selectCustomPrompt,
             toggleCustomPromptExpand,
+            toggleHistoryPromptExpand,
             handleCustomPromptClick,
             scrollToCustomPrompt,
             copyPrompt

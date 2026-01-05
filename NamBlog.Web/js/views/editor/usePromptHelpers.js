@@ -30,8 +30,32 @@ export function toggleCustomPromptExpand(state) {
     state.isCustomPromptExpanded.value = !state.isCustomPromptExpanded.value;
     if (state.isCustomPromptExpanded.value) {
         selectCustomPrompt(state);
+        // 展开自定义块时，自动收缩历史块
+        if (state.expandedPromptIndex.value >= 0) {
+            state.expandedPromptIndex.value = -1;
+        }
         // 展开时自动滚动到最右边
         scrollToCustomPrompt(state);
+    }
+}
+
+/**
+ * 切换历史Prompt展开状态
+ * @param {number} index - 反转后数组的索引
+ */
+export function toggleHistoryPromptExpand(index, state) {
+    const currentExpandedIndex = state.expandedPromptIndex.value;
+    const targetIndex = state.form.value.aiPrompts.length - 1 - index;
+
+    // 如果点击的是当前展开的块，则收缩；否则展开新的块
+    if (currentExpandedIndex === targetIndex) {
+        state.expandedPromptIndex.value = -1;
+    } else {
+        state.expandedPromptIndex.value = targetIndex;
+        // 展开历史块时，自动收缩自定义块
+        if (state.isCustomPromptExpanded.value) {
+            state.isCustomPromptExpanded.value = false;
+        }
     }
 }
 

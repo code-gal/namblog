@@ -131,38 +131,47 @@ export const editorTemplate = `
             </div>
 
             <!-- 单行横向滚动列表（始终不换行，只横向滚动） -->
-            <div class="flex gap-3 pb-2 overflow-x-auto" ref="promptListRef">
+            <div class="flex items-start gap-3 pb-2 overflow-x-auto editor-scrollbar" ref="promptListRef">
                 <!-- 历史Prompt卡片 -->
                 <div v-for="(prompt, index) in form.aiPrompts.slice().reverse()" :key="index"
                      @click="selectHistoryPrompt(index)"
-                     :class="['relative flex-shrink-0 w-48 p-3 border-2 rounded-xl cursor-pointer transition-all shadow-md hover:shadow-lg',
-                              selectedPromptIndex === (form.aiPrompts.length - 1 - index) ? 'border-blue-400 dark:border-blue-500 bg-blue-50 dark:bg-blue-900/30' : 'border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 bg-white dark:bg-gray-800 hover:-translate-y-1']">
+                     :class="['relative p-3 border-2 rounded-xl cursor-pointer transition-all shadow-md hover:shadow-lg',
+                              expandedPromptIndex === (form.aiPrompts.length - 1 - index) ? 'flex-shrink-0' : 'flex-shrink-0 w-48',
+                              selectedPromptIndex === (form.aiPrompts.length - 1 - index) ? 'border-blue-400 dark:border-blue-500 bg-blue-50 dark:bg-blue-900/30' : 'border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 bg-white dark:bg-gray-800 hover:-translate-y-1']"
+                     :style="expandedPromptIndex === (form.aiPrompts.length - 1 - index) ? 'width: fit-content; max-width: calc(100% - 4rem);' : ''">
                     <!-- 箭头头部 -->
                     <div class="absolute -right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 rotate-45 transition-all"
                          :class="selectedPromptIndex === (form.aiPrompts.length - 1 - index) ? 'bg-blue-50 dark:bg-blue-900/30 border-r border-t border-blue-400 dark:border-blue-500' : 'bg-gray-300 dark:bg-gray-600'"></div>
 
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-xs font-semibold" :class="selectedPromptIndex === (form.aiPrompts.length - 1 - index) ? 'text-blue-700 dark:text-blue-300' : 'text-gray-600 dark:text-gray-400'">
-                            #{{ index + 1 }}
-                            <span v-if="selectedPromptIndex === (form.aiPrompts.length - 1 - index)" class="ml-1 px-2 py-0.5 bg-blue-200 dark:bg-blue-800 rounded-full">(使用中)</span>
-                        </span>
-                        <div class="flex gap-1">
+                    <div class="flex justify-between items-center mb-2" @click.stop="toggleHistoryPromptExpand(index)">
+                        <div class="flex items-center gap-2 cursor-pointer">
+                            <span class="text-xs font-semibold" :class="selectedPromptIndex === (form.aiPrompts.length - 1 - index) ? 'text-blue-700 dark:text-blue-300' : 'text-gray-600 dark:text-gray-400'">
+                                #{{ index + 1 }}
+                            </span>
+                            <span v-if="selectedPromptIndex === (form.aiPrompts.length - 1 - index)" class="text-xs px-2 py-0.5 bg-blue-200 dark:bg-blue-800 rounded-full">使用中</span>
+                        </div>
+                        <div class="flex gap-1 items-center">
                             <button @click.stop="copyPrompt(prompt)"
                                     :class="['transition-transform hover:scale-110', selectedPromptIndex === (form.aiPrompts.length - 1 - index) ? 'text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300' : 'text-blue-500 hover:text-blue-700']"
                                     title="复制">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                             </button>
+                            <!-- 展开/收缩图标 - 只有当内容需要展开时才显示 -->
+                            <button v-if="prompt && prompt.length > 50"
+                                    :class="['transition-transform hover:scale-110', selectedPromptIndex === (form.aiPrompts.length - 1 - index) ? 'text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300' : 'text-blue-500 hover:text-blue-700']">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path v-if="expandedPromptIndex !== (form.aiPrompts.length - 1 - index)" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                                </svg>
+                            </button>
                         </div>
                     </div>
 
-                    <div class="text-sm overflow-hidden" :class="expandedPromptIndex === (form.aiPrompts.length - 1 - index) ? '' : 'line-clamp-2'" style="word-break: break-all;">
+                    <div class="text-sm editor-scrollbar"
+                         :class="expandedPromptIndex === (form.aiPrompts.length - 1 - index) ? 'overflow-y-auto' : 'overflow-hidden line-clamp-3'"
+                         :style="expandedPromptIndex === (form.aiPrompts.length - 1 - index) ? 'word-break: break-word; white-space: pre-wrap; max-height: 300px;' : 'word-break: break-all;'">
                         <span :class="selectedPromptIndex === (form.aiPrompts.length - 1 - index) ? 'text-gray-700 dark:text-gray-300' : 'text-gray-700 dark:text-gray-300'">{{ prompt || '(默认提示词)' }}</span>
                     </div>
-                    <button v-if="prompt && prompt.length > 25"
-                            @click.stop="expandedPromptIndex = expandedPromptIndex === (form.aiPrompts.length - 1 - index) ? -1 : (form.aiPrompts.length - 1 - index)"
-                            :class="['text-xs hover:underline mt-1 transition-colors', selectedPromptIndex === (form.aiPrompts.length - 1 - index) ? 'text-blue-600 dark:text-blue-400' : 'text-blue-500 hover:text-blue-700']">
-                        {{ expandedPromptIndex === (form.aiPrompts.length - 1 - index) ? '收起 ▲' : '展开 ▼' }}
-                    </button>
                 </div>
 
                 <!-- 自定义Prompt块 - 在列表末尾 -->
@@ -194,9 +203,8 @@ export const editorTemplate = `
                                   placeholder="输入自定义 AI Prompt（留空使用默认）"
                                   @click.stop
                                   @focus="selectCustomPrompt"
-                                  class="w-full p-3 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none resize-none shadow-inner"
-                                  style="word-break: break-word; white-space: pre-wrap;"
-                                  :rows="customPromptRows"></textarea>
+                                  class="w-full p-3 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none resize-none shadow-inner editor-scrollbar"
+                                  style="word-break: break-word; white-space: pre-wrap; height: 300px;"></textarea>
                         <!-- 全屏编辑按钮 -->
                         <button @click.stop="isFullscreenPromptEditor = true"
                                 class="absolute bottom-2 right-2 p-1.5 text-gray-400 hover:text-green-600 dark:hover:text-green-400 transition-colors opacity-50 hover:opacity-100"
@@ -206,7 +214,7 @@ export const editorTemplate = `
                             </svg>
                         </button>
                     </div>
-                    <div v-else class="text-sm line-clamp-2 overflow-hidden"
+                    <div v-else class="text-sm line-clamp-3 overflow-hidden"
                          :class="selectedPromptIndex === -1 ? 'text-gray-700 dark:text-gray-300' : 'text-gray-500 dark:text-gray-400'"
                          style="word-break: break-all;" @click="handleCustomPromptClick">
                         {{ form.customPrompt || '(留空使用默认提示词)' }}
@@ -267,7 +275,7 @@ export const editorTemplate = `
                         </button>
                     </div>
                 </div>
-                <div class="flex-1 relative overflow-auto bg-white dark:bg-gray-900">
+                <div class="flex-1 relative overflow-hidden bg-white dark:bg-gray-900">
                     <!-- 生成进度条 -->
                     <div v-if="isGenerating" class="absolute top-0 left-0 right-0 z-10">
                         <div class="bg-gradient-to-r from-blue-500 to-purple-600 h-1.5 transition-all duration-300 shadow-lg" :style="{width: generationProgress + '%'}"></div>
