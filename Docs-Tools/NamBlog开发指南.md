@@ -36,9 +36,9 @@ dotnet run
 
 访问：
 - http://localhost:5000/graphiql
-- https://localhost:5001/ui/graphiql
-- https://localhost:5001/ui/altair
-- https://localhost:5001/ui/voyager
+- http://localhost:5000/ui/graphiql
+- http://localhost:5000/ui/altair
+- http://localhost:5000/ui/voyager
 
 默认管理员账号：`admin` / `admin123`
 

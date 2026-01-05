@@ -61,8 +61,10 @@
         "SVG": "/resources/icon/email.svg"
       }
     ],
+    "AnalyticsScript": "<script async defer data-website-id=\"your-website-id\" src=\"https://analytics.yourdomain.com/script.js\"></script>",
     "_tip1": "Icon/Avatar/SVG 路径使用 /resources/ 开头（对应 data/resources/ 目录）",
-    "_tip2": "OuterChains 是博客外链列表，可以添加 Twitter、微博、知乎等社交媒体链接"
+    "_tip2": "OuterChains 是博客外链列表，可以添加 Twitter、微博、知乎等社交媒体链接",
+    "_tip3": "AnalyticsScript 用于嵌入网站统计脚本（如 Umami、Google Analytics 等），支持热重载。留空则不加载统计功能"
   },
   "Cors": {
     "_comment": "【跨域配置】如果前端跨域部署，请添加你的前端域名，多个域名用逗号分隔",

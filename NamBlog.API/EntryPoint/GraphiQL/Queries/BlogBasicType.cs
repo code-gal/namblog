@@ -60,6 +60,10 @@ namespace NamBlog.API.EntryPoint.GraphiQL.Queries
                     return outerChains;
                 });
 
+            Field<StringGraphType>("analyticsScript")
+                .Description("网站统计脚本（如 Umami、Google Analytics 等）")
+                .Resolve(ctx => ctx.Source.AnalyticsScript);
+
             #region 废弃
             // ============================================================
             // 方案 B: 使用 context.RequestServices (如果父字段没有传递 Source)

@@ -15,6 +15,7 @@ export default {
                         blog {
                             baseInfo {
                                 blogName
+                                analyticsScript
                             }
                         }
                     }
@@ -23,9 +24,44 @@ export default {
                 if (data?.blog?.baseInfo?.blogName) {
                     blogName.value = data.blog.baseInfo.blogName;
                 }
+
+                // 动态注入统计脚本
+                if (data?.blog?.baseInfo?.analyticsScript) {
+                    injectAnalyticsScript(data.blog.baseInfo.analyticsScript);
+                }
             } catch (error) {
                 console.warn('Failed to fetch blog info, using default name:', error);
                 // 失败时保持默认值
+            }
+        };
+
+        // 动态注入统计脚本
+        const injectAnalyticsScript = (scriptHtml) => {
+            try {
+                // 创建临时容器解析 HTML
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = scriptHtml.trim();
+
+                // 提取所有 script 标签并重新创建（浏览器不会执行 innerHTML 中的 script）
+                const scriptElements = tempDiv.querySelectorAll('script');
+                scriptElements.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+
+                    // 复制所有属性
+                    Array.from(oldScript.attributes).forEach(attr => {
+                        newScript.setAttribute(attr.name, attr.value);
+                    });
+
+                    // 复制脚本内容
+                    if (oldScript.textContent) {
+                        newScript.textContent = oldScript.textContent;
+                    }
+
+                    // 添加到页面底部
+                    document.body.appendChild(newScript);
+                });
+            } catch (error) {
+                console.error('Failed to inject analytics script:', error);
             }
         };
 

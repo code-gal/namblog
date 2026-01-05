@@ -46,6 +46,11 @@ namespace NamBlog.API.Application.DTOs
         /// 首页底部的外部链接集合（如 Github, 知乎等）
         /// </summary>
         public List<OuterChain>? OuterChains { get; init; }
+
+        /// <summary>
+        /// 网站统计脚本（如 Umami、Google Analytics 等），将在页脚动态注入
+        /// </summary>
+        public string? AnalyticsScript { get; init; }
     }
 
     /// <summary>
