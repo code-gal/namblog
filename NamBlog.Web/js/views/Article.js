@@ -24,11 +24,20 @@ export default {
         const contentRef = ref(null);     // 内容容器
         let navShadowRoot = null;
 
+        // 🔧 记录所有动态添加的脚本和样式，用于清理
+        const dynamicScripts = [];
+        const dynamicStyles = [];
+        const dynamicLinks = [];
+
         const isAuthenticated = computed(() => store.isAuthenticated);
 
         // 获取文章数据
         const fetchArticle = async () => {
             const slug = route.params.slug;
+
+            // 🔧 加载新文章前，先清理旧文章的资源
+            cleanup();
+
             isLoading.value = true;
             error.value = null;
             htmlContent.value = '';
@@ -198,7 +207,9 @@ export default {
                 doc.querySelectorAll('head style').forEach(style => {
                     const newStyle = document.createElement('style');
                     newStyle.textContent = style.textContent;
+                    newStyle.dataset.articleStyle = 'true'; // 标记为文章样式
                     contentRef.value.appendChild(newStyle);
+                    dynamicStyles.push(newStyle); // 记录样式
                 });
 
                 // 2. 提取并添加<head>中的外部样式表
@@ -206,7 +217,9 @@ export default {
                     const newLink = document.createElement('link');
                     newLink.rel = 'stylesheet';
                     newLink.href = link.href;
+                    newLink.dataset.articleLink = 'true'; // 标记为文章链接
                     contentRef.value.appendChild(newLink);
+                    dynamicLinks.push(newLink); // 记录链接
                 });
 
                 // 3. 添加<body>内容（不包含script）
@@ -249,29 +262,48 @@ export default {
         // 加载外部脚本
         const loadScript = (src) => {
             return new Promise((resolve, reject) => {
-                // 检查是否已加载
-                if (document.querySelector(`script[src="${src}"]`)) {
+                // 检查是否已加载（全局检查）
+                const existing = document.querySelector(`script[src="${src}"]`);
+                if (existing) {
+                    // 如果已存在，检查是否在我们的记录中
+                    if (!dynamicScripts.includes(existing)) {
+                        dynamicScripts.push(existing); // 记录已存在的脚本
+                    }
                     resolve();
                     return;
                 }
                 const script = document.createElement('script');
                 script.src = src;
+                script.dataset.articleScript = 'true'; // 标记为文章脚本
                 script.onload = resolve;
                 script.onerror = () => {
                     console.warn('脚本加载失败:', src);
                     resolve(); // 不阻塞后续
                 };
                 document.head.appendChild(script);
+                dynamicScripts.push(script); // 记录脚本
             });
         };
 
-        // 执行内联脚本
+        // 执行内联脚本（使用IIFE隔离，避免全局污染）
         const executeScript = (code) => {
             if (!code.trim()) return;
             try {
+                // 🔧 检查代码中是否使用了const/let声明，如果是，包装在IIFE中隔离
+                const hasBlockScope = /\b(const|let)\s+\w+\s*=/.test(code);
+
                 const script = document.createElement('script');
-                script.textContent = code;
+                script.dataset.articleScript = 'true'; // 标记为文章脚本
+
+                if (hasBlockScope) {
+                    // 包装在立即执行函数中，避免全局变量冲突
+                    script.textContent = `(function() { ${code} })();`;
+                } else {
+                    script.textContent = code;
+                }
+
                 document.body.appendChild(script);
+                dynamicScripts.push(script); // 记录脚本
             } catch (e) {
                 console.error('脚本执行错误:', e);
             }
@@ -868,7 +900,40 @@ export default {
             updateNavState();
         });
 
+        // 🔧 清理函数：移除所有动态添加的脚本、样式和链接
+        const cleanup = () => {
+            // 清理脚本
+            dynamicScripts.forEach(script => {
+                if (script && script.parentNode) {
+                    script.parentNode.removeChild(script);
+                }
+            });
+            dynamicScripts.length = 0;
+
+            // 清理样式
+            dynamicStyles.forEach(style => {
+                if (style && style.parentNode) {
+                    style.parentNode.removeChild(style);
+                }
+            });
+            dynamicStyles.length = 0;
+
+            // 清理链接
+            dynamicLinks.forEach(link => {
+                if (link && link.parentNode) {
+                    link.parentNode.removeChild(link);
+                }
+            });
+            dynamicLinks.length = 0;
+
+            // 清空内容区
+            if (contentRef.value) {
+                contentRef.value.innerHTML = '';
+            }
+        };
+
         onUnmounted(() => {
+            cleanup(); // 清理所有动态资源
             store.setContext('article', null);
         });
 

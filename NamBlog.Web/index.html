@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+    <!--
+        🔧 base 标签必须放在最前面！
+        确保所有相对路径资源（CSS/JS/manifest等）在任何URL路径下都能正确解析为根路径
+        例如：在 /article/xxx 路径刷新时，./manifest.json 会解析为 /manifest.json 而不是 /article/manifest.json
+    -->
+    <base href="/">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>加载中...</title>
@@ -31,17 +38,13 @@
 
     <!-- 本地开发配置（可选，覆盖默认配置）-->
     <!-- 开发时复制 config.local.example.js 为 config.local.js 并修改 -->
-    <!-- 必须在 base 标签之前加载，否则路径会解析错误 -->
     <script src="./config.local.js" onerror="this.remove()"></script>
 
     <script>
-        // 根据开发模式决定是否设置 base 标签
-        // 生产环境（DEV_MODE: false）：设置 base 标签，使相对路径从根目录解析
-        // 开发环境（DEV_MODE: true）：不设置 base，路径相对于 index.html 所在目录
-        if (!window.APP_CONFIG.DEV_MODE) {
-            const base = document.createElement('base');
-            base.href = '/';
-            document.head.appendChild(base);
+        // 🔧 开发环境下移除 base 标签，使路径相对于 index.html 所在目录
+        if (window.APP_CONFIG.DEV_MODE) {
+            const base = document.querySelector('base');
+            if (base) base.remove();
         }
     </script>
 
