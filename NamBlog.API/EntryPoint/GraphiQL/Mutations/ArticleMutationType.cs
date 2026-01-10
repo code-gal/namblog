@@ -2,8 +2,10 @@ using System;
 using GraphQL;
 using GraphQL.Types;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using NamBlog.API.Application.DTOs;
+using NamBlog.API.Application.Resources;
 using NamBlog.API.Application.Services;
 using NamBlog.API.EntryPoint.GraphiQL.Queries;
 
@@ -27,8 +29,9 @@ namespace NamBlog.API.EntryPoint.GraphiQL.Mutations
                 .ResolveAsync(async context =>
                 {
                     var articleService = context.RequestServices?.GetRequiredService<ArticleCommandService>();
+                    var localizer = context.RequestServices?.GetRequiredService<IStringLocalizer<SharedResource>>();
                     var logger = context.RequestServices?.GetService<ILogger<ArticleMutationType>>();
-                    if (articleService == null)
+                    if (articleService == null || localizer == null)
                         return null;
 
                     try
@@ -38,7 +41,7 @@ namespace NamBlog.API.EntryPoint.GraphiQL.Mutations
 
                         if (!result.IsSuccess)
                         {
-                            GraphQLHelper.AddErrorForUser(context, result, "保存文章失败", "保存失败");
+                            GraphQLHelper.AddErrorForUser(context, result, result.ErrorMessage ?? "", localizer["SaveArticleFailed"].Value);
                             return null;
                         }
 
@@ -46,8 +49,8 @@ namespace NamBlog.API.EntryPoint.GraphiQL.Mutations
                     }
                     catch (Exception ex)
                     {
-                        logger?.LogError(ex, "保存文章失败");
-                        context.Errors.Add(new GraphQL.ExecutionError("保存文章失败", ex));
+                        logger?.LogError(ex, "Save article failed");
+                        context.Errors.Add(new GraphQL.ExecutionError(localizer["SaveArticleFailed"].Value, ex));
                         return null;
                     }
                 });
@@ -59,8 +62,9 @@ namespace NamBlog.API.EntryPoint.GraphiQL.Mutations
                 .ResolveAsync(async context =>
                 {
                     var articleService = context.RequestServices?.GetRequiredService<ArticleCommandService>();
+                    var localizer = context.RequestServices?.GetRequiredService<IStringLocalizer<SharedResource>>();
                     var logger = context.RequestServices?.GetService<ILogger<ArticleMutationType>>();
-                    if (articleService == null)
+                    if (articleService == null || localizer == null)
                         return null;
 
                     try
@@ -70,7 +74,7 @@ namespace NamBlog.API.EntryPoint.GraphiQL.Mutations
 
                         if (!result.IsSuccess)
                         {
-                            GraphQLHelper.AddErrorForUser(context, result, "提交文章失败", "提交失败");
+                            GraphQLHelper.AddErrorForUser(context, result, result.ErrorMessage ?? "", localizer["SubmitArticleFailed"].Value);
                             return null;
                         }
 
@@ -78,8 +82,8 @@ namespace NamBlog.API.EntryPoint.GraphiQL.Mutations
                     }
                     catch (Exception ex)
                     {
-                        logger?.LogError(ex, "提交文章失败");
-                        context.Errors.Add(new GraphQL.ExecutionError("提交文章失败", ex));
+                        logger?.LogError(ex, "Submit article failed");
+                        context.Errors.Add(new GraphQL.ExecutionError(localizer["SubmitArticleFailed"].Value, ex));
                         return null;
                     }
                 });
@@ -93,8 +97,9 @@ namespace NamBlog.API.EntryPoint.GraphiQL.Mutations
                 .ResolveAsync(async context =>
                 {
                     var articleService = context.RequestServices?.GetRequiredService<ArticleCommandService>();
+                    var localizer = context.RequestServices?.GetRequiredService<IStringLocalizer<SharedResource>>();
                     var logger = context.RequestServices?.GetService<ILogger<ArticleMutationType>>();
-                    if (articleService == null)
+                    if (articleService == null || localizer == null)
                         return false;
 
                     try
@@ -105,7 +110,7 @@ namespace NamBlog.API.EntryPoint.GraphiQL.Mutations
 
                         if (!result.IsSuccess)
                         {
-                            GraphQLHelper.AddErrorForUser(context, result, "删除版本失败", "删除失败");
+                            GraphQLHelper.AddErrorForUser(context, result, result.ErrorMessage ?? "", localizer["DeleteVersionFailed"].Value);
                             return false;
                         }
 
@@ -113,8 +118,8 @@ namespace NamBlog.API.EntryPoint.GraphiQL.Mutations
                     }
                     catch (Exception ex)
                     {
-                        logger?.LogError(ex, "删除版本失败");
-                        context.Errors.Add(new GraphQL.ExecutionError("删除版本失败", ex));
+                        logger?.LogError(ex, "Delete version failed");
+                        context.Errors.Add(new GraphQL.ExecutionError(localizer["DeleteVersionFailed"].Value, ex));
                         return false;
                     }
                 });
@@ -127,8 +132,9 @@ namespace NamBlog.API.EntryPoint.GraphiQL.Mutations
                 .ResolveAsync(async context =>
                 {
                     var articleService = context.RequestServices?.GetRequiredService<ArticleCommandService>();
+                    var localizer = context.RequestServices?.GetRequiredService<IStringLocalizer<SharedResource>>();
                     var logger = context.RequestServices?.GetService<ILogger<ArticleMutationType>>();
-                    if (articleService == null)
+                    if (articleService == null || localizer == null)
                         return null;
 
                     try
@@ -138,7 +144,7 @@ namespace NamBlog.API.EntryPoint.GraphiQL.Mutations
 
                         if (!result.IsSuccess)
                         {
-                            GraphQLHelper.AddErrorForUser(context, result, "切换发布状态失败", "操作失败");
+                            GraphQLHelper.AddErrorForUser(context, result, result.ErrorMessage ?? "", localizer["TogglePublishFailed"].Value);
                             return null;
                         }
 
@@ -146,8 +152,8 @@ namespace NamBlog.API.EntryPoint.GraphiQL.Mutations
                     }
                     catch (Exception ex)
                     {
-                        logger?.LogError(ex, "切换发布状态失败");
-                        context.Errors.Add(new GraphQL.ExecutionError("切换发布状态失败", ex));
+                        logger?.LogError(ex, "Toggle publish failed");
+                        context.Errors.Add(new GraphQL.ExecutionError(localizer["TogglePublishFailed"].Value, ex));
                         return null;
                     }
                 });
@@ -160,8 +166,9 @@ namespace NamBlog.API.EntryPoint.GraphiQL.Mutations
                 .ResolveAsync(async context =>
                 {
                     var articleService = context.RequestServices?.GetRequiredService<ArticleCommandService>();
+                    var localizer = context.RequestServices?.GetRequiredService<IStringLocalizer<SharedResource>>();
                     var logger = context.RequestServices?.GetService<ILogger<ArticleMutationType>>();
-                    if (articleService == null)
+                    if (articleService == null || localizer == null)
                         return false;
 
                     try
@@ -171,7 +178,7 @@ namespace NamBlog.API.EntryPoint.GraphiQL.Mutations
 
                         if (!result.IsSuccess)
                         {
-                            GraphQLHelper.AddErrorForUser(context, result, "删除文章失败", "删除失败");
+                            GraphQLHelper.AddErrorForUser(context, result, result.ErrorMessage ?? "", localizer["DeleteArticleFailed"].Value);
                             return false;
                         }
 
@@ -179,8 +186,8 @@ namespace NamBlog.API.EntryPoint.GraphiQL.Mutations
                     }
                     catch (Exception ex)
                     {
-                        logger?.LogError(ex, "删除文章失败");
-                        context.Errors.Add(new GraphQL.ExecutionError("删除文章失败", ex));
+                        logger?.LogError(ex, "Delete article failed");
+                        context.Errors.Add(new GraphQL.ExecutionError(localizer["DeleteArticleFailed"].Value, ex));
                         return false;
                     }
                 });

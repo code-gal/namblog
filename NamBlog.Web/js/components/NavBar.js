@@ -1,5 +1,6 @@
 import { inject, ref, onMounted, onUnmounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { auth } from '../api/auth.js';
 import { store } from '../store.js';
 import { request } from '../api/client.js';
@@ -7,6 +8,7 @@ import { HIDDEN_CATEGORIES } from '../config.js';
 
 export default {
     setup() {
+        const { t } = useI18n();
         const toggleSidebar = inject('toggleSidebar');
         const isSidebarOpen = inject('isSidebarOpen');
         const route = useRoute();
@@ -66,7 +68,7 @@ export default {
             if (ctx.type === 'editor') {
                 return {
                     icon: 'logout',
-                    title: '退出登录',
+                    title: t('nav.logout'),
                     action: handleLogout
                 };
             }
@@ -75,7 +77,7 @@ export default {
             if (ctx.type === 'article' && ctx.slug) {
                 return {
                     icon: 'edit',
-                    title: '编辑文章',
+                    title: t('nav.editArticle'),
                     action: () => router.push(`/editor/${ctx.slug}`)
                 };
             }
@@ -83,7 +85,7 @@ export default {
             // Home or list page: show create button
             return {
                 icon: 'create',
-                title: '创建文章',
+                title: t('nav.createArticle'),
                 action: () => router.push('/editor')
             };
         });
@@ -149,6 +151,7 @@ export default {
         };
 
         return {
+            t,
             blogName,
             toggleTheme,
             toggleSidebar,
@@ -198,7 +201,7 @@ export default {
                                     ? 'border-primary text-primary bg-gray-50 dark:bg-gray-900 dark:text-blue-400 dark:border-blue-400'
                                     : 'border-transparent text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                             ]">
-                            主页
+                            {{ t('nav.home') }}
                         </router-link>
 
                         <!-- Categories -->
@@ -219,7 +222,7 @@ export default {
                     <!-- Right Side Actions -->
                     <div class="flex items-center space-x-2">
                         <!-- Sidebar Toggle Button (List Pages Only, Mobile & Desktop) -->
-                        <button v-if="isListPage" @click="toggleSidebar" class="p-2 rounded-md text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none" :title="isSidebarOpen ? '关闭侧边栏' : '打开侧边栏'">
+                        <button v-if="isListPage" @click="toggleSidebar" class="p-2 rounded-md text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none" :title="isSidebarOpen ? t('nav.closeSidebar') : t('nav.openSidebar')">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path v-if="isSidebarOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                                 <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -227,7 +230,7 @@ export default {
                         </button>
 
                         <!-- Theme Toggle -->
-                        <button @click="toggleTheme" class="p-2 rounded-full text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none" title="切换主题">
+                        <button @click="toggleTheme" class="p-2 rounded-full text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none" :title="t('nav.toggleTheme')">
                             <svg class="w-6 h-6 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                             <svg class="w-6 h-6 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
                         </button>
@@ -251,7 +254,7 @@ export default {
                             </svg>
                         </button>
                         <!-- Login Button -->
-                        <router-link v-else-if="!isLoggedIn" to="/login" class="p-2 rounded-full text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-blue-400 focus:outline-none" title="登录">
+                        <router-link v-else-if="!isLoggedIn" to="/login" class="p-2 rounded-full text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-blue-400 focus:outline-none" :title="t('nav.login')">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
                             </svg>
@@ -270,7 +273,7 @@ export default {
                                 ? 'bg-gray-100 dark:bg-gray-900 text-primary dark:text-blue-400'
                                 : 'text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                         ]" @click="isMobileMenuOpen = false">
-                        主页
+                        {{ t('nav.home') }}
                     </router-link>
                     <a v-for="cat in categories"
                        :key="cat.name"
@@ -291,7 +294,7 @@ export default {
                         {{ actionButtonConfig.title }}
                     </button>
                     <router-link v-else-if="!isLoggedIn" to="/login" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700" @click="isMobileMenuOpen = false">
-                        登录
+                        {{ t('nav.login') }}
                     </router-link>
                 </div>
             </div>

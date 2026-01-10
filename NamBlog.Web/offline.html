@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>离线模式</title>
+    <title id="page-title">离线模式</title>
     <style>
         * {
             margin: 0;
@@ -106,12 +106,47 @@
 <body>
     <div class="container">
         <div class="icon">📡</div>
-        <h1>网络连接已断开</h1>
-        <p>看起来你现在处于离线状态。请检查网络连接后重试。</p>
-        <a href="/" class="button" onclick="window.location.reload(); return false;">重新加载</a>
+        <h1 id="offline-title">网络连接已断开</h1>
+        <p id="offline-message">看起来你现在处于离线状态。请检查网络连接后重试。</p>
+        <a href="/" class="button" id="reload-button" onclick="window.location.reload(); return false;">重新加载</a>
     </div>
 
     <script>
+        // 简单的多语言支持
+        const translations = {
+            'zh-CN': {
+                title: '离线模式',
+                heading: '网络连接已断开',
+                message: '看起来你现在处于离线状态。请检查网络连接后重试。',
+                reload: '重新加载'
+            },
+            'en-US': {
+                title: 'Offline',
+                heading: 'Network connection lost',
+                message: 'It looks like you are currently offline. Please check your network connection and try again.',
+                reload: 'Reload'
+            }
+        };
+
+        // 检测语言
+        const detectLanguage = () => {
+            const saved = localStorage.getItem('locale');
+            if (saved && translations[saved]) return saved;
+
+            const browserLang = navigator.language || navigator.userLanguage;
+            if (browserLang.startsWith('zh')) return 'zh-CN';
+            return 'en-US';
+        };
+
+        // 应用翻译
+        const lang = detectLanguage();
+        const t = translations[lang];
+        document.getElementById('page-title').textContent = t.title;
+        document.getElementById('offline-title').textContent = t.heading;
+        document.getElementById('offline-message').textContent = t.message;
+        document.getElementById('reload-button').textContent = t.reload;
+        document.documentElement.lang = lang;
+
         // 自动检测网络恢复
         window.addEventListener('online', () => {
             window.location.reload();

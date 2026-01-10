@@ -8,10 +8,14 @@
 
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { request } from '../api/client.js';
-import { store } from '../store.js';import { HIDDEN_CATEGORIES } from '../config.js';
+import { store } from '../store.js';
+import { HIDDEN_CATEGORIES } from '../config.js';
+
 export default {
     setup() {
+        const { t } = useI18n();
         const route = useRoute();
         const router = useRouter();
         const article = ref(null);
@@ -73,7 +77,7 @@ export default {
                 if (articleData) {
                     // 检查主版本HTML是否存在
                     if (!articleData.mainVersionHtml) {
-                        error.value = '文章内容不存在';
+                        error.value = t('article.articleNotExists');
                         store.setContext('article', null);
                         return;
                     }
@@ -90,7 +94,7 @@ export default {
                     htmlContent.value = articleData.mainVersionHtml;
 
                     // 更新页面标题
-                    const blogName = store.state.blogName || '博客';
+                    const blogName = store.state.blogName || t('common.blog');
                     document.title = articleData.title + ' - ' + blogName;
                     store.setContext('article', slug);
 
@@ -106,19 +110,20 @@ export default {
                         htmlContent.value = defaultContent;
 
                         // 设置页面标题
-                        const blogName = store.state.blogName || '博客';
-                        document.title = (slug === 'about' ? '关于' : '免责声明') + ' - ' + blogName;
+                        const blogName = store.state.blogName || t('common.blog');
+                        const pageTitle = slug === 'about' ? t('common.about') : t('common.disclaimer');
+                        document.title = pageTitle + ' - ' + blogName;
                         store.setContext('article', slug);
 
                         // 渲染默认内容
                         await renderContent();
                     } else {
-                        error.value = '文章未找到';
+                        error.value = t('article.articleNotFound');
                         store.setContext('article', null);
                     }
                 }
             } catch (err) {
-                console.error('加载文章错误:', err);
+                console.error('Article loading error:', err);
                 // API调用失败，也检查是否是特殊页面
                 if (slug === 'about' || slug === 'disclaimer') {
                     showDefaultContent.value = true;
@@ -128,14 +133,15 @@ export default {
                     htmlContent.value = defaultContent;
 
                     // 设置页面标题
-                    const blogName = store.state.blogName || '博客';
-                    document.title = (slug === 'about' ? '关于' : '免责声明') + ' - ' + blogName;
+                    const blogName = store.state.blogName || t('common.blog');
+                    const pageTitle = slug === 'about' ? t('common.about') : t('common.disclaimer');
+                    document.title = pageTitle + ' - ' + blogName;
                     store.setContext('article', slug);
 
                     // 渲染默认内容
                     await renderContent();
                 } else {
-                    error.value = err.message?.includes('fetch') ? '网络连接失败' : '加载文章失败';
+                    error.value = err.message?.includes('fetch') ? t('article.networkFailed') : t('article.loadFailed');
                 }
             } finally {
                 isLoading.value = false;
@@ -146,13 +152,13 @@ export default {
         const getDefaultAboutContent = () => {
             return `
                 <div style="max-width: 800px; margin: 0 auto; padding: 2rem;">
-                    <h1 style="font-size: 2rem; font-weight: bold; margin-bottom: 1.5rem; color: #1f2937;">关于本站</h1>
+                    <h1 style="font-size: 2rem; font-weight: bold; margin-bottom: 1.5rem; color: #1f2937;">${t('article.defaultAboutTitle')}</h1>
                     <div style="line-height: 1.8; color: #374151;">
-                        <p style="margin-bottom: 1rem;">欢迎来到本博客！</p>
-                        <p style="margin-bottom: 1rem;">这是一个由 AI 智能体渲染 Markdown 文档成 HTML 的现代化博客系统。</p>
-                        <p style="margin-bottom: 1rem;">本站使用 Vue 3 构建前端，ASP.NET Core 构建后端，支持文章管理、分类标签、暗色模式等功能。</p>
+                        <p style="margin-bottom: 1rem;">${t('article.defaultAboutWelcome')}</p>
+                        <p style="margin-bottom: 1rem;">${t('article.defaultAboutDesc1')}</p>
+                        <p style="margin-bottom: 1rem;">${t('article.defaultAboutDesc2')}</p>
                         <div style="background: #f0f9ff; border-left: 4px solid #3b82f6; padding: 1rem; margin-top: 1.5rem; border-radius: 0.25rem;">
-                            <p style="margin: 0; color: #1e40af;">💡 <strong>提示</strong>：登录后台，创建 slug 为 "about" 的文章即可替换此默认页面。</p>
+                            <p style="margin: 0; color: #1e40af;">${t('article.defaultAboutTip')}</p>
                         </div>
                     </div>
                 </div>
@@ -163,22 +169,22 @@ export default {
         const getDefaultDisclaimerContent = () => {
             return `
                 <div style="max-width: 800px; margin: 0 auto; padding: 2rem;">
-                    <h1 style="font-size: 2rem; font-weight: bold; margin-bottom: 1.5rem; color: #1f2937;">免责声明</h1>
+                    <h1 style="font-size: 2rem; font-weight: bold; margin-bottom: 1.5rem; color: #1f2937;">${t('article.defaultDisclaimerTitle')}</h1>
                     <div style="line-height: 1.8; color: #374151;">
-                        <h2 style="font-size: 1.5rem; font-weight: 600; margin: 1.5rem 0 1rem; color: #1f2937;">内容声明</h2>
-                        <p style="margin-bottom: 1rem;">本博客所有内容仅代表作者个人观点，不代表任何组织或机构的立场。文章内容仅供参考，读者应自行判断其准确性和适用性。</p>
+                        <h2 style="font-size: 1.5rem; font-weight: 600; margin: 1.5rem 0 1rem; color: #1f2937;">${t('article.defaultDisclaimerContentTitle')}</h2>
+                        <p style="margin-bottom: 1rem;">${t('article.defaultDisclaimerContentDesc')}</p>
 
-                        <h2 style="font-size: 1.5rem; font-weight: 600; margin: 1.5rem 0 1rem; color: #1f2937;">版权声明</h2>
-                        <p style="margin-bottom: 1rem;">本站原创内容版权归博主所有，转载请注明出处。引用的第三方内容版权归原作者所有。</p>
+                        <h2 style="font-size: 1.5rem; font-weight: 600; margin: 1.5rem 0 1rem; color: #1f2937;">${t('article.defaultDisclaimerCopyrightTitle')}</h2>
+                        <p style="margin-bottom: 1rem;">${t('article.defaultDisclaimerCopyrightDesc')}</p>
 
-                        <h2 style="font-size: 1.5rem; font-weight: 600; margin: 1.5rem 0 1rem; color: #1f2937;">准确性声明</h2>
-                        <p style="margin-bottom: 1rem;">本站力求内容准确，但不保证完整性和时效性。对于因使用本站内容而导致的任何损失，本站不承担责任。</p>
+                        <h2 style="font-size: 1.5rem; font-weight: 600; margin: 1.5rem 0 1rem; color: #1f2937;">${t('article.defaultDisclaimerAccuracyTitle')}</h2>
+                        <p style="margin-bottom: 1rem;">${t('article.defaultDisclaimerAccuracyDesc')}</p>
 
-                        <h2 style="font-size: 1.5rem; font-weight: 600; margin: 1.5rem 0 1rem; color: #1f2937;">外部链接</h2>
-                        <p style="margin-bottom: 1rem;">本站可能包含指向外部网站的链接，这些链接仅为方便读者而提供。本站不对外部网站的内容负责。</p>
+                        <h2 style="font-size: 1.5rem; font-weight: 600; margin: 1.5rem 0 1rem; color: #1f2937;">${t('article.defaultDisclaimerLinksTitle')}</h2>
+                        <p style="margin-bottom: 1rem;">${t('article.defaultDisclaimerLinksDesc')}</p>
 
                         <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 1rem; margin-top: 1.5rem; border-radius: 0.25rem;">
-                            <p style="margin: 0; color: #92400e;">💡 <strong>提示</strong>：登录后台，创建 slug 为 "disclaimer" 的文章即可替换此默认页面。</p>
+                            <p style="margin: 0; color: #92400e;">${t('article.defaultDisclaimerTip')}</p>
                         </div>
                     </div>
                 </div>
@@ -276,7 +282,7 @@ export default {
                 script.dataset.articleScript = 'true'; // 标记为文章脚本
                 script.onload = resolve;
                 script.onerror = () => {
-                    console.warn('脚本加载失败:', src);
+                    console.warn('Script loading failed:', src);
                     resolve(); // 不阻塞后续
                 };
                 document.head.appendChild(script);
@@ -304,7 +310,7 @@ export default {
                 document.body.appendChild(script);
                 dynamicScripts.push(script); // 记录脚本
             } catch (e) {
-                console.error('脚本执行错误:', e);
+                console.error('Script execution error:', e);
             }
         };
 
@@ -333,7 +339,7 @@ export default {
                     updateNavCategories();
                 }
             } catch (error) {
-                console.error('获取分类失败:', error);
+                console.error('Failed to fetch categories:', error);
             }
         };
 
@@ -684,7 +690,7 @@ export default {
                 <!-- 导航面板 -->
                 <div class="nav-panel" id="navPanel">
                     <div class="nav-header">
-                        <span class="nav-title">导航</span>
+                        <span class="nav-title" id="navTitle">导航</span>
                         <button class="nav-close" id="navClose">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -697,22 +703,22 @@ export default {
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
                             </svg>
-                            <span>首页</span>
+                            <span id="homeText">首页</span>
                         </button>
 
                         <button class="nav-item" id="editBtn" style="display: none;">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                             </svg>
-                            <span>编辑文章</span>
-                            <span class="unpublished-badge" id="unpublishedBadge" style="display: none;">🔒 未发布</span>
+                            <span id="editText">编辑文章</span>
+                            <span class="unpublished-badge" id="unpublishedBadge" style="display: none;">🔒 <span id="unpublishedText">未发布</span></span>
                         </button>
 
                         <button class="nav-item" id="loginBtn" style="display: none;">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
                             </svg>
-                            <span>登录</span>
+                            <span id="loginText">登录</span>
                         </button>
 
                         <div class="nav-divider"></div>
@@ -727,7 +733,7 @@ export default {
                         <div class="nav-divider"></div>
 
                         <!-- 分类 -->
-                        <div class="nav-section-title">分类</div>
+                        <div class="nav-section-title" id="categoriesTitle">分类</div>
                         <div class="category-list" id="categoryList">
                             <!-- 动态填充 -->
                         </div>
@@ -745,6 +751,17 @@ export default {
             const editBtn = navShadowRoot.getElementById('editBtn');
             const loginBtn = navShadowRoot.getElementById('loginBtn');
             const darkModeBtn = navShadowRoot.getElementById('darkModeBtn');
+
+            // 设置国际化文本
+            navShadowRoot.getElementById('navTitle').textContent = t('nav.navigation');
+            navShadowRoot.getElementById('homeText').textContent = t('nav.home');
+            navShadowRoot.getElementById('editText').textContent = t('nav.editArticle');
+            navShadowRoot.getElementById('unpublishedText').textContent = t('article.unpublished');
+            navShadowRoot.getElementById('loginText').textContent = t('auth.login');
+            navShadowRoot.getElementById('categoriesTitle').textContent = t('nav.categories');
+            // 初始化夜间模式文本
+            const darkModeText = navShadowRoot.getElementById('darkModeText');
+            darkModeText.textContent = isDarkMode.value ? t('nav.lightMode') : t('nav.darkMode');
 
             let isOpen = false;
             let scrollTimeout = null;
@@ -850,10 +867,10 @@ export default {
             if (darkModeIcon && darkModeText) {
                 if (isDarkMode.value) {
                     darkModeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>';
-                    darkModeText.textContent = '日间模式';
+                    darkModeText.textContent = t('nav.lightMode');
                 } else {
                     darkModeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>';
-                    darkModeText.textContent = '夜间模式';
+                    darkModeText.textContent = t('nav.darkMode');
                 }
             }
         };
@@ -940,6 +957,7 @@ export default {
         });
 
         return {
+            t,
             article,
             htmlContent,
             isLoading,

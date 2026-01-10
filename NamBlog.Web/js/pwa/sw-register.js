@@ -3,6 +3,23 @@
  * 负责注册、更新检测、安装提示
  */
 
+// 简单的翻译功能（因为此文件在Vue实例之外运行）
+function getTranslation(key) {
+    const locale = localStorage.getItem('locale') ||
+                  (navigator.language.startsWith('zh') ? 'zh-CN' : 'en-US');
+
+    const translations = {
+        'zh-CN': {
+            newVersionAvailable: '发现新版本！是否立即刷新页面？'
+        },
+        'en-US': {
+            newVersionAvailable: 'New version available! Refresh the page now?'
+        }
+    };
+
+    return translations[locale]?.[key] || translations['en-US'][key];
+}
+
 // 注册 Service Worker
 export async function registerServiceWorker() {
     if (!('serviceWorker' in navigator)) {
@@ -33,7 +50,7 @@ export async function registerServiceWorker() {
 
         return registration;
     } catch (error) {
-        console.error('[PWA] Service Worker 注册失败:', error);
+        console.error('[PWA] Service Worker registration failed:', error);
         return null;
     }
 }
@@ -46,7 +63,7 @@ function notifyUpdate(newWorker) {
     // 后续可扩展为UI提示框
 
     // 可选：自动提示用户
-    if (confirm('发现新版本！是否立即刷新页面？')) {
+    if (confirm(getTranslation('newVersionAvailable'))) {
         newWorker.postMessage({ type: 'SKIP_WAITING' });
         window.location.reload();
     }
@@ -93,7 +110,7 @@ export function setupInstallPrompt() {
 export async function initPWA() {
     // 开发模式下禁用 PWA（Live Server 环境下 Service Worker 路径会有问题）
     if (window.APP_CONFIG && window.APP_CONFIG.DEV_MODE) {
-        console.log('[PWA] 开发模式：已禁用 PWA 功能');
+        console.log('[PWA] Development mode: PWA features disabled');
         return null;
     }
 

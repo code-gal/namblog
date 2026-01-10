@@ -3,7 +3,7 @@ import { reactive, readonly } from 'vue';
 const state = reactive({
     user: null,
     token: localStorage.getItem('auth_token'),
-    blogName: '加载中...', // 博客名称，从后端获取
+    blogName: '', // 博客名称，从后端获取，初始为空
     // Context for smart navigation (e.g., "Edit" button)
     context: {
         type: 'home', // 'home', 'list', 'article', 'editor'

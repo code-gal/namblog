@@ -1,9 +1,11 @@
 import { ref, reactive, computed, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { auth } from '../api/auth.js';
 import { useRouter, useRoute } from 'vue-router';
 
 export default {
     setup() {
+        const { t } = useI18n();
         const router = useRouter();
         const route = useRoute();
 
@@ -96,27 +98,27 @@ export default {
             errorMsg.value = '';
 
             if (!form.username || !form.password) {
-                errorMsg.value = '请输入用户名和密码';
+                errorMsg.value = t('auth.required');
                 return false;
             }
 
             if (form.username.length < 3) {
-                errorMsg.value = '用户名至少3个字符';
+                errorMsg.value = t('auth.usernameTooShort');
                 return false;
             }
 
             if (form.username.length > 20) {
-                errorMsg.value = '用户名最多20个字符';
+                errorMsg.value = t('auth.usernameTooLong');
                 return false;
             }
 
             if (form.password.length < 6) {
-                errorMsg.value = '密码至少6个字符';
+                errorMsg.value = t('auth.passwordTooShort');
                 return false;
             }
 
             if (form.password.length > 50) {
-                errorMsg.value = '密码最多50个字符';
+                errorMsg.value = t('auth.passwordTooLong');
                 return false;
             }
 
@@ -134,7 +136,7 @@ export default {
                 isLocked.value = true;
                 lockUntil.value = new Date(lockTime);
                 updateRemainingTime();
-                errorMsg.value = `登录失败次数过多，账号已锁定 ${formattedRemainingTime.value}`;
+                errorMsg.value = t('auth.tooManyAttempts', { time: formattedRemainingTime.value });
             }
         };
 
@@ -163,7 +165,7 @@ export default {
         const handleLogin = async () => {
             // 检查是否被锁定
             if (isLocked.value) {
-                errorMsg.value = `账号已锁定，请等待 ${formattedRemainingTime.value} 后再试`;
+                errorMsg.value = t('auth.accountLocked', { time: formattedRemainingTime.value });
                 return;
             }
 
@@ -181,11 +183,11 @@ export default {
                     handleLoginSuccess();
                 } else {
                     handleLoginFailure();
-                    errorMsg.value = result.message || '登录失败，请检查用户名和密码';
+                    errorMsg.value = result.message || t('auth.invalidCredentials');
                 }
             } catch (e) {
                 handleLoginFailure();
-                errorMsg.value = '登录发生错误，请重试';
+                errorMsg.value = t('auth.loginError');
                 console.error('Login error:', e);
             } finally {
                 isLoading.value = false;
@@ -199,6 +201,7 @@ export default {
         });
 
         return {
+            t,
             form,
             isLoading,
             errorMsg,
@@ -213,22 +216,22 @@ export default {
     template: `
         <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
             <div class="max-w-md w-full bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-                <h2 class="text-2xl font-bold text-gray-800 dark:text-white text-center">管理员登录</h2>
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white text-center">{{ t('auth.login') }}</h2>
 
                 <!-- 锁定提示 -->
                 <div v-if="isLocked" class="mt-4 p-3 bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 rounded">
                     <p class="text-red-700 dark:text-red-200 text-sm text-center">
-                        🔒 登录失败次数过多，账号已锁定
+                        🔒 {{ t('auth.tooManyAttempts', { time: '' }).replace('{time}', '') }}
                     </p>
                     <p class="text-red-600 dark:text-red-300 text-xs text-center mt-1">
-                        剩余时间: {{ formattedRemainingTime }}
+                        {{ t('auth.accountLocked', { time: formattedRemainingTime }) }}
                     </p>
                 </div>
 
                 <form @submit.prevent="handleLogin" class="mt-6">
                     <div class="mb-4">
                         <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="username">
-                            用户名
+                            {{ t('auth.username') }}
                         </label>
                         <input
                             v-model="form.username"
@@ -237,13 +240,13 @@ export default {
                             id="username"
                             type="text"
                             autocomplete="username"
-                            placeholder="请输入用户名（3-20字符）"
+                            :placeholder="t('auth.username') + ' (3-20)'"
                             maxlength="20">
                     </div>
 
                     <div class="mb-4">
                         <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="password">
-                            密码
+                            {{ t('auth.password') }}
                         </label>
                         <input
                             v-model="form.password"
@@ -252,7 +255,7 @@ export default {
                             id="password"
                             type="password"
                             autocomplete="current-password"
-                            placeholder="请输入密码（至少6个字符）"
+                            :placeholder="t('auth.password') + ' (6+)'"
                             maxlength="50">
                     </div>
 
@@ -265,7 +268,7 @@ export default {
                             id="rememberMe"
                             class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 disabled:opacity-50">
                         <label for="rememberMe" class="ml-2 text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
-                            记住用户名
+                            {{ t('auth.rememberMe') }}
                         </label>
                     </div>
 
@@ -276,7 +279,7 @@ export default {
 
                     <!-- 剩余尝试次数提示 -->
                     <div v-if="!isLocked && loginAttempts > 0" class="mb-4 text-yellow-600 dark:text-yellow-400 text-xs text-center">
-                        登录失败 {{ loginAttempts }} 次，还剩 {{ MAX_ATTEMPTS - loginAttempts }} 次机会
+                        {{ t('auth.attemptsRemaining', { used: loginAttempts, remaining: MAX_ATTEMPTS - loginAttempts }) }}
                     </div>
 
                     <div class="flex items-center justify-center">
@@ -284,7 +287,7 @@ export default {
                             :disabled="isLoading || isLocked"
                             class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                             type="submit">
-                            {{ isLoading ? '登录中...' : isLocked ? '账号已锁定' : '登录' }}
+                            {{ isLoading ? t('common.loading') : isLocked ? t('auth.accountLocked', { time: '' }).split(',')[0] : t('auth.login') }}
                         </button>
                     </div>
                 </form>

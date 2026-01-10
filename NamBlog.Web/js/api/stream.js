@@ -140,7 +140,7 @@ export async function streamGenerateHtml(options) {
                             }
 
                         } catch (parseError) {
-                            console.warn('解析 SSE 消息失败:', line, parseError);
+                            console.warn('Failed to parse SSE message:', line, parseError);
                         }
                     }
                 }
@@ -158,7 +158,7 @@ export async function streamGenerateHtml(options) {
         if (error.name === 'AbortError') {
             onError(new Error('生成已取消'));
         } else {
-            console.error('流式生成失败:', error);
+            console.error('Streaming generation failed:', error);
             onError(error);
         }
     }

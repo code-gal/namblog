@@ -44,6 +44,16 @@ static void ConfigureServices(IServiceCollection services, ConfigurationManager 
     // services.AddDistributedMemoryCache();        // 共享缓存池，用于AI服务
     services.AddConfigurationOptions(configuration); // 配置绑定（Options Pattern）
 
+    // Localization（国际化）
+    services.AddLocalization(); // 资源文件与类文件在同一目录，无需设置 ResourcesPath
+    services.Configure<RequestLocalizationOptions>(options =>
+    {
+        var supportedCultures = new[] { "zh-CN", "en-US" };
+        options.SetDefaultCulture("en-US")
+            .AddSupportedCultures(supportedCultures)
+            .AddSupportedUICultures(supportedCultures);
+    });
+
     // ====== 1. 领域层（Domain Layer） ======
     // 领域服务通常不需要注册（纯逻辑类）
     // 如果有需要注入的领域服务，在此注册
@@ -85,6 +95,9 @@ static void ConfigureMiddleware(WebApplication app, ConfigurationManager configu
 
     // 静态文件服务
     app.UseStaticFileServices(app.Environment, dataRootPath);
+
+    // 请求本地化（根据 Accept-Language 头自动设置 Culture）
+    app.UseRequestLocalization();
 
     // 路由和认证
     app.UseRouting(); //启用路由识别

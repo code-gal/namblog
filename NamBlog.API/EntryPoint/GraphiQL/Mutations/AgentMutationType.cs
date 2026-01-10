@@ -2,8 +2,10 @@ using System;
 using GraphQL;
 using GraphQL.Types;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using NamBlog.API.Application.DTOs;
+using NamBlog.API.Application.Resources;
 using NamBlog.API.Application.Services;
 
 namespace NamBlog.API.EntryPoint.GraphiQL.Mutations
@@ -25,8 +27,9 @@ namespace NamBlog.API.EntryPoint.GraphiQL.Mutations
                 .ResolveAsync(async context =>
                 {
                     var markdownService = context.RequestServices?.GetRequiredService<MarkdownService>();
+                    var localizer = context.RequestServices?.GetRequiredService<IStringLocalizer<SharedResource>>();
                     var logger = context.RequestServices?.GetService<ILogger<AgentMutationType>>();
-                    if (markdownService == null)
+                    if (markdownService == null || localizer == null)
                         return null;
 
                     try
@@ -37,7 +40,7 @@ namespace NamBlog.API.EntryPoint.GraphiQL.Mutations
 
                         if (!result.IsSuccess)
                         {
-                            GraphQLHelper.AddErrorForUser(context, result, "Markdown 转换失败", "转换失败");
+                            GraphQLHelper.AddErrorForUser(context, result, result.ErrorMessage ?? "", localizer["MarkdownConversionFailed"].Value);
                             return null;
                         }
 
@@ -45,8 +48,8 @@ namespace NamBlog.API.EntryPoint.GraphiQL.Mutations
                     }
                     catch (Exception ex)
                     {
-                        logger?.LogError(ex, "Markdown 转换失败");
-                        context.Errors.Add(new GraphQL.ExecutionError("Markdown 转换失败", ex));
+                        logger?.LogError(ex, "Markdown conversion failed");
+                        context.Errors.Add(new GraphQL.ExecutionError(localizer["MarkdownConversionFailed"].Value, ex));
                         return null;
                     }
                 });

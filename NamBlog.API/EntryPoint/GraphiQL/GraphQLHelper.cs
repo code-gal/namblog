@@ -45,7 +45,7 @@ namespace NamBlog.API.EntryPoint.GraphiQL
         /// <summary>
         /// 从Result中添加错误到上下文（带错误码和时间戳）
         /// </summary>
-        public static void AddErrorFromResult(IResolveFieldContext context, Result result, string defaultMessage = "操作失败")
+        public static void AddErrorFromResult(IResolveFieldContext context, Result result, string defaultMessage = "Operation failed")
         {
             context.Errors.Add(new ExecutionError(result.ErrorMessage ?? defaultMessage)
             {
@@ -63,8 +63,8 @@ namespace NamBlog.API.EntryPoint.GraphiQL
         /// <param name="context">GraphQL解析上下文</param>
         /// <param name="result">操作结果</param>
         /// <param name="defaultMessage">默认错误消息（管理员使用）</param>
-        /// <param name="publicMessage">公众用户错误消息（默认为"操作失败"）</param>
-        public static void AddErrorForUser(IResolveFieldContext context, Result result, string defaultMessage = "操作失败", string publicMessage = "操作失败")
+        /// <param name="publicMessage">公众用户错误消息（默认为"Operation failed"）</param>
+        public static void AddErrorForUser(IResolveFieldContext context, Result result, string defaultMessage = "Operation failed", string publicMessage = "Operation failed")
         {
             if (IsAdmin(context))
             {

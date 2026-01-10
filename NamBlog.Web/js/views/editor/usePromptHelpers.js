@@ -90,11 +90,11 @@ export function scrollToCustomPrompt(state) {
 /**
  * 复制Prompt到剪贴板
  */
-export async function copyPrompt(prompt) {
+export async function copyPrompt(prompt, t) {
     try {
         await navigator.clipboard.writeText(prompt);
-        showToast('Prompt已复制到剪贴板', 'success');
+        showToast(t('editor.promptCopied'), 'success');
     } catch (e) {
-        showToast('复制失败: ' + e.message, 'error');
+        showToast(t('editor.copyFailed') + ': ' + e.message, 'error');
     }
 }

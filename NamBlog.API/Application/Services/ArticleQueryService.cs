@@ -6,9 +6,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using NamBlog.API.Application.Common;
 using NamBlog.API.Application.DTOs;
+using NamBlog.API.Application.Resources;
 using NamBlog.API.Domain.Entities;
 using NamBlog.API.Domain.Interfaces;
 
@@ -17,10 +19,12 @@ namespace NamBlog.API.Application.Services
     public class ArticleQueryService(
         IPostRepository postRepository,
         IFileService fileService,
+        IStringLocalizer<SharedResource> localizer,
         ILogger<ArticleCommandService> logger)
     {
         private readonly IPostRepository _postRepository = postRepository;
         private readonly IFileService _fileService = fileService;
+        private readonly IStringLocalizer<SharedResource> _localizer = localizer;
         private readonly ILogger<ArticleCommandService> _logger = logger;
 
         /// <summary>
@@ -122,17 +126,17 @@ namespace NamBlog.API.Application.Services
         {
             var post = await _postRepository.GetByIdAsync(id);
             if (post == null)
-                return Result.Failure<string>("文章不存在", ErrorCodes.NotFound);
+                return Result.Failure<string>(_localizer["ArticleNotFound"].Value, ErrorCodes.NotFound);
 
             // 查找版本
             var version = post.Versions.FirstOrDefault(v => v.VersionName == versionName);
             if (version == null)
-                return Result.Failure<string>($"版本 {versionName} 不存在", ErrorCodes.NotFound);
+                return Result.Failure<string>(_localizer["VersionNotFound", versionName].Value, ErrorCodes.NotFound);
 
             // 读取HTML文件
             var html = await _fileService.ReadHtmlAsync(post.FilePath, post.FileName, versionName);
             if (html == null)
-                return Result.Failure<string>("HTML文件不存在", ErrorCodes.NotFound);
+                return Result.Failure<string>(_localizer["HtmlFileNotFound"].Value, ErrorCodes.NotFound);
 
             // _logger.LogDebug("版本HTML查询成功 - ID: {PostId}, 版本: {VersionName}", id, versionName);
 
@@ -163,7 +167,7 @@ namespace NamBlog.API.Application.Services
         {
             // 检查至少有一个参数
             if (string.IsNullOrWhiteSpace(slug) && id == null && string.IsNullOrWhiteSpace(title))
-                return Result.Failure<string>("至少需要提供一个查询参数（slug、id 或 title）", ErrorCodes.ValidationFailed);
+                return Result.Failure<string>(_localizer["QueryParameterRequired"].Value, ErrorCodes.ValidationFailed);
 
             Post? post = null;
 
@@ -175,7 +179,7 @@ namespace NamBlog.API.Application.Services
                 {
                     var markdown = await _fileService.ReadMarkdownAsync(post.FilePath, post.FileName);
                     if (markdown == null)
-                        return Result.Failure<string>("Markdown 文件不存在", ErrorCodes.NotFound);
+                        return Result.Failure<string>(_localizer["MarkdownFileNotFound"].Value, ErrorCodes.NotFound);
 
                     // _logger.LogDebug("Markdown 查询成功 - Id: {Id}", id);
                     return Result.Success(markdown);
@@ -190,7 +194,7 @@ namespace NamBlog.API.Application.Services
                 {
                     var markdown = await _fileService.ReadMarkdownAsync(post.FilePath, post.FileName);
                     if (markdown == null)
-                        return Result.Failure<string>("Markdown 文件不存在", ErrorCodes.NotFound);
+                        return Result.Failure<string>(_localizer["MarkdownFileNotFound"].Value, ErrorCodes.NotFound);
 
                     // _logger.LogDebug("Markdown 查询成功 - Slug: {Slug}", slug);
                     return Result.Success(markdown);
@@ -208,14 +212,14 @@ namespace NamBlog.API.Application.Services
                     post = matchedPost;
                     var markdown = await _fileService.ReadMarkdownAsync(post.FilePath, post.FileName);
                     if (markdown == null)
-                        return Result.Failure<string>("Markdown 文件不存在", ErrorCodes.NotFound);
+                        return Result.Failure<string>(_localizer["MarkdownFileNotFound"].Value, ErrorCodes.NotFound);
 
                     // _logger.LogDebug("Markdown 查询成功 - Title: {Title}", title);
                     return Result.Success(markdown);
                 }
             }
 
-            return Result.Failure<string>("文章不存在", ErrorCodes.NotFound);
+            return Result.Failure<string>(_localizer["ArticleNotFound"].Value, ErrorCodes.NotFound);
         }
 
         /// <summary>
@@ -227,14 +231,14 @@ namespace NamBlog.API.Application.Services
             {
                 var markdown = await _fileService.ReadMarkdownAsync(filePath, fileName);
                 if (markdown == null)
-                    return Result.Failure<string>("Markdown 文件不存在", ErrorCodes.NotFound);
+                    return Result.Failure<string>(_localizer["MarkdownFileNotFound"].Value, ErrorCodes.NotFound);
 
                 return Result.Success(markdown);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "读取 Markdown 失败 - FilePath: {FilePath}, FileName: {FileName}", filePath, fileName);
-                return Result.Failure<string>($"读取 Markdown 失败：{ex.Message}", ErrorCodes.InternalError);
+                return Result.Failure<string>(_localizer["ReadMarkdownFailed", ex.Message].Value, ErrorCodes.InternalError);
             }
         }
 

@@ -12,6 +12,7 @@
  */
 
 import { inject, ref, onMounted, onUnmounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 export default {
     props: {
@@ -27,6 +28,7 @@ export default {
         }
     },
     setup(props) {
+        const { t } = useI18n();
         const isSidebarOpen = inject('isSidebarOpen');
         const isMobile = inject('isMobile');
         const closeSidebar = inject('closeSidebar');
@@ -99,7 +101,8 @@ export default {
         return {
             isSidebarOpen,
             isMobile,
-            closeSidebar
+            closeSidebar,
+            t
         };
     },
     template: `
@@ -136,19 +139,19 @@ export default {
                         <div class="w-24 h-24 bg-gray-200 dark:bg-gray-700 rounded-full mx-auto mb-4 flex items-center justify-center text-3xl overflow-hidden">
                             <img v-if="blogInfo.avatar"
                                  :src="blogInfo.avatar"
-                                 alt="博主头像"
+                                 :alt="t('common.avatar')"
                                  class="w-full h-full object-cover" />
                             <span v-else>👨‍💻</span>
                         </div>
 
                         <!-- Blogger Name -->
                         <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100">
-                            {{ blogInfo.blogger || '博主' }}
+                            {{ blogInfo.blogger || t('common.blogger') }}
                         </h3>
 
                         <!-- Slogan -->
                         <p class="text-gray-500 dark:text-gray-400 text-sm mt-2">
-                            {{ blogInfo.slogan || '欢迎来到我的博客' }}
+                            {{ blogInfo.slogan || t('common.welcome') }}
                         </p>
 
                         <!-- Outer Chains (Social Links) -->
@@ -173,7 +176,7 @@ export default {
                     <!-- Tags Cloud -->
                     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-100 dark:border-gray-700">
                         <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4 border-b border-gray-100 dark:border-gray-700 pb-2">
-                            标签
+                            {{ t('nav.tags') }}
                         </h3>
                         <div class="tags-wrapper">
                             <div class="flex flex-wrap gap-2">
@@ -185,7 +188,7 @@ export default {
                                     {{ tag.name }}
                                     <span class="ml-1 text-xs opacity-70">({{ tag.count }})</span>
                                 </router-link>
-                                <span v-if="!tags || tags.length === 0" class="text-gray-500 text-sm">暂无标签</span>
+                                <span v-if="!tags || tags.length === 0" class="text-gray-500 text-sm">{{ t('common.noTags') }}</span>
                             </div>
                         </div>
                     </div>

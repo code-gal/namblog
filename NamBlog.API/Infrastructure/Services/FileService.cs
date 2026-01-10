@@ -74,7 +74,7 @@ namespace NamBlog.API.Infrastructure.Services
             }
             catch (IOException ex)
             {
-                throw new InvalidOperationException($"无法删除 Markdown 文件: {fullPath}", ex);
+                throw new InvalidOperationException($"Cannot delete Markdown file: {fullPath}", ex);
             }
 
             return Task.CompletedTask;
@@ -137,7 +137,7 @@ namespace NamBlog.API.Infrastructure.Services
             }
             catch (IOException ex)
             {
-                throw new InvalidOperationException($"无法删除 HTML 目录: {fullPath}", ex);
+                throw new InvalidOperationException($"Cannot delete HTML directory: {fullPath}", ex);
             }
 
             return Task.CompletedTask;
@@ -158,7 +158,7 @@ namespace NamBlog.API.Infrastructure.Services
             }
             catch (IOException ex)
             {
-                throw new InvalidOperationException($"无法删除 Markdown 文件: {markdownPath}", ex);
+                throw new InvalidOperationException($"Cannot delete Markdown file: {markdownPath}", ex);
             }
 
             // 删除整个 HTML 文章目录（包含所有版本）
@@ -176,7 +176,7 @@ namespace NamBlog.API.Infrastructure.Services
             }
             catch (IOException ex)
             {
-                throw new InvalidOperationException($"无法删除 HTML 目录: {htmlArticleDir}", ex);
+                throw new InvalidOperationException($"Cannot delete HTML directory: {htmlArticleDir}", ex);
             }
 
             return Task.CompletedTask;

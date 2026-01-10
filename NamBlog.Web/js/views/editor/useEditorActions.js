@@ -3,6 +3,7 @@
  * 包含所有业务逻辑：加载、保存、删除、生成HTML等
  */
 import { nextTick } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { showToast } from '../../components/Toast.js';
 import * as articleApi from '../../api/articleApi.js';
 import * as editorCache from './editorCache.js';
@@ -12,18 +13,18 @@ import { store } from '../../store.js';
 /**
  * 加载分类列表
  */
-export async function loadCategories(categoriesRef) {
+export async function loadCategories(categoriesRef, t) {
     try {
         categoriesRef.value = await articleApi.fetchCategories();
     } catch(e) {
-        console.error('加载分类失败', e);
+        console.error(t('editor.loadCategoriesFailed'), e);
     }
 }
 
 /**
  * 加载文章详情
  */
-export async function loadArticle(slug, state, silent = false) {
+export async function loadArticle(slug, state, t, silent = false) {
     if (!silent) {
         state.isLoading.value = true;
     }
@@ -81,13 +82,13 @@ export async function loadArticle(slug, state, silent = false) {
                 state.htmlContent.value = cachedHtml;
             }
         } else {
-            showToast('文章未找到', 'error');
+            showToast(t('editor.articleNotFound'), 'error');
             return false;
         }
         return true;
     } catch(e) {
         console.error(e);
-        const errorMsg = '加载文章失败: ' + e.message;
+        const errorMsg = t('editor.loadArticleFailed') + ': ' + e.message;
         showToast(errorMsg, 'error');
         state.pageErrors.value.push(errorMsg);
         return false;
@@ -101,7 +102,7 @@ export async function loadArticle(slug, state, silent = false) {
 /**
  * 切换版本
  */
-export async function handleVersionChange(state) {
+export async function handleVersionChange(state, t) {
     try {
         const html = await articleApi.getVersionHtml(
             state.form.value.id,
@@ -120,24 +121,24 @@ export async function handleVersionChange(state) {
             // 触发下一个tick确保DOM更新
             await nextTick();
         } else {
-            showToast('该版本没有HTML内容', 'warning');
+            showToast(t('editor.noHtmlInThisVersion'), 'warning');
         }
     } catch (e) {
-        console.error('获取版本HTML失败', e);
-        showToast(`切换版本失败: ${e.message}`, 'error');
+        console.error('Failed to get version HTML', e);
+        showToast(t('editor.switchVersionFailed', { message: e.message }), 'error');
     }
 }
 
 /**
  * 保存文章元数据
  */
-export async function saveMetadata(state, router) {
+export async function saveMetadata(state, router, t) {
     // 清空旧的错误信息
     state.pageErrors.value = [];
 
     // 只验证markdown是必填的，其他字段可选（后端会自动生成）
     if (!state.form.value.markdown || !state.form.value.markdown.trim()) {
-        showToast('Markdown内容不能为空', 'warning');
+        showToast(t('editor.markdownEmpty'), 'warning');
         return;
     }
 
@@ -190,22 +191,22 @@ export async function saveMetadata(state, router) {
             editorCache.saveHtmlDraft(state.htmlContent.value, false, savedArticle.postId);
             // 更新URL为编辑模式（会触发组件重新加载，但这是预期行为）
             router.replace('/editor/' + savedArticle.slug);
-            showToast('文章创建成功！已自动生成标题、摘要和slug', 'success');
+            showToast(t('editor.articleCreatedSuccess'), 'success');
             // 清除新建文章的草稿缓存
             editorCache.clearAllDrafts(true, null);
         } else {
-            // 编辑模式：检查slug是否变化，如果变化则更新URL
+            // 编辑模式：检查slug是否变化，如果变化则更新url
             const currentSlug = router.currentRoute.value.params.slug;
             if (currentSlug !== savedArticle.slug) {
                 router.replace('/editor/' + savedArticle.slug);
-                showToast('文章保存成功！Slug已更新', 'success');
+                showToast(t('editor.articleSavedSlugUpdated'), 'success');
             } else {
-                showToast('文章元数据保存成功（不创建版本）', 'success');
+                showToast(t('editor.metadataSaved'), 'success');
             }
         }
     } catch (e) {
         console.error(e);
-        const errorMsg = '保存失败: ' + e.message;
+        const errorMsg = t('editor.saveFailed') + ': ' + e.message;
         showToast(errorMsg, 'error');
         state.pageErrors.value.push(errorMsg);
     } finally {
@@ -216,13 +217,13 @@ export async function saveMetadata(state, router) {
 /**
  * 提交文章（创建新版本）
  */
-export async function submitArticle(state, router) {
+export async function submitArticle(state, router, t) {
     // 清空旧的错误信息
     state.pageErrors.value = [];
 
     // 只验证markdown是必填的，其他字段可选（后端会自动生成）
     if (!state.form.value.markdown || !state.form.value.markdown.trim()) {
-        showToast('Markdown内容不能为空', 'warning');
+        showToast(t('editor.markdownEmpty'), 'warning');
         return;
     }
 
@@ -260,7 +261,7 @@ export async function submitArticle(state, router) {
 
         // 检查返回结果
         if (!result?.slug) {
-            throw new Error('后端返回数据格式错误：缺少slug');
+            throw new Error(t('editor.backendDataError'));
         }
 
         const slug = result.slug;
@@ -271,7 +272,7 @@ export async function submitArticle(state, router) {
         // 清除文章列表缓存，确保其他页面能看到最新数据
         store.clearArticlesCache();
 
-        showToast(state.isNew.value ? '文章创建成功' : '新版本提交成功', 'success');
+        showToast(state.isNew.value ? t('editor.articleCreatedShort') : t('editor.versionCreatedShort'), 'success');
 
         // 等待一小段时间确保toast显示，然后跳转
         await new Promise(resolve => setTimeout(resolve, 300));
@@ -282,9 +283,9 @@ export async function submitArticle(state, router) {
         if (e.errors && Array.isArray(e.errors)) {
             state.pageErrors.value = e.errors.map(err => err.message || String(err));
         } else {
-            state.pageErrors.value.push('提交失败: ' + e.message);
+            state.pageErrors.value.push(t('editor.submitFailedDetail', { message: e.message }));
         }
-        showToast('提交失败，请查看详细错误信息', 'error');
+        showToast(t('editor.submitFailedGeneric'), 'error');
         // 错误时不跳转，停留在编辑页
     } finally {
         state.isSubmitting.value = false;
@@ -295,7 +296,7 @@ export async function submitArticle(state, router) {
  * 删除版本（如果是最后一个版本则删除整篇文章）
  * 实现二次确认机制，防止误操作
  */
-export async function deleteArticle(state, router, route) {
+export async function deleteArticle(state, router, route, t) {
     const versionToDelete = state.selectedVersion.value;
     const isLastVersion = state.versions.value.length <= 1;
 
@@ -303,8 +304,8 @@ export async function deleteArticle(state, router, route) {
     if (!state.deleteVersionConfirm.value) {
         // 第一次点击：根据是否是最后一个版本显示不同提示
         const tipMsg = isLastVersion
-            ? '⚠️ 当前是最后一个版本！删除后将删除整篇文章，此操作不可恢复。再次点击确认删除。'
-            : '再次点击确认删除此版本';
+            ? t('editor.deleteLastVersionConfirm')
+            : t('editor.deleteVersionConfirmAgain');
 
         showToast(tipMsg, 'warning');
         state.deleteVersionConfirm.value = true;
@@ -331,18 +332,18 @@ export async function deleteArticle(state, router, route) {
 
         if (isLastVersion) {
             // 最后一个版本删除后，整篇文章被删除
-            showToast('整篇文章已删除', 'success');
+            showToast(t('editor.articleDeletedAll'), 'success');
             // 清除该文章的草稿缓存
             editorCache.clearAllDrafts(false, state.form.value.id);
             router.push('/');
         } else {
             // 非最后一个版本，重新加载文章获取最新状态
-            await loadArticle(route.params.slug, state);
-            showToast(`版本 ${versionToDelete} 已删除，已切换到最新版本`, 'success');
+            await loadArticle(route.params.slug, state, t);
+            showToast(t('editor.versionDeletedSwitch', { version: versionToDelete }), 'success');
         }
     } catch (e) {
         console.error(e);
-        const errorMsg = '删除失败: ' + e.message;
+        const errorMsg = t('editor.deleteFailedDetail', { message: e.message });
         showToast(errorMsg, 'error');
         state.pageErrors.value.push(errorMsg);
     } finally {
@@ -353,18 +354,18 @@ export async function deleteArticle(state, router, route) {
 /**
  * 清除草稿（二次确认）
  */
-export async function clearDraft(state, route) {
+export async function clearDraft(state, route, t) {
     if (!state.clearDraftConfirm.value) {
         // 第一次点击：显示确认提示，并在编辑模式下预加载文章
         state.clearDraftConfirm.value = true;
-        showToast('再次点击确认清除草稿缓存', 'warning');
+        showToast(t('editor.clearDraftConfirmAgain'), 'warning');
 
         // 如果是编辑模式，预加载文章数据
         if (!state.isNew.value) {
             try {
                 state.preloadedArticle.value = await articleApi.getArticleForEdit(route.params.slug);
             } catch (e) {
-                console.error('预加载文章失败', e);
+                console.error('Failed to preload article', e);
             }
         }
 
@@ -431,23 +432,23 @@ export async function clearDraft(state, route) {
             updateShadowContent(state.htmlContainerRef.value, state.htmlContent.value);
         } else {
             // 没有预加载数据，重新从后端加载
-            await loadArticle(route.params.slug, state);
+            await loadArticle(route.params.slug, state, t);
         }
     }
 
     state.preloadedArticle.value = null;
-    showToast('草稿缓存已清除', 'success');
+    showToast(t('editor.draftCleared'), 'success');
 }
 
 /**
  * 清空HTML
  * 实现二次确认机制，防止误操作
  */
-export async function clearHtml(state) {
+export async function clearHtml(state, t) {
     // 二次确认机制
     if (!state.clearHtmlConfirm.value) {
         // 第一次点击：显示提示
-        showToast('再次点击确认清空HTML', 'warning');
+        showToast(t('editor.clearHtmlConfirmAgain'), 'warning');
         state.clearHtmlConfirm.value = true;
 
         // 5秒后重置确认状态
@@ -462,15 +463,15 @@ export async function clearHtml(state) {
     state.htmlContent.value = '';
     // iframe会自动清空（通过v-show和:srcdoc绑定）
     await nextTick();
-    showToast('HTML已清空', 'success');
+    showToast(t('editor.htmlCleared'), 'success');
 }
 
 /**
  * 生成HTML（调用GraphQL convertToHtml接口）
  */
-export async function generateHtml(state) {
+export async function generateHtml(state, t) {
     if (!state.form.value.markdown) {
-        showToast('Markdown内容为空', 'warning');
+        showToast(t('editor.markdownEmpty'), 'warning');
         return;
     }
 
@@ -513,19 +514,19 @@ export async function generateHtml(state) {
         const result = data.aiAgentTools?.convertToHtml;
 
         if (!result) {
-            throw new Error('接口返回数据为空');
+            throw new Error(t('editor.emptyResponse'));
         }
 
         if (result.status === 'FAILED' || result.error) {
-            throw new Error(result.error || '转换失败');
+            throw new Error(result.error || t('editor.conversionFailed'));
         }
 
         state.htmlContent.value = result.html;
         state.generationProgress.value = 100;
-        showToast('HTML生成成功', 'success');
+        showToast(t('editor.htmlGeneratedSuccess'), 'success');
     } catch (e) {
-        console.error('生成HTML失败:', e);
-        const errorMsg = '生成HTML失败: ' + e.message;
+        console.error('Failed to generate HTML:', e);
+        const errorMsg = t('editor.generateHtmlFailedDetail', { message: e.message });
         showToast(errorMsg, 'error');
         state.pageErrors.value.push(errorMsg);
         state.htmlContent.value = '';

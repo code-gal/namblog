@@ -52,7 +52,7 @@ export function loadMetadataDraft(isNew, articleId) {
         try {
             return JSON.parse(data);
         } catch (e) {
-            console.error('解析缓存元数据失败', e);
+            console.error('Failed to parse cache metadata', e);
             return null;
         }
     }

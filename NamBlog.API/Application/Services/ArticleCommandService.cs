@@ -5,10 +5,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Mapster;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NamBlog.API.Application.Common;
 using NamBlog.API.Application.DTOs;
+using NamBlog.API.Application.Resources;
 using NamBlog.API.Domain.Entities;
 using NamBlog.API.Domain.Interfaces;
 
@@ -28,6 +30,7 @@ namespace NamBlog.API.Application.Services
         IOptionsMonitor<BlogInfo> blogInfo,
         IUnitOfWork unitOfWork,
         IMemoryCache cache,
+        IStringLocalizer<SharedResource> localizer,
         ILogger<ArticleCommandService> logger)
     {
         private readonly IPostRepository _postRepository = postRepository;
@@ -39,6 +42,7 @@ namespace NamBlog.API.Application.Services
         private readonly ArticleQueryService _queryService = queryService;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IMemoryCache _cache = cache;
+        private readonly IStringLocalizer<SharedResource> _localizer = localizer;
         private readonly ILogger<ArticleCommandService> _logger = logger;
         private readonly string _blogName = blogInfo.CurrentValue.BlogName ?? "Admin";
 
@@ -78,7 +82,7 @@ namespace NamBlog.API.Application.Services
                 {
                     _logger.LogError("AI生成HTML失败 - Slug: {Slug}, 错误: {Error}", metadata.Slug, htmlResult.ErrorMessage);
                     return Result.Failure<ArticleMetadataDto>(
-                        htmlResult.ErrorMessage ?? "AI 生成 HTML 失败",
+                        htmlResult.ErrorMessage ?? _localizer["AiHtmlGenerationFailed"].Value,
                         htmlResult.ErrorCode ?? ErrorCodes.ExternalServiceError);
                 }
 
@@ -156,7 +160,7 @@ namespace NamBlog.API.Application.Services
                 if (post == null)
                 {
                     _logger.LogWarning("更新文章失败 - 文章不存在: {Id}", command.Id);
-                    return Result.Failure<ArticleMetadataDto>($"文章 ID '{command.Id}' 不存在", ErrorCodes.NotFound);
+                    return Result.Failure<ArticleMetadataDto>(_localizer["ArticleNotFoundWithId", command.Id].Value, ErrorCodes.NotFound);
                 }
 
                 // 记录旧 slug（用于缓存清除）
@@ -300,7 +304,7 @@ namespace NamBlog.API.Application.Services
                     {
                         _logger.LogError("AI生成HTML失败 - Slug: {Slug}, 错误: {Error}", metadata.Slug, htmlResult.ErrorMessage);
                         return Result.Failure<ArticleVersionSubmitDto>(
-                            htmlResult.ErrorMessage ?? "AI 生成 HTML 失败",
+                            htmlResult.ErrorMessage ?? _localizer["AiHtmlGenerationFailed"].Value,
                             htmlResult.ErrorCode ?? ErrorCodes.ExternalServiceError);
                     }
 
@@ -370,7 +374,7 @@ namespace NamBlog.API.Application.Services
                 if (post == null)
                 {
                     _logger.LogWarning("为文章创建版本失败 - 文章不存在: {Id}", command.Id);
-                    return Result.Failure<ArticleVersionSubmitDto>($"文章 ID '{command.Id}' 不存在", ErrorCodes.NotFound);
+                    return Result.Failure<ArticleVersionSubmitDto>(_localizer["ArticleNotFoundWithId", command.Id].Value, ErrorCodes.NotFound);
                 }
 
                 // 3. 比较并更新 Markdown 文件
@@ -398,7 +402,7 @@ namespace NamBlog.API.Application.Services
                         _logger.LogError("AI生成HTML失败 - Id: {Id}, Slug: {Slug}, 错误: {Error}",
                             command.Id, post.Slug, htmlResult.ErrorMessage);
                         return Result.Failure<ArticleVersionSubmitDto>(
-                            htmlResult.ErrorMessage ?? "AI 生成 HTML 失败",
+                            htmlResult.ErrorMessage ?? _localizer["AiHtmlGenerationFailed"].Value,
                             htmlResult.ErrorCode ?? ErrorCodes.ExternalServiceError);
                     }
 
@@ -475,14 +479,14 @@ namespace NamBlog.API.Application.Services
             var post = await _postRepository.GetByIdAsync(id);
             if (post == null)
             {
-                return Result.Failure("文章不存在", ErrorCodes.NotFound);
+                return Result.Failure(_localizer["ArticleNotFound"].Value, ErrorCodes.NotFound);
             }
 
             // 查找版本
             var version = post.Versions.FirstOrDefault(v => v.VersionName == versionName);
             if (version == null)
             {
-                return Result.Failure($"版本 {versionName} 不存在", ErrorCodes.NotFound);
+                return Result.Failure(_localizer["VersionNotFound", versionName].Value, ErrorCodes.NotFound);
             }
 
             // 检查是否为最后一个版本
@@ -545,7 +549,7 @@ namespace NamBlog.API.Application.Services
         {
             var post = await _postRepository.GetByIdAsync(id);
             if (post == null)
-                return Result.Failure<ArticleDetailDto>($"文章（id='{id}'）不存在", ErrorCodes.NotFound);
+                return Result.Failure<ArticleDetailDto>(_localizer["ArticleNotFoundWithId", id].Value, ErrorCodes.NotFound);
 
             // 使用领域方法切换发布状态
             if (post.IsPublished)
@@ -556,7 +560,7 @@ namespace NamBlog.API.Application.Services
             {
                 // 检查是否有版本
                 if (post.Versions.Count == 0)
-                    return Result.Failure<ArticleDetailDto>("无法发布：文章没有版本", ErrorCodes.InvalidOperation);
+                    return Result.Failure<ArticleDetailDto>(_localizer["CannotPublishNoVersion"].Value, ErrorCodes.InvalidOperation);
 
                 post.Publish();
             }
@@ -578,7 +582,7 @@ namespace NamBlog.API.Application.Services
             if (post == null)
             {
                 _logger.LogWarning("删除文章失败 - 文章不存在: {id}", id);
-                return Result.Failure("文章不存在", ErrorCodes.NotFound);
+                return Result.Failure(_localizer["ArticleNotFound"].Value, ErrorCodes.NotFound);
             }
 
             // 版本会通过级联删除自动删除

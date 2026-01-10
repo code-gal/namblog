@@ -2,8 +2,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using NamBlog.API.Application.Common;
+using NamBlog.API.Application.Resources;
 using NamBlog.API.Domain.Interfaces;
 using NamBlog.API.Domain.Specifications;
 
@@ -12,7 +14,10 @@ namespace NamBlog.API.Application.Services
     /// <summary>
     /// 验证服务实现
     /// </summary>
-    public partial class ValidationService(IPostRepository postRepository, ILogger<ValidationService> logger)
+    public partial class ValidationService(
+        IPostRepository postRepository,
+        IStringLocalizer<SharedResource> localizer,
+        ILogger<ValidationService> logger)
     {
         // ==================== 唯一性验证 ====================
 
@@ -40,7 +45,7 @@ namespace NamBlog.API.Application.Services
             if (exists)
             {
                 logger.LogWarning("标题已存在：{Title}", title);
-                return Result.Failure<bool>($"标题 '{title}' 已存在", ErrorCodes.AlreadyExists);
+                return Result.Failure<bool>(localizer["TitleAlreadyExists"].Value, ErrorCodes.AlreadyExists);
             }
 
             return Result.Success(true);
@@ -70,7 +75,7 @@ namespace NamBlog.API.Application.Services
             if (exists)
             {
                 logger.LogWarning("Slug已存在：{Slug}", slug);
-                return Result.Failure<bool>($"Slug '{slug}' 已存在", ErrorCodes.AlreadyExists);
+                return Result.Failure<bool>(localizer["SlugAlreadyExists"].Value, ErrorCodes.AlreadyExists);
             }
 
             return Result.Success(true);

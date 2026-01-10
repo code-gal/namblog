@@ -1,5 +1,6 @@
 import { createApp } from 'vue';
 import { createRouter, createWebHistory, createWebHashHistory } from 'vue-router';
+import { i18n } from './i18n/index.js';
 import App from './App.js';
 import Home from './views/Home.js';
 import Login from './views/Login.js';
@@ -72,11 +73,12 @@ router.beforeEach((to, from, next) => {
 // Create App
 const app = createApp(App);
 app.use(router);
+app.use(i18n);
 app.mount('#app');
 
 // 初始化 PWA（Service Worker 注册）
 if ('serviceWorker' in navigator) {
     initPWA().catch(err => {
-        console.error('[PWA] 初始化失败:', err);
+        console.error('[PWA] Initialization failed:', err);
     });
 }

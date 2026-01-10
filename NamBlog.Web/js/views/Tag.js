@@ -1,5 +1,6 @@
 import { ref, inject, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { request } from '../api/client.js';
 import { store } from '../store.js';
 import Pagination from '../components/Pagination.js';
@@ -11,6 +12,7 @@ export default {
         Sidebar
     },
     setup() {
+        const { t, locale } = useI18n();
         const route = useRoute();
         const router = useRouter();
         const isSidebarOpen = inject('isSidebarOpen');
@@ -102,8 +104,8 @@ export default {
                     id: article.id,
                     title: article.title,
                     summary: article.excerpt || '',
-                    date: new Date(article.lastModified || article.publishedAt || Date.now()).toLocaleDateString('zh-CN'),
-                    category: article.category || '未分类',
+                    date: new Date(article.lastModified || article.publishedAt || Date.now()).toLocaleDateString(locale.value),
+                    category: article.category || t('article.uncategorized'),
                     slug: article.slug,
                     isPublished: article.isPublished,
                     isFeatured: article.isFeatured,
@@ -127,8 +129,8 @@ export default {
                     };
                 }
             } catch (err) {
-                error.value = '加载文章失败，请稍后重试';
-                console.error('标签页加载错误:', err);
+                error.value = t('errors.loadArticleFailed');
+                console.error('Tag page loading error:', err);
             } finally {
                 isLoading.value = false;
             }
@@ -162,6 +164,7 @@ export default {
         });
 
         return {
+            t,
             articles,
             pageInfo,
             tagName,
@@ -189,14 +192,14 @@ export default {
                         <span class="text-primary">#</span>{{ tagName }}
                     </h1>
                     <p class="text-gray-600 dark:text-gray-400 mt-2">
-                        共 {{ pageInfo ? pageInfo.totalCount : articles.length }} 篇文章
+                        {{ t('article.totalArticles', { count: pageInfo ? pageInfo.totalCount : articles.length }) }}
                     </p>
                 </div>
 
                 <!-- Loading State -->
                 <div v-if="isLoading" class="text-center py-10">
                     <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-white"></div>
-                    <p class="mt-2 text-gray-600 dark:text-gray-400">加载中...</p>
+                    <p class="mt-2 text-gray-600 dark:text-gray-400">{{ t('common.loading') }}</p>
                 </div>
 
                 <!-- Error State -->
@@ -206,7 +209,7 @@ export default {
 
                 <!-- Empty State -->
                 <div v-else-if="articles.length === 0" class="text-center py-10 text-gray-500 dark:text-gray-400">
-                    该标签下暂无文章
+                    {{ t('article.noArticlesInTag') }}
                 </div>
 
                 <!-- Article List -->
@@ -219,11 +222,11 @@ export default {
                                 </span>
                                 <span>{{ article.date }}</span>
                                 <!-- 收藏（精选）标识 -->
-                                <span v-if="article.isFeatured" class="ml-2 text-yellow-500 text-sm" title="精选文章">
+                                <span v-if="article.isFeatured" class="ml-2 text-yellow-500 text-sm" :title="t('article.featuredArticle')">
                                     ⭐
                                 </span>
                                 <!-- 未发布标识 -->
-                                <span v-if="!article.isPublished" class="ml-2 text-red-500 text-xs border border-red-500 px-1 rounded" title="未发布">
+                                <span v-if="!article.isPublished" class="ml-2 text-red-500 text-xs border border-red-500 px-1 rounded" :title="t('article.unpublishedArticle')">
                                     🔒
                                 </span>
                             </div>
@@ -240,7 +243,7 @@ export default {
 
                             <div class="flex items-center justify-between">
                                 <router-link :to="'/article/' + article.slug" class="text-primary dark:text-blue-400 font-medium hover:underline text-sm">
-                                    阅读更多 &rarr;
+                                    {{ t('article.readMore') }} &rarr;
                                 </router-link>
                                 <!-- 标签列表 -->
                                 <div v-if="article.tags && article.tags.length > 0" class="flex gap-1 flex-wrap">

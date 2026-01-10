@@ -2,9 +2,11 @@ using System;
 using GraphQL;
 using GraphQL.Types;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Localization;
 using NamBlog.API.Application.Common;
 using NamBlog.API.Application.DTOs;
 using NamBlog.API.Application.Services;
+using NamBlog.API.Application.Resources;
 
 namespace NamBlog.API.EntryPoint.GraphiQL.Mutations
 {
@@ -27,12 +29,14 @@ namespace NamBlog.API.EntryPoint.GraphiQL.Mutations
                 .Resolve(ctx =>
                 {
                     var authService = ctx.RequestServices?.GetRequiredService<AuthService>();
-                    if (authService == null)
+                    var localizer = ctx.RequestServices?.GetRequiredService<IStringLocalizer<SharedResource>>();
+
+                    if (authService == null || localizer == null)
                     {
                         return new LoginResult
                         {
                             Success = false,
-                            Message = "系统异常，请稍后重试",
+                            Message = localizer?["SystemError"].Value ?? "System error",
                             ErrorCode = "SYSTEM_ERROR"
                         };
                     }
@@ -48,7 +52,7 @@ namespace NamBlog.API.EntryPoint.GraphiQL.Mutations
                             return new LoginResult
                             {
                                 Success = false,
-                                Message = "用户名和密码不能为空",
+                                Message = localizer["InvalidInput"].Value,
                                 ErrorCode = "INVALID_INPUT"
                             };
                         }
@@ -62,7 +66,7 @@ namespace NamBlog.API.EntryPoint.GraphiQL.Mutations
                             return new LoginResult
                             {
                                 Success = false,
-                                Message = "用户名或密码错误",
+                                Message = localizer["InvalidCredentials"].Value,
                                 ErrorCode = "INVALID_CREDENTIALS"
                             };
                         }
@@ -77,11 +81,11 @@ namespace NamBlog.API.EntryPoint.GraphiQL.Mutations
                     catch (Exception ex)
                     {
                         // 只捕获技术异常（如数据库连接失败、配置错误等）
-                        GraphQLHelper.AddError(ctx, $"登录服务异常: {ex.Message}", ErrorCodes.InternalError);
+                        GraphQLHelper.AddError(ctx, string.Format(localizer["LoginServiceError"].Value, ex.Message), ErrorCodes.InternalError);
                         return new LoginResult
                         {
                             Success = false,
-                            Message = "系统异常，请稍后重试",
+                            Message = localizer["SystemError"].Value,
                             ErrorCode = "SYSTEM_ERROR"
                         };
                     }

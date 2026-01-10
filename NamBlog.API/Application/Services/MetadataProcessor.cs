@@ -1,6 +1,8 @@
 using System.Threading.Tasks;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using NamBlog.API.Application.Common;
+using NamBlog.API.Application.Resources;
 using NamBlog.API.Domain.Interfaces;
 
 namespace NamBlog.API.Application.Services
@@ -22,10 +24,12 @@ namespace NamBlog.API.Application.Services
     public class MetadataProcessor(
         IAIService aiService,
         ValidationService validationService,
+        IStringLocalizer<SharedResource> localizer,
         ILogger<MetadataProcessor> logger)
     {
         private readonly IAIService _aiService = aiService;
         private readonly ValidationService _validationService = validationService;
+        private readonly IStringLocalizer<SharedResource> _localizer = localizer;
         private readonly ILogger<MetadataProcessor> _logger = logger;
 
         private const int _maxRetries = 3;
@@ -154,7 +158,7 @@ namespace NamBlog.API.Application.Services
                 {
                     if (attempt == _maxRetries)
                         return Result.Failure<string>(
-                            $"AI 生成标题失败：{titleResult.ErrorMessage}",
+                            string.Format(_localizer["AiTitleGenerationFailedDetail"].Value, titleResult.ErrorMessage),
                             titleResult.ErrorCode ?? ErrorCodes.ExternalServiceError);
                     continue;
                 }
@@ -166,7 +170,7 @@ namespace NamBlog.API.Application.Services
                 {
                     if (attempt < _maxRetries)
                         continue;
-                    return Result.Failure<string>("AI 生成的标题格式不符合要求", ErrorCodes.ValidationFailed);
+                    return Result.Failure<string>(_localizer["AiTitleFormatInvalid"].Value, ErrorCodes.ValidationFailed);
                 }
 
                 var uniqueResult = await _validationService.ValidateTitleUniqueAsync(generatedTitle, excludePostId);
@@ -174,13 +178,13 @@ namespace NamBlog.API.Application.Services
                 {
                     if (attempt < _maxRetries)
                         continue;
-                    return Result.Failure<string>("AI 生成的标题已存在，请手动指定标题", ErrorCodes.AlreadyExists);
+                    return Result.Failure<string>(_localizer["AiTitleAlreadyExists"].Value, ErrorCodes.AlreadyExists);
                 }
 
                 return Result.Success(generatedTitle);
             }
 
-            return Result.Failure<string>("AI 生成标题失败", ErrorCodes.ExternalServiceError);
+            return Result.Failure<string>(_localizer["AiGenerateTitleFailed"].Value, ErrorCodes.ExternalServiceError);
         }
 
         private async Task<Result<string>> GenerateSlugWithRetryAsync(string title, int? excludePostId)
@@ -192,7 +196,7 @@ namespace NamBlog.API.Application.Services
                 {
                     if (attempt == _maxRetries)
                         return Result.Failure<string>(
-                            $"AI 生成 Slug 失败：{slugResult.ErrorMessage}",
+                            string.Format(_localizer["AiSlugGenerationFailedDetail"].Value, slugResult.ErrorMessage),
                             slugResult.ErrorCode ?? ErrorCodes.ExternalServiceError);
                     continue;
                 }
@@ -205,7 +209,7 @@ namespace NamBlog.API.Application.Services
                     if (attempt < _maxRetries)
                         continue;
                     return Result.Failure<string>(
-                        $"AI 生成的 Slug 格式不正确：{formatResult.ErrorMessage}",
+                        string.Format(_localizer["AiSlugFormatInvalid"].Value, formatResult.ErrorMessage),
                         ErrorCodes.ValidationFailed);
                 }
 
@@ -214,13 +218,13 @@ namespace NamBlog.API.Application.Services
                 {
                     if (attempt < _maxRetries)
                         continue;
-                    return Result.Failure<string>("AI 生成的 Slug 已存在，请手动指定 Slug", ErrorCodes.AlreadyExists);
+                    return Result.Failure<string>(_localizer["AiSlugAlreadyExists"].Value, ErrorCodes.AlreadyExists);
                 }
 
                 return Result.Success(generatedSlug);
             }
 
-            return Result.Failure<string>("AI 生成 Slug 失败", ErrorCodes.ExternalServiceError);
+            return Result.Failure<string>(_localizer["AiGenerateSlugFailed"].Value, ErrorCodes.ExternalServiceError);
         }
 
         /// <summary>

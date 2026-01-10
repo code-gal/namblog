@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" msdata:Ordinal="5" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- Common Messages -->
+  <data name="Success" xml:space="preserve">
+    <value>操作成功</value>
+  </data>
+  <data name="Failed" xml:space="preserve">
+    <value>操作失败</value>
+  </data>
+  <data name="SaveFailed" xml:space="preserve">
+    <value>保存失败</value>
+  </data>
+  <data name="Unauthorized" xml:space="preserve">
+    <value>未授权</value>
+  </data>
+
+  <!-- Article Messages -->
+  <data name="ArticleNotFound" xml:space="preserve">
+    <value>文章不存在</value>
+  </data>
+  <data name="ArticleCreated" xml:space="preserve">
+    <value>文章创建成功</value>
+  </data>
+  <data name="ArticleUpdated" xml:space="preserve">
+    <value>文章更新成功</value>
+  </data>
+  <data name="ArticleDeleted" xml:space="preserve">
+    <value>文章删除成功</value>
+  </data>
+
+  <!-- Validation Messages -->
+  <data name="TitleRequired" xml:space="preserve">
+    <value>标题不能为空</value>
+  </data>
+  <data name="SlugAlreadyExists" xml:space="preserve">
+    <value>URL 标识已存在</value>
+  </data>
+  <data name="TitleAlreadyExists" xml:space="preserve">
+    <value>标题已存在</value>
+  </data>
+  <data name="MarkdownTooShort" xml:space="preserve">
+    <value>Markdown 内容过短（至少需要 {0} 个字符）</value>
+  </data>
+
+  <!-- Authentication Messages -->
+  <data name="InvalidCredentials" xml:space="preserve">
+    <value>用户名或密码错误</value>
+  </data>
+
+  <!-- Error Messages -->
+  <data name="ArticleNotFoundWithId" xml:space="preserve">
+    <value>文章 ID '{0}' 不存在</value>
+  </data>
+  <data name="VersionNotFound" xml:space="preserve">
+    <value>版本 {0} 不存在</value>
+  </data>
+  <data name="CannotPublishNoVersion" xml:space="preserve">
+    <value>无法发布：文章没有版本</value>
+  </data>
+  <data name="HtmlFileNotFound" xml:space="preserve">
+    <value>HTML文件不存在</value>
+  </data>
+  <data name="MarkdownFileNotFound" xml:space="preserve">
+    <value>Markdown 文件不存在</value>
+  </data>
+  <data name="QueryParameterRequired" xml:space="preserve">
+    <value>至少需要提供一个查询参数（slug、id 或 title）</value>
+  </data>
+  <data name="ReadMarkdownFailed" xml:space="preserve">
+    <value>读取 Markdown 失败：{0}</value>
+  </data>
+
+  <!-- AI Generation Error Messages -->
+  <data name="AiTitleFormatInvalid" xml:space="preserve">
+    <value>AI 生成的标题格式不符合要求</value>
+  </data>
+  <data name="AiTitleAlreadyExists" xml:space="preserve">
+    <value>AI 生成的标题已存在，请手动指定标题</value>
+  </data>
+  <data name="AiGenerateTitleFailed" xml:space="preserve">
+    <value>AI 生成标题失败</value>
+  </data>
+  <data name="AiSlugAlreadyExists" xml:space="preserve">
+    <value>AI 生成的 Slug 已存在，请手动指定 Slug</value>
+  </data>
+  <data name="AiGenerateSlugFailed" xml:space="preserve">
+    <value>AI 生成 Slug 失败</value>
+  </data>
+
+  <!-- System Error Messages -->
+  <data name="SystemError" xml:space="preserve">
+    <value>系统异常，请稍后重试</value>
+  </data>
+  <data name="InvalidInput" xml:space="preserve">
+    <value>用户名和密码不能为空</value>
+  </data>
+  <data name="LoginServiceError" xml:space="preserve">
+    <value>登录服务异常: {0}</value>
+  </data>
+
+  <!-- Operation Messages -->
+  <data name="OperationFailed" xml:space="preserve">
+    <value>操作失败</value>
+  </data>
+  <data name="SaveArticleFailed" xml:space="preserve">
+    <value>保存失败</value>
+  </data>
+  <data name="SubmitArticleFailed" xml:space="preserve">
+    <value>提交失败</value>
+  </data>
+  <data name="DeleteVersionFailed" xml:space="preserve">
+    <value>删除失败</value>
+  </data>
+  <data name="TogglePublishFailed" xml:space="preserve">
+    <value>操作失败</value>
+  </data>
+  <data name="DeleteArticleFailed" xml:space="preserve">
+    <value>删除失败</value>
+  </data>
+  <data name="MarkdownConversionFailed" xml:space="preserve">
+    <value>转换失败</value>
+  </data>
+
+  <!-- AI Generation Detail Error Messages -->
+  <data name="AiTitleGenerationFailedDetail" xml:space="preserve">
+    <value>AI 生成标题失败：{0}</value>
+  </data>
+  <data name="AiSlugGenerationFailedDetail" xml:space="preserve">
+    <value>AI 生成 Slug 失败：{0}</value>
+  </data>
+  <data name="AiSlugFormatInvalid" xml:space="preserve">
+    <value>AI 生成的 Slug 格式不正确：{0}</value>
+  </data>
+  <data name="AiHtmlGenerationFailed" xml:space="preserve">
+    <value>AI 生成 HTML 失败</value>
+  </data>
+</root>

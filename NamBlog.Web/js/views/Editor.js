@@ -4,6 +4,7 @@
  */
 import { onMounted, onUnmounted, nextTick, watch, computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { store } from '../store.js';
 import * as editorCache from './editor/editorCache.js';
 import { editorTemplate } from './editor/EditorTemplate.js';
@@ -17,6 +18,7 @@ export default {
     setup() {
         const route = useRoute();
         const router = useRouter();
+        const { t } = useI18n();
 
         // 初始化状态
         const state = useEditorState();
@@ -30,7 +32,7 @@ export default {
             }
 
             store.setContext('editor', null);
-            editorActions.loadCategories(state.categories);
+            editorActions.loadCategories(state.categories, t);
 
             // 移动端检测和默认状态设置
             const isMobile = window.matchMedia('(max-width: 768px)').matches;
@@ -136,7 +138,7 @@ export default {
             const slug = route.params.slug;
             if (slug) {
                 state.isNew.value = false;
-                editorActions.loadArticle(slug, state).then((success) => {
+                editorActions.loadArticle(slug, state, t).then((success) => {
                     if (success) {
                         nextTick(() => {
                             initEditor(state.form, () => {
@@ -208,7 +210,7 @@ export default {
         // Markdown预览（简单的markdown转HTML，用于全屏编辑器）
         const markdownPreview = computed(() => {
             const markdown = state.form.value.markdown;
-            if (!markdown) return '<p class="text-gray-400">暂无内容</p>';
+            if (!markdown) return `<p class="text-gray-400">${t('common.noContent')}</p>`;
 
             // 简单的markdown渲染（基础支持）
             let html = markdown
@@ -287,7 +289,7 @@ html.dark {
         if (e.target && e.target !== window) {
             const resource = e.target.src || e.target.href;
             if (resource) {
-                errors.push('资源加载失败: ' + resource);
+                errors.push(t('editor.resourceLoadFailed', { resource }));
             }
         }
     }, true);
@@ -351,9 +353,9 @@ html.dark {
                 if (errors.length > 0) {
                     // 添加一个总结性错误提示
                     state.pageErrors.value = [
-                        `HTML预览发现 ${errors.length} 个问题（来自AI生成的HTML）：`,
+                        t('editor.htmlQualityIssues', { count: errors.length }),
                         ...errors.slice(0, 5), // 最多显示5个错误
-                        ...(errors.length > 5 ? ['…还有更多错误（共' + errors.length + '个）'] : [])
+                        ...(errors.length > 5 ? [t('editor.moreErrors', { count: errors.length })] : [])
                     ];
                 }
             }
@@ -403,13 +405,13 @@ html.dark {
 
         // ==================== 操作函数包装 ====================
 
-        const handleVersionChange = () => editorActions.handleVersionChange(state);
-        const saveMetadata = () => editorActions.saveMetadata(state, router);
-        const submitArticle = () => editorActions.submitArticle(state, router);
-        const deleteArticle = () => editorActions.deleteArticle(state, router, route);
-        const clearDraft = () => editorActions.clearDraft(state, route);
-        const clearHtml = () => editorActions.clearHtml(state);
-        const generateHtml = () => editorActions.generateHtml(state);
+        const handleVersionChange = () => editorActions.handleVersionChange(state, t);
+        const saveMetadata = () => editorActions.saveMetadata(state, router, t);
+        const submitArticle = () => editorActions.submitArticle(state, router, t);
+        const deleteArticle = () => editorActions.deleteArticle(state, router, route, t);
+        const clearDraft = () => editorActions.clearDraft(state, route, t);
+        const clearHtml = () => editorActions.clearHtml(state, t);
+        const generateHtml = () => editorActions.generateHtml(state, t);
         const togglePublish = () => editorActions.togglePublish(state);
 
         // 打开全屏预览（关闭移动端浮动面板）
@@ -458,7 +460,7 @@ html.dark {
         const toggleHistoryPromptExpand = (index) => promptHelpers.toggleHistoryPromptExpand(index, state);
         const handleCustomPromptClick = () => promptHelpers.handleCustomPromptClick(state);
         const scrollToCustomPrompt = () => promptHelpers.scrollToCustomPrompt(state);
-        const copyPrompt = (prompt) => promptHelpers.copyPrompt(prompt);
+        const copyPrompt = (prompt) => promptHelpers.copyPrompt(prompt, t);
 
         const goBack = () => router.back();
 
@@ -494,7 +496,10 @@ html.dark {
             toggleHistoryPromptExpand,
             handleCustomPromptClick,
             scrollToCustomPrompt,
-            copyPrompt
+            copyPrompt,
+
+            // 国际化
+            t
         };
     }
 };

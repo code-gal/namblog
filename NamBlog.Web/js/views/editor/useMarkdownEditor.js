@@ -3,6 +3,9 @@
  * 初始化和管理EasyMDE编辑器实例
  */
 
+// 导入i18n以支持国际化
+import { i18n } from '../../i18n/index.js';
+
 let easyMDE = null;
 
 /**
@@ -15,7 +18,7 @@ export function initEditor(form, onFullscreen) {
 
     const element = document.getElementById('markdown-editor');
     if (!element) {
-        console.warn('Markdown编辑器元素未找到');
+        console.warn('Markdown editor element not found');
         return null;
     }
 
@@ -35,7 +38,7 @@ export function initEditor(form, onFullscreen) {
             name: 'custom-fullscreen',
             action: onFullscreen,
             className: 'fa fa-arrows-alt no-disable',
-            title: '全屏编辑（移动端优化）'
+            title: i18n.global.t('editor.fullscreenEditMobile')
         });
     }
 

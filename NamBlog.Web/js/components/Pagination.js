@@ -1,5 +1,6 @@
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 
 /**
  * 分页组件
@@ -23,6 +24,7 @@ export default {
     },
     emits: ['page-change'],
     setup(props, { emit }) {
+        const { t } = useI18n();
         const router = useRouter();
 
         // 计算页码列表（显示当前页前后各2页）
@@ -111,16 +113,16 @@ export default {
             pageNumbers,
             goToPage,
             previousPage,
-            nextPage
+            nextPage,
+            t
         };
     },
     template: `
         <div class="flex flex-col items-center space-y-4 mt-8 mb-6">
             <!-- 分页信息 -->
             <div class="text-sm text-gray-600 dark:text-gray-400">
-                共 <span class="font-semibold text-gray-900 dark:text-gray-100">{{ pageInfo.totalCount }}</span> 篇文章，
-                第 <span class="font-semibold text-gray-900 dark:text-gray-100">{{ pageInfo.currentPage }}</span> /
-                <span class="font-semibold text-gray-900 dark:text-gray-100">{{ pageInfo.totalPages }}</span> 页
+                {{ t('pagination.totalArticles', { count: pageInfo.totalCount }) }}，
+                {{ t('pagination.currentPage', { current: pageInfo.currentPage, total: pageInfo.totalPages }) }}
             </div>
 
             <!-- 分页控件 -->
@@ -135,9 +137,9 @@ export default {
                             ? 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
                             : 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-600 cursor-not-allowed'
                     ]"
-                    title="上一页"
+                    :title="t('pagination.previous')"
                 >
-                    ← 上一页
+                    ← {{ t('pagination.previous') }}
                 </button>
 
                 <!-- 页码列表 -->
@@ -175,9 +177,9 @@ export default {
                             ? 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
                             : 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-600 cursor-not-allowed'
                     ]"
-                    title="下一页"
+                    :title="t('pagination.next')"
                 >
-                    下一页 →
+                    {{ t('pagination.next') }} →
                 </button>
             </div>
         </div>

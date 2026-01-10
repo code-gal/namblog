@@ -1,7 +1,7 @@
 {
-  "name": "NamBlog - 个人博客",
+  "name": "NamBlog - Personal Blog",
   "short_name": "NamBlog",
-  "description": "基于AI的个人博客管理平台",
+  "description": "AI-powered personal blog management platform",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -29,6 +29,6 @@
     }
   ],
   "categories": ["productivity", "social"],
-  "lang": "zh-CN",
+  "lang": "en",
   "dir": "ltr"
 }

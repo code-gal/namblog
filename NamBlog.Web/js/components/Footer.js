@@ -1,8 +1,10 @@
 import { ref, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { request } from '../api/client.js';
 
 export default {
     setup() {
+        const { t } = useI18n();
         // 响应式数据
         const blogName = ref('NamBlog'); // 默认值
         const currentYear = new Date().getFullYear();
@@ -72,7 +74,8 @@ export default {
 
         return {
             blogName,
-            currentYear
+            currentYear,
+            t
         };
     },
     template: `
@@ -90,12 +93,12 @@ export default {
                         <router-link
                             to="/article/about"
                             class="text-gray-500 hover:text-primary dark:hover:text-blue-400 transition-colors">
-                            关于
+                            {{ t('common.about') }}
                         </router-link>
                         <router-link
                             to="/article/disclaimer"
                             class="text-gray-500 hover:text-primary dark:hover:text-blue-400 transition-colors">
-                            免责声明
+                            {{ t('common.disclaimer') }}
                         </router-link>
                     </div>
 

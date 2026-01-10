@@ -383,8 +383,8 @@ namespace NamBlog.API.Infrastructure.Agents
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "生成标题失败");
-                return Result.Failure<string>($"生成标题失败：{ex.Message}", ErrorCodes.ExternalServiceError);
+                logger.LogError(ex, "Title generation failed");
+                return Result.Failure<string>($"Title generation failed: {ex.Message}", ErrorCodes.ExternalServiceError);
             }
         }
 
@@ -433,8 +433,8 @@ namespace NamBlog.API.Infrastructure.Agents
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "生成 Slug 失败");
-                return Result.Failure<string>($"生成 Slug 失败：{ex.Message}", ErrorCodes.ExternalServiceError);
+                logger.LogError(ex, "Slug generation failed");
+                return Result.Failure<string>($"Slug generation failed: {ex.Message}", ErrorCodes.ExternalServiceError);
             }
         }
 
@@ -519,7 +519,7 @@ namespace NamBlog.API.Infrastructure.Agents
 
                 if (tagsList.Length == 0)
                 {
-                    return Result.Failure<string[]>("无法解析 AI 生成的标签", ErrorCodes.ExternalServiceError);
+                    return Result.Failure<string[]>("Cannot parse AI-generated tags", ErrorCodes.ExternalServiceError);
                 }
 
                 logger.LogDebug("AI生成标签(行分割): {Tags}", string.Join(", ", tagsList));
@@ -527,8 +527,8 @@ namespace NamBlog.API.Infrastructure.Agents
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "生成标签失败");
-                return Result.Failure<string[]>($"生成标签失败：{ex.Message}", ErrorCodes.ExternalServiceError);
+                logger.LogError(ex, "Tag generation failed");
+                return Result.Failure<string[]>($"Tag generation failed: {ex.Message}", ErrorCodes.ExternalServiceError);
             }
         }
 
@@ -595,8 +595,8 @@ namespace NamBlog.API.Infrastructure.Agents
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "生成摘要失败");
-                return Result.Failure<string>($"生成摘要失败：{ex.Message}", ErrorCodes.ExternalServiceError);
+                logger.LogError(ex, "Summary generation failed");
+                return Result.Failure<string>($"Summary generation failed: {ex.Message}", ErrorCodes.ExternalServiceError);
             }
         }
     }

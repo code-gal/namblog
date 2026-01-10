@@ -1,4 +1,5 @@
 import { config } from '../config.js';
+import { getLocale } from '../i18n/index.js';
 
 /**
  * Generic GraphQL request function
@@ -10,6 +11,7 @@ export async function request(query, variables = {}) {
     const headers = {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
+        'Accept-Language': getLocale(), // Add language preference header
     };
 
     const token = localStorage.getItem('auth_token');

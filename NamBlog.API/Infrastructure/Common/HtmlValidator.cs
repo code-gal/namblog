@@ -29,31 +29,31 @@ namespace NamBlog.API.Infrastructure.Common
 
             if (string.IsNullOrWhiteSpace(html))
             {
-                return (false, "HTML 内容为空", null);
+                return (false, "HTML content is empty", null);
             }
 
             // 1. 检查基本 HTML 结构
             if (!html.Contains("<!DOCTYPE html>", StringComparison.OrdinalIgnoreCase))
             {
-                return (false, "缺少 DOCTYPE 声明", null);
+                return (false, "Missing DOCTYPE declaration", null);
             }
 
             if (!html.Contains("<html", StringComparison.OrdinalIgnoreCase) ||
                 !html.Contains("</html>", StringComparison.OrdinalIgnoreCase))
             {
-                return (false, "缺少完整的 <html> 标签", null);
+                return (false, "Missing complete <html> tag", null);
             }
 
             if (!html.Contains("<head", StringComparison.OrdinalIgnoreCase) ||
                 !html.Contains("</head>", StringComparison.OrdinalIgnoreCase))
             {
-                return (false, "缺少 <head> 标签", null);
+                return (false, "Missing <head> tag", null);
             }
 
             if (!html.Contains("<body", StringComparison.OrdinalIgnoreCase) ||
                 !html.Contains("</body>", StringComparison.OrdinalIgnoreCase))
             {
-                return (false, "缺少 <body> 标签", null);
+                return (false, "Missing <body> tag", null);
             }
 
             // 2. 使用 HtmlAgilityPack 验证标签闭合
@@ -63,26 +63,26 @@ namespace NamBlog.API.Infrastructure.Common
             if (htmlDoc.ParseErrors != null && htmlDoc.ParseErrors.Any())
             {
                 var firstError = htmlDoc.ParseErrors.First();
-                return (false, $"HTML 解析错误：{firstError.Reason}（第 {firstError.Line} 行）", null);
+                return (false, $"HTML parse error: {firstError.Reason} (line {firstError.Line})", null);
             }
 
             // 3. 检查是否包含必要的 html、head、body 节点
             var htmlNode = htmlDoc.DocumentNode.SelectSingleNode("//html");
             if (htmlNode == null)
             {
-                return (false, "无法找到有效的 <html> 节点", null);
+                return (false, "Cannot find valid <html> node", null);
             }
 
             var headNode = htmlDoc.DocumentNode.SelectSingleNode("//head");
             if (headNode == null)
             {
-                return (false, "无法找到有效的 <head> 节点", null);
+                return (false, "Cannot find valid <head> node", null);
             }
 
             var bodyNode = htmlDoc.DocumentNode.SelectSingleNode("//body");
             if (bodyNode == null)
             {
-                return (false, "无法找到有效的 <body> 节点", null);
+                return (false, "Cannot find valid <body> node", null);
             }
 
             // 4. 检查外部脚本（根据验证模式处理）

@@ -3,6 +3,7 @@ import Footer from './components/Footer.js';
 import Toast from './components/Toast.js';
 import { ref, provide, onMounted, onUnmounted, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { request } from './api/client.js';
 import { store } from './store.js';
 
@@ -13,6 +14,7 @@ export default {
         Toast
     },
     setup() {
+        const { t } = useI18n();
         // Global Sidebar State
         const isSidebarOpen = ref(true);
         const isMobile = ref(false);
@@ -76,9 +78,14 @@ export default {
 
                 if (blogName) {
                     store.setBlogName(blogName);
-                    // 更新页面标题
-                    if (document.title === '加载中...' || document.title === 'NamBlog') {
+                    // 更新页面标题（如果还是默认标题）
+                    if (document.title === 'Loading...' || document.title === 'NamBlog' || document.title === t('common.loading')) {
                         document.title = blogName;
+                    }
+                    // 更新meta description
+                    const metaDesc = document.querySelector('meta[name="description"]');
+                    if (metaDesc && metaDesc.content === 'AI-powered personal blog management platform') {
+                        metaDesc.content = t('common.blogDescription');
                     }
                 }
             } catch (e) {
