@@ -43,8 +43,8 @@ namespace NamBlog.API.Extensions
                     aiSettings.BaseUrl, aiSettings.Model);
 
                 // 配置超时时间为 10 分钟（生成长文章需要更多时间）
-                var clientOptions = new OpenAIClientOptions 
-                { 
+                var clientOptions = new OpenAIClientOptions
+                {
                     Endpoint = new Uri(aiSettings.BaseUrl),
                     NetworkTimeout = TimeSpan.FromMinutes(10)
                 };

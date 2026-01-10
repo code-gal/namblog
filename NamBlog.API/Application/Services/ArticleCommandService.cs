@@ -112,6 +112,9 @@ namespace NamBlog.API.Application.Services
                 // 10. 保存 HTML 文件
                 await _fileService.SaveHtmlAsync("", metadata.Slug, version.VersionName, htmlResult.Value!);
 
+                // 10.5. AI生成的HTML已经在OpenAIService中验证过，直接标记为有效
+                version.MarkAsValid();
+
                 // 11. 设置发布状态（必须在创建版本之后）
                 if (command.IsPublished == true)
                 {
@@ -285,13 +288,13 @@ namespace NamBlog.API.Application.Services
                 string htmlContent;
                 if (!string.IsNullOrWhiteSpace(command.Html))
                 {
-                    // 用户提供了 HTML，直接使用
+                    // 用户提供了 HTML（前端已验证，直接使用）
                     htmlContent = command.Html;
                     // _logger.LogDebug("使用用户提供的HTML - Slug: {Slug}", metadata.Slug);
                 }
                 else
                 {
-                    // AI 生成 HTML
+                    // AI 生成 HTML（已在OpenAIService中验证）
                     var htmlResult = await _aiService.RenderMarkdownToHtmlAsync(command.Markdown, command.CustomPrompt);
                     if (!htmlResult.IsSuccess)
                     {
@@ -334,6 +337,9 @@ namespace NamBlog.API.Application.Services
 
                 // 10. 保存HTML文件
                 await _fileService.SaveHtmlAsync(post.FilePath, post.FileName, version.VersionName, htmlContent);
+
+                // 10.5. 标记验证状态（AI生成的已验证，用户提供的也已验证）
+                version.MarkAsValid();
 
                 // 11. 应用发布状态
                 if (command.IsPublished.GetValueOrDefault())
@@ -379,13 +385,13 @@ namespace NamBlog.API.Application.Services
                 string htmlContent;
                 if (!string.IsNullOrWhiteSpace(command.Html))
                 {
-                    // 用户提供了 HTML，直接使用
+                    // 用户提供了 HTML（前端已验证，直接使用）
                     htmlContent = command.Html;
                     // _logger.LogDebug("使用用户提供的HTML - Id: {Id}, Slug: {Slug}", command.Id, post.Slug);
                 }
                 else
                 {
-                    // AI 生成 HTML
+                    // AI 生成 HTML（已在OpenAIService中验证）
                     var htmlResult = await _aiService.RenderMarkdownToHtmlAsync(command.Markdown, command.CustomPrompt);
                     if (!htmlResult.IsSuccess)
                     {
@@ -426,6 +432,9 @@ namespace NamBlog.API.Application.Services
 
                 // 7. 保存 HTML
                 await _fileService.SaveHtmlAsync(post.FilePath, post.FileName, version.VersionName, htmlContent);
+
+                // 7.5. 标记验证状态（AI生成的已验证，用户提供的也已验证）
+                version.MarkAsValid();
 
                 // 8. 更新发布状态
                 if (command.IsPublished.HasValue)

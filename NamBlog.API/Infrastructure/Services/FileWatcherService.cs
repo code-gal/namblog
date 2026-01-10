@@ -194,7 +194,7 @@ namespace NamBlog.API.Infrastructure.Services
                         // 进一步检查 HTML 文件是否真实存在
                         var validVersion = existingPost.Versions.First(v => v.ValidationStatus == HtmlValidationStatus.Valid);
                         var htmlRelativePath = FilePathHelper.GetHtmlRelativePath(filePath, fileName, validVersion.VersionName);
-                        var htmlFullPath = Path.Combine(_storageSettings.HtmlPath, htmlRelativePath);
+                        var htmlFullPath = Path.Combine(_storageSettings.HtmlPath, htmlRelativePath, "index.html");
 
                         if (File.Exists(htmlFullPath))
                         {
@@ -601,9 +601,19 @@ namespace NamBlog.API.Infrastructure.Services
                     }
                     else
                     {
-                        // 文章存在，检查是否需要修复 HTML
-                        var hasValidVersion = existingPost.Versions.Any(v => v.ValidationStatus == HtmlValidationStatus.Valid);
-                        if (!hasValidVersion)
+                        // 文章存在，检查是否需要修复 HTML（双重检查：验证状态 + 文件存在性）
+                        var needsRepair = !existingPost.Versions.Any(v =>
+                        {
+                            // 1. 检查验证状态
+                            if (v.ValidationStatus != HtmlValidationStatus.Valid) return false;
+
+                            // 2. 检查HTML文件是否真实存在
+                            var htmlRelativePath = FilePathHelper.GetHtmlRelativePath(filePath, fileName, v.VersionName);
+                            var htmlFullPath = Path.Combine(_storageSettings.HtmlPath, htmlRelativePath, "index.html");
+                            return File.Exists(htmlFullPath);
+                        });
+
+                        if (needsRepair)
                         {
                             logger.LogWarning("MD监控 - 扫描-发现无效版本，尝试修复: {FileName}", fileName);
                             var fileService = scope.ServiceProvider.GetRequiredService<IFileService>();
