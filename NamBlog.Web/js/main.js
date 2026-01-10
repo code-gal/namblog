@@ -35,20 +35,10 @@ const routes = [
 //
 // 判断逻辑：检测 hostname
 // - localhost/127.0.0.1/私有IP段 为开发环境
-// - 公网域名/IP 为生产环境
-const isPrivateNetwork = (hostname) => {
-    // localhost 或回环地址
-    if (hostname === 'localhost' || hostname === '127.0.0.1') return true;
-    // 私有 IP 地址段：10.x.x.x, 172.16-31.x.x, 192.168.x.x
-    const privateIPPatterns = [
-        /^10\.\d{1,3}\.\d{1,3}\.\d{1,3}$/,           // 10.0.0.0 - 10.255.255.255
-        /^172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}$/,  // 172.16.0.0 - 172.31.255.255
-        /^192\.168\.\d{1,3}\.\d{1,3}$/               // 192.168.0.0 - 192.168.255.255
-    ];
-    return privateIPPatterns.some(pattern => pattern.test(hostname));
-};
-
-const isDevelopment = isPrivateNetwork(location.hostname);
+// 使用 APP_CONFIG.DEV_MODE 判断路由模式
+// - 开发模式（DEV_MODE: true）：Hash 模式（#/），无需后端配置
+// - 生产模式（DEV_MODE: false）：History 模式（/），需要后端支持 SPA 路由
+const isDevelopment = window.APP_CONFIG.DEV_MODE;
 
 const routerHistory = isDevelopment
     ? createWebHashHistory()      // 开发：Hash 模式（#/article/xxx）
