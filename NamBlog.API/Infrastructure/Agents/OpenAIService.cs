@@ -106,7 +106,7 @@ namespace NamBlog.API.Infrastructure.Agents
         public async Task<Result<string>> RenderMarkdownToHtmlAsync(string markdown, string? customPrompt = null)
         {
             const int MaxRetries = 3;
-            const int TimeoutSeconds = 600; // 10 分钟，生成长文章需要更多时间
+            var timeoutSeconds = AiSettings.TimeoutSeconds; // 从配置读取超时时间
 
             // 组装最终提示词
             var systemPrompt = BuildFinalPrompt(customPrompt);
@@ -124,7 +124,7 @@ namespace NamBlog.API.Infrastructure.Agents
                 try
                 {
                     // 创建超时取消令牌
-                    using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(TimeoutSeconds));
+                    using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(timeoutSeconds));
 
                     var chatOptions = new ChatOptions
                     {
@@ -190,7 +190,7 @@ namespace NamBlog.API.Infrastructure.Agents
                 }
                 catch (OperationCanceledException)
                 {
-                    logger.LogError("AI调用超时 - {Timeout}秒, 尝试 {Attempt}/{MaxRetries}", TimeoutSeconds, attempt, MaxRetries);
+                    logger.LogError("AI调用超时 - {Timeout}秒, 尝试 {Attempt}/{MaxRetries}", timeoutSeconds, attempt, MaxRetries);
 
                     if (attempt == MaxRetries)
                     {
@@ -219,7 +219,7 @@ namespace NamBlog.API.Infrastructure.Agents
             string? customPrompt = null,
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            const int TimeoutSeconds = 600; // 10 分钟，生成长文章需要更多时间
+            var timeoutSeconds = AiSettings.TimeoutSeconds; // 从配置读取超时时间
 
             logger.LogInformation("开始流式生成HTML - Markdown长度: {Length}", markdown.Length);
 
@@ -249,7 +249,7 @@ namespace NamBlog.API.Infrastructure.Agents
             string? errorResult = null;
             var progressUpdates = new List<HtmlRenderProgress>();
 
-            using var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(TimeoutSeconds));
+            using var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(timeoutSeconds));
             using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
 
             try
@@ -276,8 +276,8 @@ namespace NamBlog.API.Infrastructure.Agents
             }
             catch (OperationCanceledException)
             {
-                logger.LogError("流式生成超时 - {TimeoutSeconds}秒", TimeoutSeconds);
-                errorResult = $"生成超时（{TimeoutSeconds} 秒），请稍后重试";
+                logger.LogError("流式生成超时 - {TimeoutSeconds}秒", timeoutSeconds);
+                errorResult = $"生成超时（{timeoutSeconds} 秒），请稍后重试";
             }
             catch (Exception ex)
             {

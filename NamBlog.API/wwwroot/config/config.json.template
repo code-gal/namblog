@@ -28,9 +28,11 @@
     "Model": "gpt-4",
     "MaxTokens": "50000",
     "Temperature": "0.7",
+    "TimeoutSeconds": 600,
     "_tip1": "Model 可选值：需兼容openai api格式（取决于你的 API 提供商）",
     "_tip2": "Temperature 范围 0.0-2.0，值越高创意性越强，越低结果越稳定。建议 0.5-0.7",
-    "_tip3": "MaxTokens 建议 10000-50000，过小可能导致生成的 HTML 不完整"
+    "_tip3": "MaxTokens 建议 10000-50000，过小可能导致生成的 HTML 不完整",
+    "_tip4": "TimeoutSeconds 为 AI 生成超时时间（秒），默认 600 秒（10 分钟）。生成长文章需要更多时间，可根据实际情况调整"
   },
   "MCP": {
     "_comment": "【MCP 协议配置】用于 AI 工具集成（如 Claude Desktop）",

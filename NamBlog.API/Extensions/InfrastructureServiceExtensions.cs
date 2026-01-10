@@ -42,11 +42,11 @@ namespace NamBlog.API.Extensions
                 logger.LogInformation("初始化 IChatClient - BaseUrl: {BaseUrl}, Model: {Model}",
                     aiSettings.BaseUrl, aiSettings.Model);
 
-                // 配置超时时间为 10 分钟（生成长文章需要更多时间）
+                // 配置超时时间（从 AI 配置读取，生成长文章需要更多时间）
                 var clientOptions = new OpenAIClientOptions
                 {
                     Endpoint = new Uri(aiSettings.BaseUrl),
-                    NetworkTimeout = TimeSpan.FromMinutes(10)
+                    NetworkTimeout = TimeSpan.FromSeconds(aiSettings.TimeoutSeconds)
                 };
 
                 return new OpenAI.Chat.ChatClient(
