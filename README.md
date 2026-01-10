@@ -26,14 +26,14 @@
 
 <p align="center">
   <a href="Docs-Tools/images/index.png"><img src="Docs-Tools/images/index.png" alt="首页" width="49%"/></a>
-  <a href="Docs-Tools/images/page.png"><img src="Docs-Tools/images/page.png" alt="文章页" width="49%"/></a>
+  <a href="Docs-Tools/images/page.png"><img src="Docs-Tools/images/page(dark).png" alt="文章页" width="49%"/></a>
 </p>
 <p align="center">
   <a href="Docs-Tools/images/edit(desktop).png"><img src="Docs-Tools/images/edit(desktop).png" alt="编辑器-浅色" width="49%"/></a>
   <a href="Docs-Tools/images/edit(desktop-dark).png"><img src="Docs-Tools/images/edit(desktop-dark).png" alt="编辑器-深色" width="49%"/></a>
 </p>
 
-<video width="630" height="300" src="https://github.com/user-attachments/assets/d63d4c97-ea3c-42fb-91f8-79d66395107c" controls></video>
+<video width="630" height="300" src="https://github.com/user-attachments/assets/e6243594-44b8-454d-b1a0-e44b7a11640c" controls></video>
 
 ## 主要功能
 

@@ -9,8 +9,7 @@
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { request } from '../api/client.js';
-import { store } from '../store.js';
-
+import { store } from '../store.js';import { HIDDEN_CATEGORIES } from '../config.js';
 export default {
     setup() {
         const route = useRoute();
@@ -327,7 +326,10 @@ export default {
             try {
                 const data = await request(query);
                 if (data.blog?.listCollection?.categorys) {
-                    categories.value = data.blog.listCollection.categorys;
+                    // 过滤掉隐藏的分类，不在导航面板中显示
+                    categories.value = data.blog.listCollection.categorys.filter(
+                        cat => !HIDDEN_CATEGORIES.includes(cat.name.toLowerCase())
+                    );
                     updateNavCategories();
                 }
             } catch (error) {

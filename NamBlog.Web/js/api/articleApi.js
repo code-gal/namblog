@@ -3,6 +3,7 @@
  * 封装所有文章相关的GraphQL操作
  */
 import { request } from './client.js';
+import { HIDDEN_CATEGORIES } from '../config.js';
 
 /**
  * 获取文章分类列表
@@ -21,7 +22,10 @@ export async function fetchCategories() {
         }
     `;
     const data = await request(query);
-    return data.blog.listCollection.categorys.map(c => c.name);
+    // 过滤掉隐藏的分类，不在编辑器分类列表中显示
+    return data.blog.listCollection.categorys
+        .filter(c => !HIDDEN_CATEGORIES.includes(c.name.toLowerCase()))
+        .map(c => c.name);
 }
 
 /**

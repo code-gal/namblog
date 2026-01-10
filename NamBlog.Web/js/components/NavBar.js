@@ -3,6 +3,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { auth } from '../api/auth.js';
 import { store } from '../store.js';
 import { request } from '../api/client.js';
+import { HIDDEN_CATEGORIES } from '../config.js';
 
 export default {
     setup() {
@@ -38,7 +39,10 @@ export default {
             try {
                 const data = await request(query);
                 if (data.blog.listCollection && data.blog.listCollection.categorys) {
-                    categories.value = data.blog.listCollection.categorys;
+                    // 过滤掉隐藏的分类，不在导航栏中显示
+                    categories.value = data.blog.listCollection.categorys.filter(
+                        cat => !HIDDEN_CATEGORIES.includes(cat.name.toLowerCase())
+                    );
                 }
             } catch (error) {
                 console.error('Failed to fetch categories:', error);

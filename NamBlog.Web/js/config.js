@@ -34,3 +34,10 @@ export const config = {
         return `${apiBaseUrl}/graphql`;
     },
 };
+
+/**
+ * 隐藏的分类列表
+ * 这些分类不会在导航栏、分类列表等位置显示，但文章仍可通过其他方式访问
+ * 适用场景：特殊页面（如关于、隐私声明等）
+ */
+export const HIDDEN_CATEGORIES = ['pages'];
