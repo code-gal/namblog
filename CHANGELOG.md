@@ -8,7 +8,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Planned
-- i18n
+- Skills
+
+## [0.8.5] - 2026-01-11
+
+### Added
+- ✨ 实现 i18n 国际化支持（中英双语）
+  - 后端本地化基础设施，使用资源文件
+  - 前端使用 vue-i18n，支持浏览器语言自动检测
+  - 核心 UI 组件翻译（导航栏、登录、文章等）
+  - 创建英文文档（README.md 和配置指南）
+  - 所有文档添加双语交叉引用
+  - 支持 localStorage 语言偏好持久化
+- ✨ 支持可配置的隐藏分类功能
+  - 在 config.js 中添加 HIDDEN_CATEGORIES 常量集中管理分类过滤
+  - 从导航栏、文章导航面板和编辑器分类列表中过滤配置的分类（默认：'pages'）
+  - 隐藏分类的文章仍可通过主页、标签页和直接链接访问
+  - 适用于"关于"或"隐私政策"等不应出现在分类导航中的特殊页面
+
+### Changed
+- 🔧 AI 生成超时时间现在可通过 TimeoutSeconds 配置项自定义
+
+### Fixed
+- 🐛 修复 SPA 路由刷新时的资源 404 错误
+  - 优化 index.html 中脚本加载顺序，确保在加载其他资源前设置 `<base href="/">`
+  - 生产环境：添加 base 标签以正确解析刷新 /article/* 路由时的相对路径
+  - 开发环境：config.local.js 设置 DEV_MODE=true，跳过 base 标签
+- 🐛 统一环境检测并优化 base 标签插入
+  - 使用 DOM API 替换 document.write() 以消除浏览器警告
+  - 使用 APP_CONFIG.DEV_MODE 代替基于 IP 的检测来选择路由模式
+  - 修复本地测试环境（127.0.0.1）的路由模式问题
+- 🐛 防止 FileWatcherService 覆盖用户创建的文章 HTML
+  - 在 ArticleCommandService 保存 HTML 后调用 MarkAsValid()（3 处）
+  - 增强 FileWatcherService 扫描逻辑，使用双重验证（ValidationStatus + 文件存在性检查）
+  - 确保所有文章版本的 ValidationStatus 正确设置为 Valid
+  - 修复 HandleFileCreatedAsync 中 HTML 文件路径构造，添加 index.html
+- 🐛 改进 Article.js 动态资源管理
+  - 为动态添加的脚本/样式添加清理机制
+  - 用 IIFE 包装内联脚本以防止变量重复声明错误
+  - 离开或加载新文章时清理资源
 
 ## [0.8.4] - 2026-01-05
 
@@ -93,5 +131,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` - Bug 修复
 - `Security` - 安全性改进
 
-[Unreleased]: https://github.com/code-gal/namblog/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/code-gal/namblog/compare/v0.8.5...HEAD
+[0.8.5]: https://github.com/code-gal/namblog/releases/tag/v0.8.5
+[0.8.4]: https://github.com/code-gal/namblog/releases/tag/v0.8.4
+[0.8.3]: https://github.com/code-gal/namblog/releases/tag/v0.8.3
+[0.8.2]: https://github.com/code-gal/namblog/releases/tag/v0.8.2
 [0.8.0]: https://github.com/code-gal/namblog/releases/tag/v0.8.0
