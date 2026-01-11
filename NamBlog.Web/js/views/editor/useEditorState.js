@@ -17,6 +17,7 @@ export function useEditorState() {
     // UI状态
     const isHtmlCollapsed = ref(false);
     const isFullscreenPreview = ref(false); // 全屏预览状态
+    const isHtmlEditing = ref(false); // HTML全屏编辑状态
     const isFullscreenPromptEditor = ref(false); // 全屏Prompt编辑器状态
     const isFullscreenMarkdownEditor = ref(false); // 全屏Markdown编辑器状态
     const fullscreenMarkdownMode = ref('edit'); // 全屏Markdown模式: 'edit' | 'preview' | 'split'
@@ -87,6 +88,7 @@ export function useEditorState() {
         // UI状态
         isHtmlCollapsed,
         isFullscreenPreview,
+        isHtmlEditing,
         isFullscreenPromptEditor,
         isFullscreenMarkdownEditor,
         fullscreenMarkdownMode,

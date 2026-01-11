@@ -164,6 +164,7 @@ export default {
         generateHtmlHint: 'Generate HTML: use current Markdown and Prompt to generate preview',
         clickToPreview: 'Click "Generate HTML" to preview',
         fullscreenPreview: 'Fullscreen Preview',
+        fullscreenEdit: 'Fullscreen Edit',
         fullscreenPreviewTitle: '🖥️ Fullscreen Preview',
         refresh: 'Refresh',
         refreshPreview: '🔄 Refresh',
@@ -171,6 +172,10 @@ export default {
         htmlPreviewTitle: 'HTML Preview',
         htmlFullscreenPreviewTitle: 'HTML Fullscreen Preview',
         htmlMobilePreviewTitle: 'HTML Mobile Preview',
+        editHtml: 'Edit HTML',
+        closeEditHtml: 'Close Edit',
+        closeEdit: 'Close Edit',
+        editHtmlPlaceholder: 'Edit HTML code here...',
 
         // Markdown Editor
         markdownEditor: 'Markdown Editor',

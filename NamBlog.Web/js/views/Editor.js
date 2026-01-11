@@ -64,6 +64,7 @@ export default {
                 if (event.key === 'Escape') {
                     if (state.isFullscreenPreview.value) {
                         state.isFullscreenPreview.value = false;
+                        state.isHtmlEditing.value = false; // 关闭全屏时重置编辑状态
                     } else if (state.isFullscreenPromptEditor.value) {
                         state.isFullscreenPromptEditor.value = false;
                     } else if (state.isFullscreenMarkdownEditor.value) {
@@ -418,6 +419,10 @@ html.dark {
         const openFullscreenPreview = () => {
             state.isMobileHtmlPanel.value = false;
             state.isFullscreenPreview.value = true;
+            // 如果HTML为空，自动进入编辑模式
+            if (!state.htmlContent.value) {
+                state.isHtmlEditing.value = true;
+            }
         };
 
         // 关闭移动端HTML面板（统一入口，确保刷新编辑器）

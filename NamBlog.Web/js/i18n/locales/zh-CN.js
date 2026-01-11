@@ -164,6 +164,7 @@ export default {
         generateHtmlHint: '生成HTML：使用当前Markdown和Prompt生成HTML预览',
         clickToPreview: '点击"生成 HTML"预览内容',
         fullscreenPreview: '全屏预览',
+        fullscreenEdit: '全屏编辑',
         fullscreenPreviewTitle: '🖥️ 全屏预览',
         refresh: '刷新',
         refreshPreview: '🔄 刷新',
@@ -171,6 +172,10 @@ export default {
         htmlPreviewTitle: 'HTML预览',
         htmlFullscreenPreviewTitle: 'HTML全屏预览',
         htmlMobilePreviewTitle: 'HTML移动预览',
+        editHtml: '编辑HTML',
+        closeEditHtml: '关闭编辑',
+        closeEdit: '关闭编辑',
+        editHtmlPlaceholder: '在此编辑HTML代码...',
 
         // Markdown 编辑器
         markdownEditor: 'Markdown 编辑器',

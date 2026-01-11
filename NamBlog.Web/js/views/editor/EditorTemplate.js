@@ -259,10 +259,10 @@ export const editorTemplate = `
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
-                        <!-- 全屏预览按钮 -->
-                        <button v-if="htmlContent" @click="isFullscreenPreview = true"
+                        <!-- 全屏预览/编辑按钮 -->
+                        <button @click="openFullscreenPreview"
                                 class="p-1.5 bg-purple-500/10 hover:bg-purple-500/20 dark:bg-purple-500/20 dark:hover:bg-purple-500/30 text-purple-600 dark:text-purple-400 rounded-lg transition-all"
-                                :title="t('editor.fullscreenPreview')">
+                                :title="htmlContent ? t('editor.fullscreenPreview') : t('editor.fullscreenEdit')">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
                             </svg>
@@ -340,18 +340,26 @@ export const editorTemplate = `
     <teleport to="body">
         <div v-if="isFullscreenPreview"
              class="fixed inset-0 z-50 bg-black bg-opacity-75 flex items-center justify-center"
-             @click.self="isFullscreenPreview = false">
+             @click.self="isFullscreenPreview = false; isHtmlEditing = false">
             <div class="w-full h-full max-w-7xl mx-auto p-4 flex flex-col">
                 <!-- 工具栏 -->
                 <div class="flex items-center justify-between mb-2 bg-gray-800 px-4 py-2 rounded-t-lg">
                     <span class="text-white font-semibold">{{ t('editor.fullscreenPreviewTitle') }}</span>
                     <div class="flex gap-2">
-                        <button @click="refreshFullscreenPreview"
+                        <!-- 编辑/关闭编辑按钮 -->
+                        <button @click="isHtmlEditing = !isHtmlEditing"
+                                :class="['px-3 py-1 transition-colors', isHtmlEditing ? 'text-white hover:text-orange-400' : 'text-white hover:text-green-400']"
+                                :title="isHtmlEditing ? t('editor.closeEditHtml') : t('editor.editHtml')">
+                            {{ isHtmlEditing ? '📝 ' + t('editor.closeEdit') : '✏️ ' + t('editor.edit') }}
+                        </button>
+                        <!-- 刷新按钮 -->
+                        <button v-if="!isHtmlEditing" @click="refreshFullscreenPreview"
                                 class="px-3 py-1 text-white hover:text-blue-400 transition-colors"
                                 :title="t('editor.refresh')">
                             {{ t('editor.refreshPreview') }}
                         </button>
-                        <button @click="isFullscreenPreview = false"
+                        <!-- 关闭按钮 -->
+                        <button @click="isFullscreenPreview = false; isHtmlEditing = false"
                                 class="px-3 py-1 text-white hover:text-red-400 transition-colors text-xl"
                                 :title="t('editor.closePreview')">
                             ✕
@@ -359,13 +367,22 @@ export const editorTemplate = `
                     </div>
                 </div>
 
-                <!-- 全屏iframe -->
+                <!-- 全屏iframe（预览模式） -->
                 <iframe
+                    v-if="!isHtmlEditing"
                     :key="fullscreenRefreshKey"
                     :srcdoc="previewHtml"
                     class="flex-1 w-full border-0 bg-white dark:bg-gray-900 rounded-b-lg"
                     :title="t('editor.htmlFullscreenPreviewTitle')">
                 </iframe>
+
+                <!-- 全屏textarea（编辑模式） -->
+                <textarea
+                    v-else
+                    v-model="htmlContent"
+                    class="flex-1 w-full p-4 border-0 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-b-lg font-mono text-sm focus:ring-0 outline-none resize-none"
+                    :placeholder="t('editor.editHtmlPlaceholder')"
+                    style="line-height: 1.6;"></textarea>
             </div>
         </div>
 
@@ -491,14 +508,14 @@ export const editorTemplate = `
                                     :title="t('editor.deleteCurrentVersion')">
                                 🗑️
                             </button>
-                            <button @click="clearHtml"
+                            <button v-if="htmlContent" @click="clearHtml"
                                     class="text-xs px-2 py-1 text-orange-600 hover:text-orange-700 hover:bg-orange-50 dark:text-orange-400 dark:hover:text-orange-300 dark:hover:bg-orange-900/30 transition-all border border-orange-300 dark:border-orange-600 rounded whitespace-nowrap"
                                     :title="t('editor.clearPreview')">
                                 🧹
                             </button>
                             <button @click="openFullscreenPreview"
                                     class="p-1 bg-purple-500/10 hover:bg-purple-500/20 dark:bg-purple-500/20 dark:hover:bg-purple-500/30 text-purple-600 dark:text-purple-400 rounded transition-all"
-                                    :title="t('editor.fullscreenPreview')">
+                                    :title="htmlContent ? t('editor.fullscreenPreview') : t('editor.fullscreenEdit')">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
                                 </svg>
