@@ -27,8 +27,14 @@ export default {
         const blogInfo = ref({});
         const isLoading = ref(true);
         const error = ref(null);
+        const abortController = ref(null);
 
         const fetchArticlesByCategory = async (category) => {
+            // Cancel previous request if exists
+            if (abortController.value) {
+                abortController.value.abort();
+            }
+            abortController.value = new AbortController();
             categoryName.value = decodeURIComponent(category);
             // Set context for NavBar
             store.setContext('list', null);
@@ -97,7 +103,10 @@ export default {
                 if (!store.isAuthenticated) {
                     variables.isPublished = true;
                 }
-                const data = await request(query, variables);
+                const data = await request(query, variables, abortController.value.signal);
+
+                // Check if request was not aborted
+                if (!data) return;
 
                 const articleData = data.blog.article.articles;
                 const fetchedArticles = articleData.items.map(article => ({
@@ -129,17 +138,14 @@ export default {
                     };
                 }
             } catch (err) {
-                error.value = t('errors.loadArticleFailed');
-                console.error('Category page loading error:', err);
+                // Don't show error for aborted requests
+                if (err.name !== 'AbortError') {
+                    error.value = t('errors.loadArticleFailed');
+                    console.error('Category page loading error:', err);
+                }
             } finally {
                 isLoading.value = false;
             }
-        };
-
-        // 处理分页变化
-        const handlePageChange = (page) => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            fetchArticlesByCategory(route.params.category);
         };
 
         onMounted(() => {
@@ -157,9 +163,11 @@ export default {
         });
 
         // 监听路由查询参数变化（分页）
-        watch(() => route.query.page, () => {
+        watch(() => route.query.page, async () => {
             if (route.params.category) {
-                fetchArticlesByCategory(route.params.category);
+                await fetchArticlesByCategory(route.params.category);
+                // Scroll to top after data is loaded
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         });
 
@@ -175,8 +183,7 @@ export default {
             closeSidebar,
             openSidebar,
             isLoading,
-            error,
-            handlePageChange
+            error
         };
     },
     template: `
@@ -258,7 +265,6 @@ export default {
                 <Pagination
                     v-if="pageInfo && pageInfo.totalPages > 1"
                     :pageInfo="pageInfo"
-                    @page-change="handlePageChange"
                 />
             </div>
         </div>

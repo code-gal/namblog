@@ -88,11 +88,9 @@ export default {
             }
 
             // 通过路由更新页码（保留其他查询参数）
+            // URL 变化会被父组件的 watch(route.query.page) 监听到
             const query = { ...router.currentRoute.value.query, page };
             router.push({ query });
-
-            // 触发事件通知父组件
-            emit('page-change', page);
         };
 
         // 上一页

@@ -27,8 +27,14 @@ export default {
         const icon = ref('');
         const isLoading = ref(true);
         const error = ref(null);
+        const abortController = ref(null);
 
         const fetchArticles = async () => {
+            // Cancel previous request if exists
+            if (abortController.value) {
+                abortController.value.abort();
+            }
+            abortController.value = new AbortController();
             // Set context for NavBar
             store.setContext('home', null);
 
@@ -96,7 +102,10 @@ export default {
                 if (!store.isAuthenticated) {
                     variables.isPublished = true;
                 }
-                const data = await request(query, variables);
+                const data = await request(query, variables, abortController.value.signal);
+
+                // Check if request was not aborted
+                if (!data) return;
 
                 // 处理文章列表
                 const articleData = data.blog.article.articles;
@@ -144,19 +153,14 @@ export default {
                 }
 
             } catch (err) {
-                error.value = t('errors.loadArticleFailed');
-                console.error('Failed to fetch articles:', err);
+                // Don't show error for aborted requests
+                if (err.name !== 'AbortError') {
+                    error.value = t('errors.loadArticleFailed');
+                    console.error('Failed to fetch articles:', err);
+                }
             } finally {
                 isLoading.value = false;
             }
-        };
-
-        // 处理分页变化
-        const handlePageChange = (page) => {
-            // 滚动到页面顶部
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            // 重新加载数据（URL已经通过Pagination组件更新）
-            fetchArticles();
         };
 
         onMounted(() => {
@@ -164,8 +168,10 @@ export default {
         });
 
         // 监听路由查询参数变化（分页）
-        watch(() => route.query.page, () => {
-            fetchArticles();
+        watch(() => route.query.page, async () => {
+            await fetchArticles();
+            // Scroll to top after data is loaded
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
 
         return {
@@ -179,7 +185,6 @@ export default {
             openSidebar,
             isLoading,
             error,
-            handlePageChange,
             t
         };
     },
@@ -252,7 +257,6 @@ export default {
                     <Pagination
                         v-if="pageInfo && pageInfo.totalPages > 1"
                         :pageInfo="pageInfo"
-                        @page-change="handlePageChange"
                     />
                 </div>
             </div>
