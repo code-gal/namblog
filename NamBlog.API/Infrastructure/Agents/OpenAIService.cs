@@ -41,11 +41,22 @@ namespace NamBlog.API.Infrastructure.Agents
 4. 响应式设计
 5. **直接输出 HTML 代码，不要用 ```html 或任何 markdown 代码块标记包裹**
 6. 不要添加任何解释性文字，只输出 HTML
-7. 允许内联 JavaScript（在 <script> 标签内）用于简单交互功能";
+7. 允许内联 JavaScript（在 <script> 标签内）用于简单交互功能
+
+**运行环境与兼容性**（重要）：
+- 页面运行在站点同域的 iframe（srcdoc）中：
+    - 不要访问或修改 window.parent/window.top 或宿主页面 DOM（保持内容自包含）
+    - 如需本地存储，localStorage/sessionStorage 的 key 使用固定前缀（如 app_/tool_），避免读写宿主数据
+- 下载实现优先用 Blob URL（URL.createObjectURL + <a download>），并确保在用户点击回调的同步调用栈内触发；避免 setTimeout 间接触发
+- 避免批量连续下载；如需多文件导出，优先打包为一个 zip 再下载
+
+**移动端性能**：
+- 对 touchstart/touchmove/wheel 等滚动相关事件监听器，默认使用 { passive: true }
+- 仅在必须阻止默认滚动时才使用非 passive，并绑定到具体元素而不是全局 window/document";
 
         private const string _defaultTitlePrompt = "根据以下 Markdown 内容生成一个简洁、准确的文章标题，最多80个字符。只返回标题文本，不要添加引号或其他格式。";
         private const string _defaultSlugPrompt = "将以下标题转换为适合URL的slug（小写、连字符分隔，最多40个字符）。只返回slug文本。";
-        private const string _defaultTagsPrompt = "根据以下 Markdown 内容生成 1-10 个相关标签，单个标签2-15 字符。\n\n返回 JSON 数组格式，如：[\"标签1\", \"标签2\", \"标签3\"]\n\n如果无法返回 JSON，也可以每行一个标签。";
+        private const string _defaultTagsPrompt = "根据以下 Markdown 内容生成相关标签（偏技术/主题词，避免太泛）。\n\n要求：\n1. 标签数量：3-6 个（尽量少而精，除非内容确实涉及多个主题）\n2. 每个标签长度：2-12 字符\n3. 标签要选择【高频但非日常泛词】的词语：优先使用领域术语、技术名词、框架/协议/算法/产品名、组合词\n4. 避免过于日常或空泛的标签（除非文章核心主题就是它们）：如“日常”“记录”“随笔”“生活”“分享”“杂谈”“总结”“学习”“教程”“笔记”“经验”“工具”\n5. 标签去重，不要包含表情或特殊符号\n\n返回 JSON 数组格式，如：[\"标签1\", \"标签2\", \"标签3\"]\n\n如果无法返回 JSON，也可以每行一个标签。";
         private const string _defaultExcerptPrompt = "根据以下 Markdown 内容生成一个和文章相同语言的简洁的摘要（50-400字符）。只返回摘要文本，不要添加引号或其他格式。";
 
         /// <summary>
