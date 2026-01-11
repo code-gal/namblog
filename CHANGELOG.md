@@ -10,6 +10,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Planned
 - Skills
 
+## [0.8.11] - 2026-01-11
+
+### Fixed
+- 🐛 修复分页按钮需要双击才生效的问题，并避免并发点击导致的竞态
+- 🐛 修复保存后“版本切换”状态不持久化的问题
+- 🐛 修复移动端 HTML 面板缺失“生成 HTML”按钮的问题
+- 🐛 修复编辑页分类列表在移动端无法正确隐藏/收起的问题
+
+### Changed
+- ♻️ 移动端编辑器分类输入：用自定义下拉菜单替换 datalist，提升可用性与兼容性
+- ♻️ HTML 文章渲染：通过 iframe `srcdoc` 渲染完整 HTML，并移除 sandbox 限制以改善下载等能力
+- 🔧 优化 AI 生成 HTML 的提示词：增强 iframe 兼容性与标签输出质量
+
 ## [0.8.10] - 2026-01-11
 
 ### Fixed
@@ -186,7 +199,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` - Bug 修复
 - `Security` - 安全性改进
 
-[Unreleased]: https://github.com/code-gal/namblog/compare/v0.8.7...HEAD
+[Unreleased]: https://github.com/code-gal/namblog/compare/v0.8.11...HEAD
+[0.8.11]: https://github.com/code-gal/namblog/releases/tag/v0.8.11
+[0.8.10]: https://github.com/code-gal/namblog/releases/tag/v0.8.10
+[0.8.9]: https://github.com/code-gal/namblog/releases/tag/v0.8.9
+[0.8.8]: https://github.com/code-gal/namblog/releases/tag/v0.8.8
 [0.8.7]: https://github.com/code-gal/namblog/releases/tag/v0.8.7
 [0.8.6]: https://github.com/code-gal/namblog/releases/tag/v0.8.6
 [0.8.5]: https://github.com/code-gal/namblog/releases/tag/v0.8.5
