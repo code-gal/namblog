@@ -26,7 +26,7 @@ export function useEditorState() {
 
     // 版本相关
     const versions = ref([]);
-    const selectedVersion = ref(1);
+    const selectedVersion = ref('');
 
     // HTML内容
     const htmlContent = ref('');
