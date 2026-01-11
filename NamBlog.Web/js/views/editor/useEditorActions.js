@@ -168,6 +168,10 @@ export async function saveMetadata(state, router, t) {
         if (state.form.value.customPrompt && state.form.value.customPrompt.trim()) {
             input.customPrompt = state.form.value.customPrompt;
         }
+        // mainVersion 可选（用于切换主版本）
+        if (state.selectedVersion.value) {
+            input.mainVersion = state.selectedVersion.value;
+        }
 
         const savedArticle = await articleApi.saveArticle(input);
 
