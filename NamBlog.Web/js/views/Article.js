@@ -290,23 +290,26 @@ export default {
             });
         };
 
-        // 执行内联脚本（使用IIFE隔离，避免全局污染）
+        // 执行内联脚本
+        // 解决两个问题：
+        // 1. onclick 等事件处理器需要访问全局变量（如 Game.start()）
+        // 2. 多次进入同一文章时，const/let/class 不能重复声明会报错
+        // 解决方案：转换为可重复声明的形式
         const executeScript = (code) => {
             if (!code.trim()) return;
             try {
-                // 🔧 检查代码中是否使用了const/let声明，如果是，包装在IIFE中隔离
-                const hasBlockScope = /\b(const|let)\s+\w+\s*=/.test(code);
+                // 处理代码，使其可重复执行
+                let processedCode = code
+                    // const/let → var（var 可重复声明）
+                    .replace(/^(\s*)const\s+/gm, '$1var ')
+                    .replace(/^(\s*)let\s+/gm, '$1var ')
+                    // class ClassName { → var ClassName = class {（类表达式可重复赋值）
+                    .replace(/^(\s*)class\s+(\w+)\s*\{/gm, '$1var $2 = class $2 {')
+                    .replace(/^(\s*)class\s+(\w+)\s+extends\s+/gm, '$1var $2 = class $2 extends ');
 
                 const script = document.createElement('script');
                 script.dataset.articleScript = 'true'; // 标记为文章脚本
-
-                if (hasBlockScope) {
-                    // 包装在立即执行函数中，避免全局变量冲突
-                    script.textContent = `(function() { ${code} })();`;
-                } else {
-                    script.textContent = code;
-                }
-
+                script.textContent = processedCode;
                 document.body.appendChild(script);
                 dynamicScripts.push(script); // 记录脚本
             } catch (e) {

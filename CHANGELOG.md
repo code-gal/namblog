@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Planned
 - Skills
 
+## [0.8.6] - 2026-01-11
+
+### Fixed
+- 🐛 修复文章页面在 SPA 导航时的脚本重复声明错误（自动转换 const/let/class 为可重复声明形式）
+- 🐛 修复生产环境刷新文章页面时资源路径 404 错误（静态 base 标签）
+- 🔧 优化开发环境配置（添加 .vscode/settings.json 配置 Live Server 路径映射）
+
+### Changed
+- 📝 更新开发指南文档，补充 Live Server 使用说明和常见问题解答
+
 ## [0.8.5] - 2026-01-11
 
 ### Added
@@ -131,7 +141,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` - Bug 修复
 - `Security` - 安全性改进
 
-[Unreleased]: https://github.com/code-gal/namblog/compare/v0.8.5...HEAD
+[Unreleased]: https://github.com/code-gal/namblog/compare/v0.8.6...HEAD
+[0.8.6]: https://github.com/code-gal/namblog/releases/tag/v0.8.6
 [0.8.5]: https://github.com/code-gal/namblog/releases/tag/v0.8.5
 [0.8.4]: https://github.com/code-gal/namblog/releases/tag/v0.8.4
 [0.8.3]: https://github.com/code-gal/namblog/releases/tag/v0.8.3

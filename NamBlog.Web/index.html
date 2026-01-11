@@ -2,11 +2,12 @@
 <html lang="zh-CN">
 <head>
     <!--
-        🔧 base 标签处理说明：
-        - 生产环境（DEV_MODE: false）：添加 <base href="/">，确保在 /article/xxx 刷新时资源正确加载
-        - 开发环境（DEV_MODE: true）：不添加 base，资源相对于 index.html 目录加载
-        顺序：1.默认配置 → 2.加载config.local.js覆盖 → 3.根据DEV_MODE决定base → 4.加载其他资源
+        🔧 base 标签说明：
+        - 生产环境：<base href="/"> 确保 /article/xxx 刷新时资源正确加载
+        - 开发环境：需配合 .vscode/settings.json 中的 Live Server 配置
+          配置将 NamBlog.Web 映射为根目录，访问 http://127.0.0.1:5500/ 即可
     -->
+    <base href="/">
 
     <!-- 1. 默认配置（生产环境） -->
     <script>
@@ -21,16 +22,7 @@
     <!-- 开发时复制 config.local.example.js 为 config.local.js 并修改 DEV_MODE: true -->
     <script src="./config.local.js" onerror="this.remove()"></script>
 
-    <!-- 3. 根据配置决定是否添加 base 标签 -->
-    <script>
-        if (!window.APP_CONFIG.DEV_MODE) {
-            const base = document.createElement('base');
-            base.href = '/';
-            document.head.appendChild(base);
-        }
-    </script>
-
-    <!-- 4. 以下资源会根据 base 标签正确解析路径 -->
+    <!-- 3. 以下资源根据 base 标签解析路径 -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loading...</title>

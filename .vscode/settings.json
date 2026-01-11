@@ -1,0 +1,8 @@
+{
+    // Live Server 配置：将 NamBlog.Web 目录映射为根目录
+    // 解决 <base href="/"> 与开发环境路径的兼容性问题
+    // 配置后访问 http://127.0.0.1:5500/ 即可（不再需要 /NamBlog.Web/）
+    "liveServer.settings.mount": [
+        ["/", "./NamBlog.Web"]
+    ]
+}

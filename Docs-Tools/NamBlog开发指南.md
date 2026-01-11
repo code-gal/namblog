@@ -57,10 +57,13 @@ dotnet run
 cp NamBlog.Web/config.local.example.js NamBlog.Web/config.local.js
 
 # 2. （可选）修改 config.local.js 自定义配置
-# 3. 启动 Live Server
+# 3. 在 VS Code 中使用 Live Server 启动
+#    访问 http://127.0.0.1:5500/ （根目录，不是 /NamBlog.Web/）
 ```
 
-`config.local.js` 会覆盖 `index.html` 中的默认配置，且已在 `.gitignore` 中排除，不会提交到仓库。
+**说明**：
+- `config.local.js` 会覆盖 `index.html` 中的默认配置，且已在 `.gitignore` 中排除，不会提交到仓库
+- `.vscode/settings.json` 已配置 Live Server 将 `NamBlog.Web` 映射为根目录，确保资源路径正确
 
 **生产部署**：
 - 无需任何配置文件
@@ -233,6 +236,11 @@ dotnet ef migrations remove --project NamBlog.API
 // 3. 调用 API（参考 js/api/ 目录的现有代码）
 ```
 
+**开发环境说明**：
+- 使用 Live Server 时，访问 `http://127.0.0.1:5500/`（根目录）
+- `.vscode/settings.json` 已配置路径映射，无需额外配置
+- 前端使用 `<base href="/">` 处理 SPA 路由，开发和生产环境路径一致
+
 ---
 
 ## 贡献指南
@@ -316,4 +324,12 @@ A: 访问 http://localhost:5000/ui/voyager 可视化查看，或参考 [API 接�
 **Q: 数据库迁移失败怎么办？**
 
 A: 参考 [数据库迁移指南](Docs-Tools/数据库迁移指南.md) 的故障排查章节。
+
+**Q: Live Server 资源加载 404 错误？**
+
+A: 确保访问 `http://127.0.0.1:5500/`（根目录）而非 `/NamBlog.Web/`。项目已配置 `.vscode/settings.json` 自动映射路径。
+
+**Q: 文章页面脚本在第二次进入时报错？**
+
+A: 这是已知问题，前端会自动将 `const`/`let`/`class` 转换为可重复声明的形式（`var` 和类表达式）。无需特殊处理。
 
