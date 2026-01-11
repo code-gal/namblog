@@ -3,10 +3,10 @@
  * 封装所有文章相关的GraphQL操作
  */
 import { request } from './client.js';
-import { HIDDEN_CATEGORIES } from '../config.js';
 
 /**
  * 获取文章分类列表
+ * 注意：编辑页需要显示所有分类（包括在导航栏隐藏的分类），以便用户可以选择
  */
 export async function fetchCategories() {
     const query = `
@@ -22,9 +22,8 @@ export async function fetchCategories() {
         }
     `;
     const data = await request(query);
-    // 过滤掉隐藏的分类，不在编辑器分类列表中显示
+    // 返回所有分类，不进行过滤
     return data.blog.listCollection.categorys
-        .filter(c => !HIDDEN_CATEGORIES.includes(c.name.toLowerCase()))
         .map(c => c.name);
 }
 
