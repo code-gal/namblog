@@ -10,6 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Planned
 - Skills
 
+## [0.8.10] - 2026-01-11
+
+### Fixed
+- 🐛 修复文章 iframe 沙箱权限不足导致下载按钮、弹窗、外部链接等功能无法使用
+  - 添加 `allow-downloads` 支持文件下载
+  - 添加 `allow-popups-to-escape-sandbox` 支持外部链接打开
+  - 添加 `allow-top-navigation-by-user-activation` 支持用户触发的页面导航
+  - 添加 `allow-pointer-lock` 支持 3D 游戏和绘图工具
+  - 添加 `allow-presentation` 支持演示 API
+  - 添加 `allow-orientation-lock` 支持移动设备横屏游戏
+  - 添加 `allow-top-navigation-to-custom-protocols` 支持 mailto:、tel: 等自定义协议链接
+
 ## [0.8.9] - 2026-01-11
 
 ### Added

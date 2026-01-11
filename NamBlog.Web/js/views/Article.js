@@ -207,7 +207,17 @@ export default {
                 // 但我们的场景是安全的：内容来自受信任后端API，需要完整功能支持
                 // allow-scripts: AI生成的交互应用需要执行JavaScript
                 // allow-same-origin: 需要访问iframe.contentDocument来同步深色模式
-                iframe.sandbox = 'allow-scripts allow-same-origin allow-forms allow-modals';
+                // allow-forms: 支持表单提交
+                // allow-modals: 支持alert/confirm等对话框
+                // allow-downloads: 支持下载功能（小游戏、工具等可能需要下载）
+                // allow-popups: 支持弹窗和新窗口打开（某些交互功能需要）
+                // allow-popups-to-escape-sandbox: 弹出窗口不受沙箱限制（外部链接）
+                // allow-top-navigation-by-user-activation: 允许用户操作触发的页面导航
+                // allow-pointer-lock: 支持鼠标锁定（3D游戏、绘图工具等需要）
+                // allow-presentation: 支持演示API
+                // allow-orientation-lock: 支持锁定屏幕方向（移动设备横屏游戏）
+                // allow-top-navigation-to-custom-protocols: 支持自定义协议（mailto:, tel:等）
+                iframe.sandbox = 'allow-scripts allow-same-origin allow-forms allow-modals allow-downloads allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation allow-pointer-lock allow-presentation allow-orientation-lock allow-top-navigation-to-custom-protocols';
 
                 contentRef.value.innerHTML = '';
                 contentRef.value.appendChild(iframe);
