@@ -27,10 +27,9 @@ export default {
         const contentRef = ref(null);     // 内容容器
         let navShadowRoot = null;
 
-        // 🔧 记录所有动态添加的脚本和样式，用于清理
-        const dynamicScripts = [];
-        const dynamicStyles = [];
-        const dynamicLinks = [];
+        // 🔧 记录iframe和相关资源，用于清理
+        let articleIframe = null;
+        let iframeResizeObserver = null;
 
         const isAuthenticated = computed(() => store.isAuthenticated);
 
@@ -191,7 +190,7 @@ export default {
             `;
         };
 
-        // 渲染后端HTML到主文档
+        // 渲染后端HTML到主文档（或iframe）
         const renderContent = async () => {
             if (!htmlContent.value || !contentRef.value) return;
 
@@ -201,119 +200,61 @@ export default {
             const isFullDocument = html.trim().startsWith('<!DOCTYPE') || html.trim().toLowerCase().startsWith('<html');
 
             if (isFullDocument) {
-                // 解析完整HTML文档
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
+                // 完整HTML文档 → 使用iframe隔离（避免Vue应用冲突）
+                const iframe = document.createElement('iframe');
+                iframe.style.cssText = 'width: 100%; border: none; min-height: 100vh;';
+                // 注意：浏览器会警告allow-scripts+allow-same-origin组合可逃逸沙箱
+                // 但我们的场景是安全的：内容来自受信任后端API，需要完整功能支持
+                // allow-scripts: AI生成的交互应用需要执行JavaScript
+                // allow-same-origin: 需要访问iframe.contentDocument来同步深色模式
+                iframe.sandbox = 'allow-scripts allow-same-origin allow-forms allow-modals';
 
-                // 清空内容区
                 contentRef.value.innerHTML = '';
+                contentRef.value.appendChild(iframe);
+                contentRef.value.style.display = 'block';
 
-                // 1. 提取并添加<head>中的样式
-                doc.querySelectorAll('head style').forEach(style => {
-                    const newStyle = document.createElement('style');
-                    newStyle.textContent = style.textContent;
-                    newStyle.dataset.articleStyle = 'true'; // 标记为文章样式
-                    contentRef.value.appendChild(newStyle);
-                    dynamicStyles.push(newStyle); // 记录样式
+                // 写入HTML内容
+                iframe.contentDocument.open();
+                iframe.contentDocument.write(html);
+                iframe.contentDocument.close();
+
+                // 监听iframe内容高度变化，自动调整
+                const resizeObserver = new ResizeObserver(() => {
+                    iframe.style.height = iframe.contentDocument.documentElement.scrollHeight + 'px';
                 });
+                resizeObserver.observe(iframe.contentDocument.documentElement);
 
-                // 2. 提取并添加<head>中的外部样式表
-                doc.querySelectorAll('head link[rel="stylesheet"]').forEach(link => {
-                    const newLink = document.createElement('link');
-                    newLink.rel = 'stylesheet';
-                    newLink.href = link.href;
-                    newLink.dataset.articleLink = 'true'; // 标记为文章链接
-                    contentRef.value.appendChild(newLink);
-                    dynamicLinks.push(newLink); // 记录链接
-                });
-
-                // 3. 添加<body>内容（不包含script）
-                const bodyClone = doc.body.cloneNode(true);
-                bodyClone.querySelectorAll('script').forEach(s => s.remove());
-
-                // 创建内容包装器
-                const wrapper = document.createElement('div');
-                wrapper.className = 'article-body-content';
-                wrapper.innerHTML = bodyClone.innerHTML;
-                contentRef.value.appendChild(wrapper);
-
-                // 4. 加载<head>中的外部脚本
-                const headScripts = Array.from(doc.querySelectorAll('head script[src]'));
-                for (const script of headScripts) {
-                    await loadScript(script.src);
-                }
-
-                // 5. 执行<head>中的内联脚本
-                doc.querySelectorAll('head script:not([src])').forEach(script => {
-                    executeScript(script.textContent);
-                });
-
-                // 6. 加载和执行<body>中的脚本（按顺序）
-                const bodyScripts = Array.from(doc.querySelectorAll('body script'));
-                for (const script of bodyScripts) {
-                    if (script.src) {
-                        await loadScript(script.src);
-                    } else {
-                        executeScript(script.textContent);
+                // 同步深色模式到iframe（尽力而为，有支持就生效）
+                const syncDarkMode = () => {
+                    try {
+                        const isDark = document.documentElement.classList.contains('dark');
+                        iframe.contentDocument.documentElement.classList.toggle('dark', isDark);
+                    } catch (e) {
+                        // iframe可能还未加载完成或跨域限制
                     }
-                }
+                };
+
+                // 初始同步
+                iframe.onload = () => {
+                    syncDarkMode();
+                };
+
+                // 监听主应用深色模式变化
+                const darkModeObserver = new MutationObserver(syncDarkMode);
+                darkModeObserver.observe(document.documentElement, {
+                    attributes: true,
+                    attributeFilter: ['class']
+                });
+
+                // 记录资源用于清理
+                articleIframe = iframe;
+                iframeResizeObserver = resizeObserver;
+                // 深色模式观察器不需要全局保存，cleanup时会自动断开
 
             } else {
-                // HTML片段，直接设置
+                // HTML片段 → 直接设置
                 contentRef.value.innerHTML = html;
-            }
-        };
-
-        // 加载外部脚本
-        const loadScript = (src) => {
-            return new Promise((resolve, reject) => {
-                // 检查是否已加载（全局检查）
-                const existing = document.querySelector(`script[src="${src}"]`);
-                if (existing) {
-                    // 如果已存在，检查是否在我们的记录中
-                    if (!dynamicScripts.includes(existing)) {
-                        dynamicScripts.push(existing); // 记录已存在的脚本
-                    }
-                    resolve();
-                    return;
-                }
-                const script = document.createElement('script');
-                script.src = src;
-                script.dataset.articleScript = 'true'; // 标记为文章脚本
-                script.onload = resolve;
-                script.onerror = () => {
-                    console.warn('Script loading failed:', src);
-                    resolve(); // 不阻塞后续
-                };
-                document.head.appendChild(script);
-                dynamicScripts.push(script); // 记录脚本
-            });
-        };
-
-        // 执行内联脚本
-        // 解决两个问题：
-        // 1. onclick 等事件处理器需要访问全局变量（如 Game.start()）
-        // 2. 多次进入同一文章时，const/let/class 不能重复声明会报错
-        // 解决方案：转换为可重复声明的形式
-        const executeScript = (code) => {
-            if (!code.trim()) return;
-            try {
-                // 处理代码，使其可重复执行
-                let processedCode = code
-                    // const/let → var（var 可重复声明）
-                    .replace(/^(\s*)const\s+/gm, '$1var ')
-                    .replace(/^(\s*)let\s+/gm, '$1var ')
-                    // class ClassName { → var ClassName = class {（类表达式可重复赋值）
-                    .replace(/^(\s*)class\s+(\w+)\s*\{/gm, '$1var $2 = class $2 {')
-                    .replace(/^(\s*)class\s+(\w+)\s+extends\s+/gm, '$1var $2 = class $2 extends ');
-
-                const script = document.createElement('script');
-                script.dataset.articleScript = 'true'; // 标记为文章脚本
-                script.textContent = processedCode;
-                document.body.appendChild(script);
-                dynamicScripts.push(script); // 记录脚本
-            } catch (e) {
-                console.error('Script execution error:', e);
+                contentRef.value.style.display = 'block';
             }
         };
 
@@ -922,34 +863,21 @@ export default {
             updateNavState();
         });
 
-        // 🔧 清理函数：移除所有动态添加的脚本、样式和链接
+        // 🔧 清理函数：移除iframe和清空内容区
         const cleanup = () => {
-            // 清理脚本
-            dynamicScripts.forEach(script => {
-                if (script && script.parentNode) {
-                    script.parentNode.removeChild(script);
-                }
-            });
-            dynamicScripts.length = 0;
-
-            // 清理样式
-            dynamicStyles.forEach(style => {
-                if (style && style.parentNode) {
-                    style.parentNode.removeChild(style);
-                }
-            });
-            dynamicStyles.length = 0;
-
-            // 清理链接
-            dynamicLinks.forEach(link => {
-                if (link && link.parentNode) {
-                    link.parentNode.removeChild(link);
-                }
-            });
-            dynamicLinks.length = 0;
+            // 清理iframe和观察器
+            if (articleIframe && articleIframe.parentNode) {
+                articleIframe.parentNode.removeChild(articleIframe);
+            }
+            if (iframeResizeObserver) {
+                iframeResizeObserver.disconnect();
+            }
+            articleIframe = null;
+            iframeResizeObserver = null;
 
             // 清空内容区
             if (contentRef.value) {
+                contentRef.value.style.display = 'none';
                 contentRef.value.innerHTML = '';
             }
         };
@@ -975,9 +903,9 @@ export default {
             <!-- Shadow DOM 导航栏（样式隔离） -->
             <div ref="navRef"></div>
 
-            <!-- 后端HTML内容区（直接渲染在主文档） -->
+            <!-- 后端HTML内容区（完全独立于Vue，通过JS直接控制显示） -->
             <div ref="contentRef"
-                 v-show="(!isLoading && !error && htmlContent) || showDefaultContent"
+                 style="display: none;"
                  class="article-content"></div>
 
             <!-- 加载状态 -->

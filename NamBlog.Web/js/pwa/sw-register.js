@@ -89,12 +89,13 @@ export function setupInstallPrompt() {
     let deferredPrompt = null;
 
     window.addEventListener('beforeinstallprompt', (e) => {
-        // 阻止默认的安装提示
-        e.preventDefault();
+        // MVP版本：使用浏览器默认的安装提示
+        // 不调用 preventDefault()，避免控制台警告
         deferredPrompt = e;
 
-        // MVP版本：不显示UI，用户可通过浏览器菜单安装
-        // 后续可扩展为自定义安装提示UI
+        // 后续可扩展为自定义安装提示UI：
+        // e.preventDefault();
+        // showCustomInstallUI(e);
     });
 
     window.addEventListener('appinstalled', () => {
