@@ -10,6 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Planned
 - Skills
 
+## [0.8.7] - 2026-01-11
+
+### Fixed
+- 🐛 修复文章页面 Vue 应用挂载冲突
+- 🐛 修复页面切换后定时器和动画循环泄漏
+- 🐛 修复 HTTPS 环境下 Trusted Types 阻止脚本执行
+
+### Changed
+- ♻️ 重构文章渲染：完整 HTML 文档使用 iframe 隔离
+- ♻️ 移除冗余代码：定时器劫持、脚本执行函数
+- ✨ 支持深色模式在 iframe 中自动同步
+
 ## [0.8.6] - 2026-01-11
 
 ### Fixed
@@ -141,7 +153,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` - Bug 修复
 - `Security` - 安全性改进
 
-[Unreleased]: https://github.com/code-gal/namblog/compare/v0.8.6...HEAD
+[Unreleased]: https://github.com/code-gal/namblog/compare/v0.8.7...HEAD
+[0.8.7]: https://github.com/code-gal/namblog/releases/tag/v0.8.7
 [0.8.6]: https://github.com/code-gal/namblog/releases/tag/v0.8.6
 [0.8.5]: https://github.com/code-gal/namblog/releases/tag/v0.8.5
 [0.8.4]: https://github.com/code-gal/namblog/releases/tag/v0.8.4
