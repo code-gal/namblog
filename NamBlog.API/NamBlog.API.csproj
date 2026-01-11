@@ -6,10 +6,10 @@
     <Nullable>enable</Nullable>  <!-- 可选，但推荐 -->
 
     <!-- 版本信息 -->
-    <Version>0.8.10</Version>
-    <AssemblyVersion>0.8.10</AssemblyVersion>
-    <FileVersion>0.8.10</FileVersion>
-    <InformationalVersion>0.8.10</InformationalVersion>
+    <Version>0.8.11</Version>
+    <AssemblyVersion>0.8.11</AssemblyVersion>
+    <FileVersion>0.8.11</FileVersion>
+    <InformationalVersion>0.8.11</InformationalVersion>
 
     <!-- 产品信息 -->
     <Product>NamBlog</Product>
@@ -53,6 +53,7 @@
   </ItemGroup>
 
 </Project>
+
 
 
 
