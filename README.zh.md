@@ -35,7 +35,7 @@
   <a href="Docs-Tools/images/edit(desktop-dark).png"><img src="Docs-Tools/images/edit(desktop-dark).png" alt="编辑器-深色" width="49%"/></a>
 </p>
 
-<video width="630" height="300" src="https://github.com/user-attachments/assets/e6243594-44b8-454d-b1a0-e44b7a11640c" controls></video>
+<video width="630" height="300" src="https://github.com/user-attachments/assets/ba2f3b2d-1f54-40c1-950e-b8d00e4f98bf" controls></video>
 
 ## 主要功能
 
@@ -59,6 +59,7 @@
 - 深色模式切换
 - 分页浏览文章列表
 - 分类和标签页面
+
 
 ### 国际化支持
 
