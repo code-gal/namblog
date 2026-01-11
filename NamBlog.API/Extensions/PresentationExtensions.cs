@@ -66,7 +66,7 @@ public static class PresentationExtensions
                 // - 禁用 Introspection（通过 EnableMetrics 控制）
                 // - 禁用所有 UI 工具
                 // - 仅允许正常业务查询（复杂度通常 < 300）
-                config.MaxComplexity = env.IsDevelopment() ? 600000 : 500;
+                config.MaxComplexity = env.IsDevelopment() ? 1000000 : 500;
             })
             .AddUserContextBuilder(BuildUserContext));
 

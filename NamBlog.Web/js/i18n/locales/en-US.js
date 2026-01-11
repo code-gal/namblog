@@ -99,6 +99,7 @@ export default {
         defaultDisclaimerTip: '💡 <strong>Tip</strong>: Login to admin, create an article with slug "disclaimer" to replace this default page.'
     },
     editor: {
+            noCategorySuggestions: 'No matching categories',
         // Basic labels
         title: 'Title',
         slug: 'Slug',

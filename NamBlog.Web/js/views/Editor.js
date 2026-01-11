@@ -23,6 +23,76 @@ export default {
         // 初始化状态
         const state = useEditorState();
 
+        // ==================== 分类下拉（自定义，替代 datalist） ====================
+        const openCategoryDropdown = () => {
+            state.isCategoryDropdownOpen.value = true;
+            if (state.categoryActiveIndex.value < 0) state.categoryActiveIndex.value = 0;
+        };
+
+        const closeCategoryDropdown = () => {
+            state.isCategoryDropdownOpen.value = false;
+            state.categoryActiveIndex.value = -1;
+        };
+
+        const toggleCategoryDropdown = () => {
+            if (state.isCategoryDropdownOpen.value) {
+                closeCategoryDropdown();
+            } else {
+                openCategoryDropdown();
+            }
+        };
+
+        const selectCategory = (cat) => {
+            state.form.value.category = cat ?? '';
+            closeCategoryDropdown();
+        };
+
+        const onCategoryInput = () => {
+            // 输入时打开下拉并重置高亮
+            state.isCategoryDropdownOpen.value = true;
+            state.categoryActiveIndex.value = 0;
+        };
+
+        const onCategoryKeydown = (event) => {
+            const key = event.key;
+            const list = state.filteredCategories.value || [];
+
+            if (!state.isCategoryDropdownOpen.value) {
+                if (key === 'ArrowDown' || key === 'ArrowUp') {
+                    event.preventDefault();
+                    openCategoryDropdown();
+                }
+                return;
+            }
+
+            if (key === 'Escape') {
+                event.preventDefault();
+                closeCategoryDropdown();
+                return;
+            }
+
+            if (!list.length) return;
+
+            if (key === 'ArrowDown') {
+                event.preventDefault();
+                const next = state.categoryActiveIndex.value + 1;
+                state.categoryActiveIndex.value = next >= list.length ? 0 : next;
+            } else if (key === 'ArrowUp') {
+                event.preventDefault();
+                const prev = state.categoryActiveIndex.value - 1;
+                state.categoryActiveIndex.value = prev < 0 ? list.length - 1 : prev;
+            } else if (key === 'Enter') {
+                // Enter 选中高亮项（不阻止表单默认提交，因为这里没有 form submit；但避免回车触发其他按钮点击）
+                event.preventDefault();
+                const idx = state.categoryActiveIndex.value;
+                if (idx >= 0 && idx < list.length) {
+                    selectCategory(list[idx]);
+                } else {
+                    closeCategoryDropdown();
+                }
+            }
+        };
+
         // ==================== 生命周期钩子 ====================
 
         onMounted(() => {
@@ -54,6 +124,13 @@ export default {
                     // 检查点击是否在prompt列表容器外部
                     if (!state.promptListRef.value.contains(event.target)) {
                         state.expandedPromptIndex.value = -1;
+                    }
+                }
+
+                // 检查分类下拉
+                if (state.isCategoryDropdownOpen.value && state.categoryDropdownRef.value) {
+                    if (!state.categoryDropdownRef.value.contains(event.target)) {
+                        closeCategoryDropdown();
                     }
                 }
             };
@@ -502,6 +579,13 @@ html.dark {
             handleCustomPromptClick,
             scrollToCustomPrompt,
             copyPrompt,
+
+            // 分类下拉
+            openCategoryDropdown,
+            toggleCategoryDropdown,
+            selectCategory,
+            onCategoryInput,
+            onCategoryKeydown,
 
             // 国际化
             t

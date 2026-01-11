@@ -57,12 +57,20 @@ export const editorTemplate = `
                             </svg>
                             {{ t('editor.version') }}:
                         </label>
-                        <select v-model="selectedVersion" @change="handleVersionChange"
-                                class="w-48 px-2 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white transition-all focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm hover:shadow-md">
-                            <option v-for="v in versions" :key="v.versionName" :value="v.versionName">
-                                {{ v.versionName }}
-                            </option>
-                        </select>
+                        <div class="relative w-48">
+                            <select v-model="selectedVersion" @change="handleVersionChange"
+                                    class="w-full appearance-none px-2 py-2 pr-7 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white transition-all focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm hover:shadow-md">
+                                <option v-for="v in versions" :key="v.versionName" :value="v.versionName">
+                                    {{ v.versionName }}
+                                </option>
+                            </select>
+                            <!-- 自定义箭头：隐藏原生箭头后，用同款SVG确保跨浏览器一致；pointer-events-none 让点击箭头也能打开select -->
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 text-gray-500 dark:text-gray-300">
+                                <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- 分类输入 -->
@@ -73,11 +81,50 @@ export const editorTemplate = `
                             </svg>
                             {{ t('editor.categoryLabel') }}:
                         </label>
-                        <input v-model="form.category" list="category-list" :placeholder="t('editor.categoryPlaceholder')"
-                               class="w-48 px-2 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white transition-all focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none shadow-sm hover:shadow-md" />
-                        <datalist id="category-list">
-                            <option v-for="cat in categories" :key="cat" :value="cat"></option>
-                        </datalist>
+                        <div class="relative w-48" ref="categoryDropdownRef">
+                            <input
+                                v-model="form.category"
+                                :placeholder="t('editor.categoryPlaceholder')"
+                                name="category"
+                                autocomplete="off"
+                                autocapitalize="off"
+                                autocorrect="off"
+                                spellcheck="false"
+                                @focus="openCategoryDropdown"
+                                @click="openCategoryDropdown"
+                                @input="onCategoryInput"
+                                @keydown="onCategoryKeydown"
+                                class="w-full px-2 py-2 pr-7 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white transition-all focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none shadow-sm hover:shadow-md" />
+
+                            <!-- 下拉按钮（样式对齐 select 的箭头感觉） -->
+                            <button type="button"
+                                    @click="toggleCategoryDropdown"
+                                    class="absolute inset-y-0 right-0 flex items-center px-1.5 text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white">
+                                <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+
+                            <!-- 自定义候选列表（替代 datalist，跨移动端稳定显示） -->
+                            <div v-if="isCategoryDropdownOpen"
+                                 class="absolute z-50 mt-1 w-full border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 shadow-lg overflow-hidden">
+                                <div v-if="!filteredCategories.length"
+                                     class="px-3 py-2 text-sm text-gray-500 dark:text-gray-300">
+                                    {{ t('editor.noCategorySuggestions') }}
+                                </div>
+                                <div v-else class="max-h-60 overflow-auto">
+                                    <button v-for="(cat, idx) in filteredCategories"
+                                            :key="cat"
+                                            type="button"
+                                            @mousedown.prevent
+                                            @click="selectCategory(cat)"
+                                            :class="['w-full text-left px-3 py-2 text-sm transition-colors',
+                                                     idx === categoryActiveIndex ? 'bg-green-50 dark:bg-green-900/30 text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600']">
+                                        {{ cat }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

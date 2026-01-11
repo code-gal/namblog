@@ -99,6 +99,7 @@ export default {
         defaultDisclaimerTip: '💡 <strong>提示</strong>：登录后台，创建 slug 为 "disclaimer" 的文章即可替换此默认页面。'
     },
     editor: {
+            noCategorySuggestions: '无匹配分类',
         // 基础标签
         title: '标题',
         slug: 'URL 标识',

@@ -36,6 +36,11 @@ export function useEditorState() {
     // 分类
     const categories = ref([]);
 
+    // 分类下拉（自定义，替代 datalist，确保移动端一致）
+    const isCategoryDropdownOpen = ref(false);
+    const categoryActiveIndex = ref(-1);
+    const categoryDropdownRef = ref(null);
+
     // Prompt相关
     const selectedPromptIndex = ref(-1); // -1表示使用自定义，>=0表示使用历史
     const expandedPromptIndex = ref(-1); // 当前展开的prompt卡片索引
@@ -66,6 +71,14 @@ export function useEditorState() {
         isPublished: false,
         isFeatured: false,
         aiPrompts: []
+    });
+
+    // 过滤后的分类建议（用于自定义下拉）
+    const filteredCategories = computed(() => {
+        const list = Array.isArray(categories.value) ? categories.value : [];
+        const q = (form.value.category ?? '').toString().trim().toLowerCase();
+        if (!q) return list;
+        return list.filter(c => (c ?? '').toString().toLowerCase().includes(q));
     });
 
     // 计算属性：是否有正在进行的操作（用于禁用其他按钮）
@@ -106,6 +119,12 @@ export function useEditorState() {
 
         // 分类
         categories,
+
+        // 分类下拉
+        isCategoryDropdownOpen,
+        categoryActiveIndex,
+        categoryDropdownRef,
+        filteredCategories,
 
         // Prompt
         selectedPromptIndex,
