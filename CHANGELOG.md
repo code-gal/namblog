@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Planned
 - Skills
 
+## [0.8.8] - 2026-01-11
+
+### Fixed
+- 🐛 修复编辑器清除草稿功能因 `updateShadowContent` 未定义导致的错误
+
 ## [0.8.7] - 2026-01-11
 
 ### Fixed

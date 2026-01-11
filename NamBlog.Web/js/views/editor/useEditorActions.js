@@ -427,9 +427,6 @@ export async function clearDraft(state, route, t) {
             state.selectedVersion.value = state.versions.value[0]?.versionName || '';
 
             setEditorValue(state.form.value.markdown);
-
-            await nextTick();
-            updateShadowContent(state.htmlContainerRef.value, state.htmlContent.value);
         } else {
             // 没有预加载数据，重新从后端加载
             await loadArticle(route.params.slug, state, t);
