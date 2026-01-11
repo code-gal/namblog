@@ -30,6 +30,7 @@ export default {
         // 🔧 记录iframe和相关资源，用于清理
         let articleIframe = null;
         let iframeResizeObserver = null;
+        let darkModeObserver = null;
 
         const isAuthenticated = computed(() => store.isAuthenticated);
 
@@ -203,63 +204,78 @@ export default {
                 // 完整HTML文档 → 使用iframe隔离（避免Vue应用冲突）
                 const iframe = document.createElement('iframe');
                 iframe.style.cssText = 'width: 100%; border: none; min-height: 100vh;';
-                // 注意：浏览器会警告allow-scripts+allow-same-origin组合可逃逸沙箱
-                // 但我们的场景是安全的：内容来自受信任后端API，需要完整功能支持
-                // allow-scripts: AI生成的交互应用需要执行JavaScript
-                // allow-same-origin: 需要访问iframe.contentDocument来同步深色模式
-                // allow-forms: 支持表单提交
-                // allow-modals: 支持alert/confirm等对话框
-                // allow-downloads: 支持下载功能（小游戏、工具等可能需要下载）
-                // allow-popups: 支持弹窗和新窗口打开（某些交互功能需要）
-                // allow-popups-to-escape-sandbox: 弹出窗口不受沙箱限制（外部链接）
-                // allow-top-navigation-by-user-activation: 允许用户操作触发的页面导航
-                // allow-pointer-lock: 支持鼠标锁定（3D游戏、绘图工具等需要）
-                // allow-presentation: 支持演示API
-                // allow-orientation-lock: 支持锁定屏幕方向（移动设备横屏游戏）
-                // allow-top-navigation-to-custom-protocols: 支持自定义协议（mailto:, tel:等）
-                iframe.sandbox = 'allow-scripts allow-same-origin allow-forms allow-modals allow-downloads allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation allow-pointer-lock allow-presentation allow-orientation-lock allow-top-navigation-to-custom-protocols';
+                // 说明：这里默认不启用 iframe sandbox，原因：
+                // - sandbox 会显著影响下载/弹窗/导航等“浏览器行为”，且跨浏览器差异较大
+                // - 编辑器预览使用 srcdoc + 无 sandbox 的组合，行为更接近“原汁原味网页”
+                // 如果未来需要更强隔离，再考虑引入 sandbox + postMessage 桥接能力。
 
                 contentRef.value.innerHTML = '';
                 contentRef.value.appendChild(iframe);
                 contentRef.value.style.display = 'block';
 
-                // 写入HTML内容
-                iframe.contentDocument.open();
-                iframe.contentDocument.write(html);
-                iframe.contentDocument.close();
-
-                // 监听iframe内容高度变化，自动调整
-                const resizeObserver = new ResizeObserver(() => {
-                    iframe.style.height = iframe.contentDocument.documentElement.scrollHeight + 'px';
-                });
-                resizeObserver.observe(iframe.contentDocument.documentElement);
-
-                // 同步深色模式到iframe（尽力而为，有支持就生效）
-                const syncDarkMode = () => {
+                // 使用 srcdoc 写入 HTML（比 document.write 更现代、更可预测）
+                // 注意：load 回调里再访问 contentDocument，避免时序问题
+                iframe.addEventListener('load', () => {
                     try {
-                        const isDark = document.documentElement.classList.contains('dark');
-                        iframe.contentDocument.documentElement.classList.toggle('dark', isDark);
+                        const docEl = iframe.contentDocument?.documentElement;
+                        if (!docEl) return;
+
+                        // 监听iframe内容高度变化，自动调整
+                        const updateHeight = () => {
+                            iframe.style.height = docEl.scrollHeight + 'px';
+                        };
+                        updateHeight();
+
+                        const resizeObserver = new ResizeObserver(updateHeight);
+                        resizeObserver.observe(docEl);
+                        iframeResizeObserver = resizeObserver;
+
+                        // 同步深色模式到iframe（尽力而为，有支持就生效）
+                        const syncDarkMode = () => {
+                            try {
+                                const isDark = document.documentElement.classList.contains('dark');
+                                docEl.classList.toggle('dark', isDark);
+                            } catch (e) {
+                                // iframe可能还未加载完成
+                            }
+                        };
+
+                        // 初始同步
+                        syncDarkMode();
+
+                        // 监听主应用深色模式变化（用于清理，避免泄漏）
+                        if (darkModeObserver) {
+                            darkModeObserver.disconnect();
+                        }
+                        darkModeObserver = new MutationObserver(syncDarkMode);
+                        darkModeObserver.observe(document.documentElement, {
+                            attributes: true,
+                            attributeFilter: ['class']
+                        });
+
+                        // 将 iframe 内错误转发到顶层控制台，便于生产环境排查
+                        try {
+                            const cw = iframe.contentWindow;
+                            if (cw) {
+                                cw.addEventListener('error', (e) => {
+                                    console.error('[Article iframe error]', e?.error || e?.message || e);
+                                }, true);
+                                cw.addEventListener('unhandledrejection', (e) => {
+                                    console.error('[Article iframe unhandledrejection]', e?.reason || e);
+                                }, true);
+                            }
+                        } catch (e) {
+                            // 忽略（极少数浏览器/策略可能不允许）
+                        }
                     } catch (e) {
-                        // iframe可能还未加载完成或跨域限制
+                        // 防御性：避免 iframe 内容异常导致宿主崩溃
                     }
-                };
+                }, { once: true });
 
-                // 初始同步
-                iframe.onload = () => {
-                    syncDarkMode();
-                };
-
-                // 监听主应用深色模式变化
-                const darkModeObserver = new MutationObserver(syncDarkMode);
-                darkModeObserver.observe(document.documentElement, {
-                    attributes: true,
-                    attributeFilter: ['class']
-                });
+                iframe.srcdoc = html;
 
                 // 记录资源用于清理
                 articleIframe = iframe;
-                iframeResizeObserver = resizeObserver;
-                // 深色模式观察器不需要全局保存，cleanup时会自动断开
 
             } else {
                 // HTML片段 → 直接设置
@@ -882,8 +898,12 @@ export default {
             if (iframeResizeObserver) {
                 iframeResizeObserver.disconnect();
             }
+            if (darkModeObserver) {
+                darkModeObserver.disconnect();
+            }
             articleIframe = null;
             iframeResizeObserver = null;
+            darkModeObserver = null;
 
             // 清空内容区
             if (contentRef.value) {
