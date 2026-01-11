@@ -508,10 +508,12 @@ export const editorTemplate = `
                                     :title="t('editor.deleteCurrentVersion')">
                                 🗑️
                             </button>
-                            <button v-if="htmlContent" @click="clearHtml"
-                                    class="text-xs px-2 py-1 text-orange-600 hover:text-orange-700 hover:bg-orange-50 dark:text-orange-400 dark:hover:text-orange-300 dark:hover:bg-orange-900/30 transition-all border border-orange-300 dark:border-orange-600 rounded whitespace-nowrap"
-                                    :title="t('editor.clearPreview')">
-                                🧹
+                            <button @click="htmlContent ? clearHtml() : generateHtml()"
+                                    class="text-xs px-2 py-1 transition-all border rounded whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                                    :class="htmlContent ? 'text-orange-600 hover:text-orange-700 hover:bg-orange-50 dark:text-orange-400 dark:hover:text-orange-300 dark:hover:bg-orange-900/30 border-orange-300 dark:border-orange-600' : 'text-green-600 hover:text-green-700 hover:bg-green-50 dark:text-green-400 dark:hover:text-green-300 dark:hover:bg-green-900/30 border-green-300 dark:border-green-600'"
+                                    :disabled="isBusy"
+                                    :title="htmlContent ? t('editor.clearHtmlHint') : t('editor.generateHtmlHint')">
+                                {{ isGenerating ? '⌛' : (htmlContent ? '🧹' : '✨') }}
                             </button>
                             <button @click="openFullscreenPreview"
                                     class="p-1 bg-purple-500/10 hover:bg-purple-500/20 dark:bg-purple-500/20 dark:hover:bg-purple-500/30 text-purple-600 dark:text-purple-400 rounded transition-all"
