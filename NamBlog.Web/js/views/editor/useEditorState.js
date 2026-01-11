@@ -2,7 +2,7 @@
  * 编辑器状态管理
  * 管理编辑器的所有响应式状态
  */
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
 export function useEditorState() {
     // 加载和操作状态
@@ -67,6 +67,12 @@ export function useEditorState() {
         aiPrompts: []
     });
 
+    // 计算属性：是否有正在进行的操作（用于禁用其他按钮）
+    const isBusy = computed(() =>
+        isSavingMeta.value || isSubmitting.value ||
+        isGenerating.value || isDeleting.value || isToggling.value
+    );
+
     return {
         // 状态标志
         isLoading,
@@ -76,6 +82,7 @@ export function useEditorState() {
         isDeleting,
         isToggling,
         isNew,
+        isBusy,
 
         // UI状态
         isHtmlCollapsed,

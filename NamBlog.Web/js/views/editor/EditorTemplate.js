@@ -106,7 +106,8 @@ export const editorTemplate = `
             <div class="flex items-center gap-3">
                 <!-- 清除草稿按钮 -->
                 <button @click="clearDraft"
-                        class="px-3 py-2 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 transition-all hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600"
+                        class="px-3 py-2 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 transition-all hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                        :disabled="isBusy"
                         :title="t('editor.clearDraftTitle')">
                     🗑️ {{ t('editor.clearDraft') }}
                 </button>
@@ -114,7 +115,7 @@ export const editorTemplate = `
                 <!-- 保存文章按钮（创建和编辑都显示） -->
                 <button @click="saveMetadata"
                         class="px-4 py-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/30 border border-blue-300 dark:border-blue-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-                        :disabled="isSavingMeta"
+                        :disabled="isBusy"
                         :title="isNew ? t('editor.firstSaveHint') : t('editor.saveMetaHint')">
                     {{ isSavingMeta ? (isNew ? '⌛ ' + t('editor.savingFirst') : '⌛ ' + t('editor.saving')) : '💾 ' + t('editor.saveArticle') }}
                 </button>
@@ -246,7 +247,7 @@ export const editorTemplate = `
                         <!-- 删除版本按钮 -->
                         <button v-if="!isNew" @click="deleteArticle"
                                 class="text-xs px-3 py-1.5 text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/30 transition-all border border-red-300 dark:border-red-600 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                                :disabled="isDeleting"
+                                :disabled="isBusy"
                                 :title="versions.length <= 1 ? t('editor.deleteVersionHint') : t('editor.deleteCurrentVersion')">
                             {{ isDeleting ? t('editor.deleting') : '🗑️ ' + t('editor.deleteVersion') }}
                         </button>
@@ -269,7 +270,7 @@ export const editorTemplate = `
                         <button @click="htmlContent ? clearHtml() : generateHtml()"
                                 class="text-xs px-3 py-1.5 transition-all border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
                                 :class="htmlContent ? 'text-orange-600 hover:text-orange-700 hover:bg-orange-50 dark:text-orange-400 dark:hover:text-orange-300 dark:hover:bg-orange-900/30 border-orange-300 dark:border-orange-600' : 'text-green-600 hover:text-green-700 hover:bg-green-50 dark:text-green-400 dark:hover:text-green-300 dark:hover:bg-green-900/30 border-green-300 dark:border-green-600'"
-                                :disabled="isGenerating"
+                                :disabled="isBusy"
                                 :title="htmlContent ? t('editor.clearHtmlHint') : t('editor.generateHtmlHint')">
                             {{ isGenerating ? '⌛ ' + t('editor.generating') : (htmlContent ? '🧹 ' + t('editor.clearHtml') : '✨ ' + t('editor.generateHtml')) }}
                         </button>
@@ -323,7 +324,7 @@ export const editorTemplate = `
                     <!-- 创建新版本按钮 -->
                     <button @click="submitArticle"
                             class="text-xs px-3 py-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/30 border border-blue-300 dark:border-blue-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-                            :disabled="isSubmitting"
+                            :disabled="isBusy"
                             :title="htmlContent ? t('editor.createVersionWithHtml') : t('editor.createVersionWithAI')">
                         {{ isSubmitting ? t('editor.submitting') : (isNew ? t('editor.createArticleButton') : t('editor.createNewVersionButton')) }}
                     </button>
