@@ -94,6 +94,22 @@ if (Test-Path $csprojPath) {
     Write-Host "⚠️  未找到 .csproj 文件" -ForegroundColor Yellow
 }
 
+# 更新 Service Worker 缓存版本号（用于前端缓存桶版本化）
+Write-Host "更新 Service Worker CACHE_VERSION..." -ForegroundColor Yellow
+$swPath = "NamBlog.Web\sw.js"
+if (Test-Path $swPath) {
+    $swContent = Get-Content $swPath -Raw
+
+    # 更新 CACHE_VERSION 常量
+    $swContent = $swContent -replace "const\s+CACHE_VERSION\s*=\s*'[^']*';", "const CACHE_VERSION = '$Version';"
+
+    Set-Content -Path $swPath -Value $swContent
+    git add $swPath
+    Write-Host "✓ Service Worker CACHE_VERSION 已更新" -ForegroundColor Green
+} else {
+    Write-Host "⚠️  未找到 Service Worker 文件: $swPath" -ForegroundColor Yellow
+}
+
 # 提示更新 CHANGELOG
 Write-Host "请确认 CHANGELOG.md 已更新" -ForegroundColor Yellow
 $changelogUpdated = Read-Host "CHANGELOG.md 是否已更新? (y/N)"

@@ -342,6 +342,36 @@ export async function deleteArticle(state, router, route, t) {
             versionToDelete
         );
 
+        // 删除版本后：清理可能被 PWA 缓存的 /posts/* HTML（避免直访或 iframe 资源引用仍命中旧缓存）
+        try {
+            const slug = state.form.value.slug;
+            if (slug) {
+                const encodedSlug = encodeURIComponent(slug);
+                const encodedVersion = encodeURIComponent(versionToDelete);
+
+                if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                    if (isLastVersion) {
+                        // 删除整篇文章（最后一个版本）：清理该 slug 下所有版本
+                        navigator.serviceWorker.controller.postMessage({
+                            type: 'CACHE_DELETE_PREFIXES',
+                            prefixes: [`/posts/${encodedSlug}/`]
+                        });
+                    } else {
+                        // 只删除当前版本：兼容 / 与 /index.html 两种请求形态
+                        navigator.serviceWorker.controller.postMessage({
+                            type: 'CACHE_DELETE_URLS',
+                            urls: [
+                                `/posts/${encodedSlug}/${encodedVersion}/`,
+                                `/posts/${encodedSlug}/${encodedVersion}/index.html`
+                            ]
+                        });
+                    }
+                }
+            }
+        } catch {
+            // 缓存清理失败不应影响删除流程
+        }
+
         // 清除文章列表缓存，确保其他页面能看到最新数据
         store.clearArticlesCache();
 

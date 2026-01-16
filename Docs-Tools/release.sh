@@ -99,6 +99,21 @@ else
     echo -e "${YELLOW}⚠️  未找到 .csproj 文件${NC}"
 fi
 
+# 更新 Service Worker 缓存版本号（用于前端缓存桶版本化）
+echo -e "${YELLOW}更新 Service Worker CACHE_VERSION...${NC}"
+SW_PATH="NamBlog.Web/sw.js"
+if [ -f "$SW_PATH" ]; then
+    sed -i.bak \
+        -e "s|const[[:space:]]\+CACHE_VERSION[[:space:]]*=[[:space:]]*'[^']*';|const CACHE_VERSION = '${VERSION}';|g" \
+        "$SW_PATH"
+    rm -f "${SW_PATH}.bak"
+
+    git add "$SW_PATH"
+    echo -e "${GREEN}✓ Service Worker CACHE_VERSION 已更新${NC}"
+else
+    echo -e "${YELLOW}⚠️  未找到 Service Worker 文件: ${SW_PATH}${NC}"
+fi
+
 # 提示更新 CHANGELOG
 echo -e "${YELLOW}请确认 CHANGELOG.md 已更新${NC}"
 read -p "CHANGELOG.md 是否已更新? (y/N) " -n 1 -r

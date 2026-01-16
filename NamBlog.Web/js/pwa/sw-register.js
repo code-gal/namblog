@@ -43,10 +43,11 @@ export async function registerServiceWorker() {
             });
         });
 
-        // 定期检查更新（每小时）
-        setInterval(() => {
+        // 每次访问时检查一次更新（在线时）。
+        // 比定时轮询更省请求；且发版后用户下次打开页面就有机会拿到新版本。
+        if (navigator.onLine) {
             registration.update();
-        }, 60 * 60 * 1000);
+        }
 
         return registration;
     } catch (error) {
