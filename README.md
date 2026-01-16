@@ -35,7 +35,7 @@ Focus only on content when writing your blog. Treat Markdown as a blueprint, and
   <a href="Docs-Tools/images/edit-en(desktop-dark).png"><img src="Docs-Tools/images/edit-en(desktop-dark).png" alt="Editor - Dark Mode" width="49%"/></a>
 </p>
 
-<video width="630" height="300" src="https://github.com/user-attachments/assets/ba2f3b2d-1f54-40c1-950e-b8d00e4f98bf" controls></video>
+<video width="630" height="300" src="https://github.com/user-attachments/assets/3a165a7b-29e2-4963-88cd-c074cff145d4" controls></video>
 
 ## Main Features
 
