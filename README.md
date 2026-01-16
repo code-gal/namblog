@@ -27,12 +27,12 @@ Focus only on content when writing your blog. Treat Markdown as a blueprint, and
 ### Interface Preview
 
 <p align="center">
-  <a href="Docs-Tools/images/index.png"><img src="Docs-Tools/images/index.png" alt="Home Page" width="49%"/></a>
-  <a href="Docs-Tools/images/page.png"><img src="Docs-Tools/images/page(dark).png" alt="Article Page" width="49%"/></a>
+  <a href="Docs-Tools/images/index-en.png"><img src="Docs-Tools/images/index-en.png" alt="Home Page" width="49%"/></a>
+  <a href="Docs-Tools/images/page-en(dark).png"><img src="Docs-Tools/images/page-en(dark).png" alt="Article Page" width="49%"/></a>
 </p>
 <p align="center">
-  <a href="Docs-Tools/images/edit(desktop).png"><img src="Docs-Tools/images/edit(desktop).png" alt="Editor - Light Mode" width="49%"/></a>
-  <a href="Docs-Tools/images/edit(desktop-dark).png"><img src="Docs-Tools/images/edit(desktop-dark).png" alt="Editor - Dark Mode" width="49%"/></a>
+  <a href="Docs-Tools/images/edit-en(desktop).png"><img src="Docs-Tools/images/edit-en(desktop).png" alt="Editor - Light Mode" width="49%"/></a>
+  <a href="Docs-Tools/images/edit-en(desktop-dark).png"><img src="Docs-Tools/images/edit-en(desktop-dark).png" alt="Editor - Dark Mode" width="49%"/></a>
 </p>
 
 <video width="630" height="300" src="https://github.com/user-attachments/assets/ba2f3b2d-1f54-40c1-950e-b8d00e4f98bf" controls></video>

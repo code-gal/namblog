@@ -28,7 +28,7 @@
 
 <p align="center">
   <a href="Docs-Tools/images/index.png"><img src="Docs-Tools/images/index.png" alt="首页" width="49%"/></a>
-  <a href="Docs-Tools/images/page.png"><img src="Docs-Tools/images/page(dark).png" alt="文章页" width="49%"/></a>
+  <a href="Docs-Tools/images/page(dark).png"><img src="Docs-Tools/images/page(dark).png" alt="文章页" width="49%"/></a>
 </p>
 <p align="center">
   <a href="Docs-Tools/images/edit(desktop).png"><img src="Docs-Tools/images/edit(desktop).png" alt="编辑器-浅色" width="49%"/></a>
