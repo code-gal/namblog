@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [0.9.0] - 2026-01-16
+
+### Changed
+- 📝 更新英文文档图片展示方式，提升文档可读性
+
+### Fixed
+- 🐛 修复移动端编辑器清除草稿或删除版本后工具栏消失的问题
+- 🐛 修复提示词 UI 的若干问题
+
+### PWA
+- ♻️ 刷新缓存资源并在删除文章版本时清理对应缓存
+- ♻️ /resources/* 路径采用 stale-while-revalidate 策略，支持后台更新
+- ♻️ 删除文章版本时自动清理 /posts/* 缓存
+- ⬆️ 发布时自动提升 Service Worker CACHE_VERSION，避免 UI 旧缓存
+- 🔄 每次访问检测 SW 更新，移除定时轮询
+
+---
 ### Planned
 - Skills
 
