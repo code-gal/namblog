@@ -10,6 +10,25 @@ import * as editorCache from './editorCache.js';
 import { setEditorValue, getEditor } from './useMarkdownEditor.js';
 import { store } from '../../store.js';
 
+function getPromptToUse(state) {
+    const idx = state.selectedPromptIndex?.value ?? -1;
+    if (idx >= 0) {
+        return state.form.value.aiPrompts?.[idx] || '';
+    }
+    return state.form.value.customPrompt || '';
+}
+
+function applyPromptDefaultsFromArticle(article, state) {
+    // 重置展开状态，避免残留 UI 状态
+    state.expandedPromptIndex.value = -1;
+    state.isCustomPromptExpanded.value = false;
+
+    // 让“自定义 prompt”默认保持为空；并且默认选中自定义prompt（因为无法可靠推断当前版本对应哪条历史prompt）
+    state.form.value.customPrompt = '';
+
+    state.selectedPromptIndex.value = -1;
+}
+
 /**
  * 加载分类列表
  */
@@ -33,18 +52,13 @@ export async function loadArticle(slug, state, t, silent = false) {
         const article = await articleApi.getArticleForEdit(slug);
 
         if(article) {
-            // 获取最新版本的aiPrompt作为当前使用的提示词
-            const latestPrompt = article.versions && article.versions.length > 0
-                ? article.versions[0]?.aiPrompt || ''
-                : '';
-
             state.form.value = {
                 id: article.id,
                 title: article.title,
                 slug: article.slug,
                 category: article.category,
                 markdown: article.markdown || '',
-                customPrompt: latestPrompt,
+                customPrompt: '',
                 isPublished: article.isPublished,
                 isFeatured: article.isFeatured,
                 aiPrompts: article.aiPrompts || []
@@ -52,6 +66,8 @@ export async function loadArticle(slug, state, t, silent = false) {
             state.htmlContent.value = article.mainVersionHtml || '';
             state.versions.value = article.versions || [];
             state.selectedVersion.value = state.versions.value[0]?.versionName || '';
+
+            applyPromptDefaultsFromArticle(article, state);
 
             // 使用缓存工具加载草稿
             const cachedMarkdown = editorCache.loadMarkdownDraft(false, article.id);
@@ -71,6 +87,11 @@ export async function loadArticle(slug, state, t, silent = false) {
                 }
                 if (cachedMeta.category && cachedMeta.category !== article.category) state.form.value.category = cachedMeta.category;
                 if (cachedMeta.customPrompt !== undefined) state.form.value.customPrompt = cachedMeta.customPrompt;
+
+                // 如果缓存里有自定义prompt内容，优先认为用户在用自定义prompt
+                if (state.form.value.customPrompt && String(state.form.value.customPrompt).trim()) {
+                    state.selectedPromptIndex.value = -1;
+                }
                 if (cachedMeta.isPublished !== undefined && cachedMeta.isPublished !== article.isPublished) {
                     state.form.value.isPublished = cachedMeta.isPublished;
                 }
@@ -175,9 +196,10 @@ export async function saveMetadata(state, router, t) {
         // isFeatured 和 isPublished 是布尔值，始终传递
         input.isFeatured = state.form.value.isFeatured;
         input.isPublished = state.form.value.isPublished;
-        // customPrompt 可选
-        if (state.form.value.customPrompt && state.form.value.customPrompt.trim()) {
-            input.customPrompt = state.form.value.customPrompt;
+        // customPrompt 可选：支持“选中历史prompt”作为当前prompt
+        const promptToUse = getPromptToUse(state);
+        if (promptToUse && String(promptToUse).trim()) {
+            input.customPrompt = promptToUse;
         }
         // mainVersion 可选（用于切换主版本，仅在编辑模式下传递）
         if (!state.isNew.value && state.selectedVersion.value) {
@@ -267,9 +289,10 @@ export async function submitArticle(state, router, t) {
         // isFeatured 和 isPublished 是布尔值，始终传递
         input.isFeatured = state.form.value.isFeatured;
         input.isPublished = state.form.value.isPublished;
-        // customPrompt 可选
-        if (state.form.value.customPrompt && state.form.value.customPrompt.trim()) {
-            input.customPrompt = state.form.value.customPrompt;
+        // customPrompt 可选：支持“选中历史prompt”作为当前prompt
+        const promptToUse = getPromptToUse(state);
+        if (promptToUse && String(promptToUse).trim()) {
+            input.customPrompt = promptToUse;
         }
 
         const result = await articleApi.submitArticle(input);
@@ -451,18 +474,13 @@ export async function clearDraft(state, route, t) {
         // 编辑模式：使用预加载的数据或重新加载
         const article = state.preloadedArticle.value;
         if (article) {
-            // 使用预加载的数据直接恢复
-            const latestPrompt = article.versions && article.versions.length > 0
-                ? article.versions[0]?.aiPrompt || ''
-                : '';
-
             state.form.value = {
                 id: article.id,
                 title: article.title,
                 slug: article.slug,
                 category: article.category,
                 markdown: article.markdown || '',
-                customPrompt: latestPrompt,
+                customPrompt: '',
                 isPublished: article.isPublished,
                 isFeatured: article.isFeatured,
                 aiPrompts: article.aiPrompts || []
@@ -470,6 +488,8 @@ export async function clearDraft(state, route, t) {
             state.htmlContent.value = article.mainVersionHtml || '';
             state.versions.value = article.versions || [];
             state.selectedVersion.value = state.versions.value[0]?.versionName || '';
+
+            applyPromptDefaultsFromArticle(article, state);
 
             setEditorValue(state.form.value.markdown);
         } else {
@@ -530,9 +550,7 @@ export async function generateHtml(state, t) {
 
     try {
         // 使用选中的历史prompt或自定义prompt
-        const promptToUse = state.selectedPromptIndex.value >= 0
-            ? state.form.value.aiPrompts[state.selectedPromptIndex.value]
-            : state.form.value.customPrompt;
+        const promptToUse = getPromptToUse(state);
 
         // 调用GraphQL接口
         const { request } = await import('../../api/client.js');

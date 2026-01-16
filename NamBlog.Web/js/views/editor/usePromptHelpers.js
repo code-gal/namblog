@@ -6,13 +6,10 @@ import { showToast } from '../../components/Toast.js';
 
 /**
  * 选择历史Prompt
- * @param {number} index - 反转后数组的索引
+ * @param {number} index - 原始数组索引（越大越新）
  */
 export function selectHistoryPrompt(index, state) {
-    // 因为模板中使用了 form.aiPrompts.slice().reverse()，
-    // 所以需要将反转后的索引转换回原始索引
-    const actualIndex = state.form.value.aiPrompts.length - 1 - index;
-    state.selectedPromptIndex.value = actualIndex;
+    state.selectedPromptIndex.value = index;
     // 不自动复制内容，只标记选中状态
 }
 
@@ -41,11 +38,11 @@ export function toggleCustomPromptExpand(state) {
 
 /**
  * 切换历史Prompt展开状态
- * @param {number} index - 反转后数组的索引
+ * @param {number} index - 原始数组索引（越大越新）
  */
 export function toggleHistoryPromptExpand(index, state) {
     const currentExpandedIndex = state.expandedPromptIndex.value;
-    const targetIndex = state.form.value.aiPrompts.length - 1 - index;
+    const targetIndex = index;
 
     // 如果点击的是当前展开的块，则收缩；否则展开新的块
     if (currentExpandedIndex === targetIndex) {
