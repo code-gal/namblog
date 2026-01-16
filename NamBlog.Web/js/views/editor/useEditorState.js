@@ -83,6 +83,7 @@ export function useEditorState() {
 
     // 计算属性：是否有正在进行的操作（用于禁用其他按钮）
     const isBusy = computed(() =>
+        isLoading.value ||
         isSavingMeta.value || isSubmitting.value ||
         isGenerating.value || isDeleting.value || isToggling.value
     );

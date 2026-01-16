@@ -85,6 +85,17 @@ export async function loadArticle(slug, state, t, silent = false) {
             showToast(t('editor.articleNotFound'), 'error');
             return false;
         }
+        // 将最终markdown同步回编辑器实例（避免仅更新state导致EasyMDE不更新）
+        // 注意：初次进入页面时编辑器可能尚未初始化，此时setEditorValue会安全地无操作
+        const editor = getEditor();
+        if (editor) {
+            setEditorValue(state.form.value.markdown || '');
+            await nextTick();
+            if (editor.codemirror) {
+                editor.codemirror.refresh();
+            }
+        }
+
         return true;
     } catch(e) {
         console.error(e);

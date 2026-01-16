@@ -3,13 +3,16 @@
  * 导出Editor组件的HTML模板
  */
 export const editorTemplate = `
-<div class="w-full px-4 py-8 flex flex-col flex-1 min-h-0">
-    <!-- Loading State -->
-    <div v-if="isLoading" class="flex-1 flex items-center justify-center">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+<div class="w-full px-4 py-8 flex flex-col flex-1 min-h-0 relative">
+    <!-- Loading Overlay (保持编辑器DOM不卸载，避免EasyMDE工具栏/实例脱钩) -->
+    <div v-if="isLoading" class="absolute inset-0 z-50 flex items-center justify-center bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm cursor-wait">
+        <div class="flex flex-col items-center gap-3">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+            <div class="text-sm text-gray-600 dark:text-gray-300">{{ t('common.loading') }}</div>
+        </div>
     </div>
 
-    <div v-else class="flex flex-col flex-1 min-h-0">
+    <div class="flex flex-col flex-1 min-h-0">
         <!-- Error Panel -->
         <div v-if="pageErrors.length" class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 rounded-r-xl shadow-lg animate-fade-in flex-shrink-0">
             <div class="flex justify-between items-start">
