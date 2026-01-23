@@ -2,7 +2,7 @@
  * Service Worker - NamBlog PWA
  *
  * 缓存策略:
- * - 静态资源(JS/CSS/字体): 缓存优先
+ * - 静态资源(JS/CSS/字体): 本地优先 + 后台更新（SWR）
  * - HTML页面: 网络优先，失败时用缓存
  * - API请求: 仅网络
  * - 文章静态HTML(/posts/*): 缓存优先
@@ -42,11 +42,19 @@ const CORE_ASSETS = [
     '/js/api/articleApi.js',
 ];
 
-// 安装事件：预缓存核心资源
+// 安装事件：预缓存核心资源（强制绕过 HTTP 缓存，确保拿到最新文件）
 self.addEventListener('install', event => {
     event.waitUntil(
-        caches.open(CACHE_NAME).then(cache => {
-            return cache.addAll(CORE_ASSETS);
+        caches.open(CACHE_NAME).then(async cache => {
+            await Promise.all(
+                CORE_ASSETS.map(async (url) => {
+                    const request = new Request(url, { cache: 'reload' });
+                    const response = await fetch(request);
+                    if (response && response.ok) {
+                        await cache.put(request, response);
+                    }
+                })
+            );
         }).then(() => {
             // 立即激活新的 Service Worker
             return self.skipWaiting();
@@ -101,9 +109,9 @@ self.addEventListener('fetch', event => {
         return;
     }
 
-    // 静态资源 (JS/CSS/字体/图标): 缓存优先
+    // 静态资源 (JS/CSS/字体/图标): 本地优先 + 后台更新
     if (isStaticAsset(url.pathname)) {
-        event.respondWith(cacheFirst(request));
+        event.respondWith(staleWhileRevalidate(request, event));
         return;
     }
 
