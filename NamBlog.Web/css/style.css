@@ -477,6 +477,7 @@ iframe[title="HTML预览"] {
     top: 5rem; /* 导航栏高度 */
     max-height: calc(100vh - 6rem); /* 视口高度减去顶部空间 */
     overflow-y: auto;
+    scrollbar-gutter: stable both-edges;
     scrollbar-width: thin;
     scrollbar-color: transparent transparent;
 }
