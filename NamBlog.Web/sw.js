@@ -8,7 +8,7 @@
  * - 文章静态HTML(/posts/*): 缓存优先
  */
 
-const CACHE_VERSION = '0.10.4';
+const CACHE_VERSION = '0.10.5';
 const CACHE_NAME = `namblog-v${CACHE_VERSION}`;
 const OFFLINE_URL = '/offline.html';
 
@@ -321,6 +321,7 @@ async function deleteCachedByPathPrefixes(prefixes) {
         })
     );
 }
+
 
 
 
