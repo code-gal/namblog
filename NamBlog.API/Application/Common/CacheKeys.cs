@@ -22,4 +22,11 @@ public static class CacheKeys
     /// Robots.txt 缓存键
     /// </summary>
     public const string SitemapRobots = "sitemap:robots";
+
+    /// <summary>
+    /// 登录限流缓存键：login:ratelimit:{ipAddress}
+    /// </summary>
+    /// <param name="ipAddress">客户端 IP 地址</param>
+    /// <returns>缓存键</returns>
+    public static string LoginRateLimit(string ipAddress) => $"login:ratelimit:{ipAddress}";
 }

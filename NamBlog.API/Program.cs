@@ -40,7 +40,8 @@ app.Run();
 static void ConfigureServices(IServiceCollection services, ConfigurationManager configuration)
 {
     // ====== 0. 系统基础（与业务无关） ======
-    services.AddMemoryCache();                      // 内存缓存（用于 SEO 路径缓存等）
+    services.AddMemoryCache();                      // 内存缓存（用于 SEO 路径缓存、登录限流等）
+    services.AddHttpContextAccessor();              // HTTP 上下文访问器（用于获取客户端 IP）
     // services.AddDistributedMemoryCache();        // 共享缓存池，用于AI服务
     services.AddConfigurationOptions(configuration); // 配置绑定（Options Pattern）
 

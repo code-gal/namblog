@@ -50,7 +50,7 @@ namespace NamBlog.API.Application.Services
                 .ToListAsync();
 
             // 在内存中按最后修改时间排序
-            posts = posts.OrderByDescending(p => p.LastModified).ToList();
+            posts = [.. posts.OrderByDescending(p => p.LastModified)];
 
             // 获取站点域名
             var baseUrl = GetBaseUrl();

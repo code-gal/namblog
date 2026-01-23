@@ -58,7 +58,18 @@ namespace NamBlog.API.EntryPoint.GraphiQL.Mutations
                         }
 
                         // 调用认证服务
-                        var token = authService.Login(username, password);
+                        var (token, rateLimitError) = authService.Login(username, password);
+
+                        // 限流错误（优先返回）
+                        if (rateLimitError != null)
+                        {
+                            return new LoginResult
+                            {
+                                Success = false,
+                                Message = rateLimitError,
+                                ErrorCode = "RATE_LIMIT_EXCEEDED"
+                            };
+                        }
 
                         // 业务失败：认证失败
                         if (token == null)
