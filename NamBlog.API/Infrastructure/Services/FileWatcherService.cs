@@ -56,7 +56,7 @@ namespace NamBlog.API.Infrastructure.Services
 
             _watcher.Created += OnFileCreated;
             _watcher.Deleted += OnFileDeleted;
-            _watcher.Changed += OnFileChanged;
+            // _watcher.Changed += OnFileChanged; // 已注释：文件内容更变监控暂时不需要，避免不必要的 I/O 操作
             _watcher.Renamed += OnFileRenamed;
 
             _watcher.EnableRaisingEvents = true; //启动监听目录和文件变化
@@ -99,15 +99,16 @@ namespace NamBlog.API.Infrastructure.Services
             DebounceAction(e.FullPath, async () => await HandleFileDeletedAsync(e.FullPath));
         }
 
-        private void OnFileChanged(object sender, FileSystemEventArgs e)
-        {
-            if (logger.IsEnabled(LogLevel.Debug))
-            {
-                logger.LogDebug("MD监控 - 文件变更: {Path}", e.FullPath);
-            }
+        // 已注释：文件内容更变监控暂时不需要
+        // private void OnFileChanged(object sender, FileSystemEventArgs e)
+        // {
+        //     if (logger.IsEnabled(LogLevel.Debug))
+        //     {
+        //         logger.LogDebug("MD监控 - 文件变更: {Path}", e.FullPath);
+        //     }
 
-            DebounceAction(e.FullPath, async () => await HandleFileChangedAsync(e.FullPath));
-        }
+        //     DebounceAction(e.FullPath, async () => await HandleFileChangedAsync(e.FullPath));
+        // }
 
         private void OnFileRenamed(object sender, RenamedEventArgs e)
         {
@@ -431,56 +432,59 @@ namespace NamBlog.API.Infrastructure.Services
             }
         }
 
+        // 已注释：文件内容更变监控暂时不需要
+        // 原因：只是重新保存文件，不更新数据库/HTML，没有实际作用且浪费性能
+        // 如需启用，应在领域层设计完整的 UpdateContent() 方法
         /// <summary>
         /// 处理文件变更事件（仅更新 Markdown 文件）
         /// </summary>
-        private async Task HandleFileChangedAsync(string fullPath)
-        {
-            try
-            {
-                if (!File.Exists(fullPath))
-                {
-                    logger.LogWarning("MD监控 - 更变-文件已不存在，跳过更新: {Path}", fullPath);
-                    return;
-                }
+        // private async Task HandleFileChangedAsync(string fullPath)
+        // {
+        //     try
+        //     {
+        //         if (!File.Exists(fullPath))
+        //         {
+        //             logger.LogWarning("MD监控 - 更变-文件已不存在，跳过更新: {Path}", fullPath);
+        //             return;
+        //         }
 
-                var (filePath, fileName) = FilePathHelper.GetRelativePathAndFileName(fullPath, _storageSettings.MarkdownPath);
-                var markdown = await File.ReadAllTextAsync(fullPath);
+        //         var (filePath, fileName) = FilePathHelper.GetRelativePathAndFileName(fullPath, _storageSettings.MarkdownPath);
+        //         var markdown = await File.ReadAllTextAsync(fullPath);
 
-                using var scope = serviceProvider.CreateScope();
-                var context = scope.ServiceProvider.GetRequiredService<BlogContext>();
-                var fileService = scope.ServiceProvider.GetRequiredService<IFileService>();
+        //         using var scope = serviceProvider.CreateScope();
+        //         var context = scope.ServiceProvider.GetRequiredService<BlogContext>();
+        //         var fileService = scope.ServiceProvider.GetRequiredService<IFileService>();
 
-                var post = await context.Posts.FirstOrDefaultAsync(p => p.FileName == fileName && p.FilePath == filePath);
+        //         var post = await context.Posts.FirstOrDefaultAsync(p => p.FileName == fileName && p.FilePath == filePath);
 
-                if (post is null)
-                {
-                    if (logger.IsEnabled(LogLevel.Debug))
-                    {
-                        logger.LogDebug("MD监控 - 更变-未找到文章，尝试创建: {FileName}", fileName);
-                    }
+        //         if (post is null)
+        //         {
+        //             if (logger.IsEnabled(LogLevel.Debug))
+        //             {
+        //                 logger.LogDebug("MD监控 - 更变-未找到文章，尝试创建: {FileName}", fileName);
+        //             }
 
-                    await HandleFileCreatedAsync(fullPath);
-                    return;
-                }
+        //             await HandleFileCreatedAsync(fullPath);
+        //             return;
+        //         }
 
-                // 保存 Markdown 文件（覆盖旧内容）
-                await fileService.SaveMarkdownAsync(filePath, fileName, markdown);
+        //         // 保存 Markdown 文件（覆盖旧内容）
+        //         await fileService.SaveMarkdownAsync(filePath, fileName, markdown);
 
-                // 注意：不直接修改 post.LastModified，因为 Post 实体所有属性是 private set
-                // 如果需要更新时间戳，应该在领域层添加业务方法
-                // 这里只是更新 Markdown 文件，不触发数据库变更
+        //         // 注意：不直接修改 post.LastModified，因为 Post 实体所有属性是 private set
+        //         // 如果需要更新时间戳，应该在领域层添加业务方法
+        //         // 这里只是更新 Markdown 文件，不触发数据库变更
 
-                if (logger.IsEnabled(LogLevel.Debug))
-                {
-                    logger.LogDebug("MD监控 - 更变-自动更新 Markdown - 标题: {Title}", post.Title);
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "MD监控 - 更变-处理文件变更事件失败: {Path}", fullPath);
-            }
-        }
+        //         if (logger.IsEnabled(LogLevel.Debug))
+        //         {
+        //             logger.LogDebug("MD监控 - 更变-自动更新 Markdown - 标题: {Title}", post.Title);
+        //         }
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         logger.LogError(ex, "MD监控 - 更变-处理文件变更事件失败: {Path}", fullPath);
+        //     }
+        // }
 
         /// <summary>
         /// 处理文件重命名/移动事件（使用领域方法 RenameFile）
