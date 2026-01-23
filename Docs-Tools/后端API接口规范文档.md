@@ -1,6 +1,6 @@
 ﻿# NamBlog GraphQL API 接口规范（自动生成）
 
-> 生成时间: 2026-01-23 14:30:21
+> 生成时间: 2026-01-24 03:27:33
 > GraphQL 端点: http://localhost:5000/graphql
 
 **主要端点**:
@@ -268,6 +268,7 @@ AgentMutation {
 - **`slogan`**: `String` - 博客简介
 - **`outerChains`**: `[OuterChain]` - 博客外链（名称、链接、SVG
 - **`analyticsScript`**: `String` - 网站统计脚本（如 Umami、Google Analytics 等）
+- **`articleSidebarWidget`**: `String` - 文章页侧边栏自定义组件（如二维码、广告等），支持 HTML 内容
 
 
 ### `BlogMutation`
