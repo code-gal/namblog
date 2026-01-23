@@ -48,19 +48,19 @@ namespace NamBlog.API.Application.Services
 
         /// <summary>
         /// 保存文章（Save按钮，支持创建和更新）
-        /// 创建时生成HTML版本，更新时只保存元数据和markdown不生成版本
+        /// 创建时生成HTML版本（Markdown必填），更新时只保存元数据（Markdown可选）
         /// </summary>
         public async Task<Result<ArticleMetadataDto>> SaveArticleAsync(SaveArticleCommand command)
         {
             // 场景A：创建新文章 (id = null)
             if (command.Id == null)
             {
-                // 1. 验证 Markdown
-                var markdownValidation = _validationService.ValidateMarkdown(command.Markdown);
+                // 1. 验证 Markdown（创建时必填，ValidateMarkdown 会检查空值）
+                var markdownValidation = _validationService.ValidateMarkdown(command.Markdown ?? string.Empty);
                 if (!markdownValidation.IsSuccess)
                     return Result.Failure<ArticleMetadataDto>(markdownValidation.ErrorMessage!, markdownValidation.ErrorCode);
 
-                _logger.LogInformation("创建文章 - Markdown长度: {Length}", command.Markdown.Length);
+                _logger.LogInformation("创建文章 - Markdown长度: {Length}", command.Markdown!.Length);
 
                 // 2. 处理元数据（验证 + AI 生成）
                 var metadataResult = await _metadataProcessor.ProcessMetadataAsync(
@@ -103,7 +103,7 @@ namespace NamBlog.API.Application.Services
                     excerpt: metadata.Excerpt,
                     tags: postTags);
 
-                // 7. 保存 Markdown 文件
+                // 7. 保存 Markdown 文件（新文件直接保存）
                 await _fileService.SaveMarkdownAsync("", metadata.Slug, command.Markdown);
 
                 // 8. 持久化文章（获取 PostId）
@@ -148,14 +148,9 @@ namespace NamBlog.API.Application.Services
             // 场景B：更新现有文章 (id = 123)
             else
             {
-                // 1. 验证 Markdown
-                var markdownValidation = _validationService.ValidateMarkdown(command.Markdown);
-                if (!markdownValidation.IsSuccess)
-                    return Result.Failure<ArticleMetadataDto>(markdownValidation.ErrorMessage!, markdownValidation.ErrorCode);
+                _logger.LogInformation("更新文章 - Id: {Id}", command.Id);
 
-                _logger.LogInformation("更新文章 - Id: {Id}, Markdown长度: {Length}", command.Id, command.Markdown.Length);
-
-                // 2. 查询文章
+                // 1. 查询文章
                 var post = await _postRepository.GetByIdAsync(command.Id.Value);
                 if (post == null)
                 {
@@ -166,15 +161,22 @@ namespace NamBlog.API.Application.Services
                 // 记录旧 slug（用于缓存清除）
                 var oldSlug = post.Slug;
 
-                // 3. 比较并更新Markdown文件
-                var existingMarkdown = await _fileService.ReadMarkdownAsync(post.FilePath, post.FileName);
-                if (existingMarkdown != command.Markdown)
+                // 2. 如果提供了 Markdown，则验证并更新
+                if (!string.IsNullOrWhiteSpace(command.Markdown))
                 {
-                    await _fileService.SaveMarkdownAsync(post.FilePath, post.FileName, command.Markdown);
-                    _logger.LogInformation("Markdown文件已更新 - Id: {Id}, Slug: {Slug}", command.Id, post.Slug);
+                    var markdownValidation = _validationService.ValidateMarkdown(command.Markdown);
+                    if (!markdownValidation.IsSuccess)
+                        return Result.Failure<ArticleMetadataDto>(markdownValidation.ErrorMessage!, markdownValidation.ErrorCode);
+
+                    var existingMarkdown = await _fileService.ReadMarkdownAsync(post.FilePath, post.FileName);
+                    if (existingMarkdown != command.Markdown)
+                    {
+                        await _fileService.SaveMarkdownAsync(post.FilePath, post.FileName, command.Markdown);
+                        _logger.LogInformation("Markdown文件已更新 - Id: {Id}, Slug: {Slug}", command.Id, post.Slug);
+                    }
                 }
 
-                // 4. 处理元数据（如果提供）
+                // 3. 处理元数据（如果提供）
                 if (command.Title != null || command.Category != null || command.Tags != null || command.Excerpt != null)
                 {
                     // 获取或创建标签
@@ -195,7 +197,7 @@ namespace NamBlog.API.Application.Services
                     _logger.LogInformation("文章元数据已更新 - Id: {Id}, Slug: {Slug}", command.Id, post.Slug);
                 }
 
-                // 5. 更新精选状态
+                // 4. 更新精选状态
                 if (command.IsFeatured.HasValue)
                 {
                     if (command.IsFeatured.Value)
@@ -204,7 +206,7 @@ namespace NamBlog.API.Application.Services
                         post.Unfeature();
                 }
 
-                // 6. 更新发布状态
+                // 5. 更新发布状态
                 if (command.IsPublished.HasValue)
                 {
                     if (command.IsPublished.Value)
@@ -213,7 +215,7 @@ namespace NamBlog.API.Application.Services
                         post.Unpublish();
                 }
 
-                // 7. 切换主版本（如果提供）
+                // 6. 切换主版本（如果提供）
                 if (!string.IsNullOrEmpty(command.MainVersion))
                 {
                     var version = post.Versions.FirstOrDefault(v => v.VersionName == command.MainVersion);
@@ -228,7 +230,7 @@ namespace NamBlog.API.Application.Services
                     }
                 }
 
-                // 8. 持久化（不生成新版本）
+                // 7. 持久化（不生成新版本）
                 _postRepository.Update(post);
                 await _unitOfWork.SaveChangesAsync();
 

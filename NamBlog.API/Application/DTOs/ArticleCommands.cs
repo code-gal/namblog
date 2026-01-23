@@ -3,11 +3,11 @@ namespace NamBlog.API.Application.DTOs
     /// <summary>
     /// 保存文章命令（Save按钮，支持创建和更新）
     /// 说明：id为null表示创建新文章，否则更新现有文章
-    /// 创建时生成HTML版本，更新时只保存元数据和markdown不生成版本
+    /// 创建时生成HTML版本（Markdown必填），更新时只保存元数据（Markdown可选）
     /// </summary>
     public record SaveArticleCommand(
-        string Markdown,
         int? Id = null,
+        string? Markdown = null,
         string? Title = null,
         string? Slug = null,
         string? Category = null,

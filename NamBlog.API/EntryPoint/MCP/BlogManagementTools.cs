@@ -195,10 +195,10 @@ namespace NamBlog.API.EntryPoint.MCP
         /// 保存文章（快速保存，不生成 HTML）
         /// </summary>
         [McpServerTool(Name = "save_article")]
-        [Description("保存文章元数据和 Markdown 原文，不生成 HTML 版本。适用于草稿快速保存。使用场景：1. 创建文章（不传id）：AI 自动生成未提供的元数据（title/slug/category/tags/excerpt），返回丰富的文章数据供查验；2. 更新文章（传id）：更新元数据和 Markdown，不创建新版本。参数：markdown（必填）、id（可选，创建/更新标识）、title/slug/category/tags/excerpt（可选，AI自动生成）、isPublished/isFeatured（可选）。返回保存后的完整元数据，失败返回错误信息字符串（以'错误：'开头）。")]
+        [Description("保存文章元数据和 Markdown 原文，不生成 HTML 版本。适用于草稿快速保存。使用场景：1. 创建文章（不传id）：Markdown 必填，AI 自动生成未提供的元数据（title/slug/category/tags/excerpt），返回丰富的文章数据供查验；2. 更新元数据（传id）：Markdown 可选，仅更新提供的字段，不创建新版本。参数：id（可选，创建/更新标识）、markdown（创建时必填，更新时可选）、title/slug/category/tags/excerpt（可选，AI自动生成）、isPublished/isFeatured（可选）。返回保存后的完整元数据，失败返回错误信息字符串（以'错误：'开头）。")]
         public async Task<string> SaveArticle(
-            [Description("Markdown 格式的文章内容，必填。支持标准 Markdown 语法及扩展语法（表格、代码块等）。")] string markdown,
             [Description("文章ID，可选。不传则创建新文章，传入则更新现有文章。")] int? id = null,
+            [Description("Markdown 格式的文章内容，创建时必填，更新时可选。支持标准 Markdown 语法及扩展语法（表格、代码块等）。")] string? markdown = null,
             [Description("文章标题，可选。不传则由 AI 根据 Markdown 内容自动生成。")] string? title = null,
             [Description("URL 标识（slug），可选。格式：小写字母、数字、连字符。不传则由 AI 根据标题自动生成。")] string? slug = null,
             [Description("分类名称，可选。不传则使用系统默认分类。示例：'技术博客'。")] string? category = null,
@@ -217,8 +217,8 @@ namespace NamBlog.API.EntryPoint.MCP
                 : [.. tags.Split(',').Select(t => t.Trim()).Where(t => !string.IsNullOrEmpty(t))];
 
             var command = new SaveArticleCommand(
-                Markdown: markdown,
                 Id: id,
+                Markdown: markdown,
                 Title: title,
                 Slug: slug,
                 Category: category,

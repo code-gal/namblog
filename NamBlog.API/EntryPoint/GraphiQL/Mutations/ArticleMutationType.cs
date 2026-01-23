@@ -271,10 +271,10 @@ namespace NamBlog.API.EntryPoint.GraphiQL.Mutations
         public SaveArticleInputType()
         {
             Name = "SaveArticleInput";
-            Description = "保存文章输入参数（创建时生成HTML版本，更新时不生成版本）";
+            Description = "保存文章输入参数（创建时生成HTML版本且Markdown必填，更新时不生成版本且Markdown可选）";
 
-            Field(x => x.Markdown).Description("Markdown 内容（必填）");
             Field(x => x.Id, nullable: true).Description("文章ID（null表示创建新文章，否则更新现有文章）");
+            Field(x => x.Markdown, nullable: true).Description("Markdown 内容（创建时必填，更新时可选）");
             Field(x => x.Title, nullable: true).Description("文章标题（可选，未提供时AI自动生成）");
             Field(x => x.Slug, nullable: true).Description("URL标识（可选，未提供时AI自动生成）");
             Field(x => x.Category, nullable: true).Description("分类（可选，默认\"未分类\"）");

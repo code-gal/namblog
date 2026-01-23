@@ -1,6 +1,6 @@
 ﻿# NamBlog GraphQL API 接口规范（自动生成）
 
-> 生成时间: 2026-01-01 20:58:30
+> 生成时间: 2026-01-23 14:30:21
 > GraphQL 端点: http://localhost:5000/graphql
 
 **主要端点**:
@@ -267,6 +267,7 @@ AgentMutation {
 - **`avatar`**: `String` - 博客头像
 - **`slogan`**: `String` - 博客简介
 - **`outerChains`**: `[OuterChain]` - 博客外链（名称、链接、SVG
+- **`analyticsScript`**: `String` - 网站统计脚本（如 Umami、Google Analytics 等）
 
 
 ### `BlogMutation`
@@ -373,10 +374,10 @@ AgentMutation {
 
 ### `SaveArticleInput`
 
-> 保存文章输入参数（创建时生成HTML版本，更新时不生成版本）
+> 保存文章输入参数（创建时生成HTML版本且Markdown必填，更新时不生成版本且Markdown可选）
 
-- **`markdown`**: `String!` - Markdown 内容（必填）
 - **`id`**: `Int` - 文章ID（null表示创建新文章，否则更新现有文章）
+- **`markdown`**: `String` - Markdown 内容（创建时必填，更新时可选）
 - **`title`**: `String` - 文章标题（可选，未提供时AI自动生成）
 - **`slug`**: `String` - URL标识（可选，未提供时AI自动生成）
 - **`category`**: `String` - 分类（可选，默认"未分类"）
