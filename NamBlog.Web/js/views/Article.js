@@ -382,6 +382,29 @@ export default {
             }
         };
 
+        // 获取博客基本信息（用于自定义组件配置）
+        const blogInfo = ref({});
+        const fetchBlogInfo = async () => {
+            const query = `
+                query GetBlogInfo {
+                    blog {
+                        baseInfo {
+                            articleSidebarWidget
+                        }
+                    }
+                }
+            `;
+            try {
+                const data = await request(query);
+                if (data.blog?.baseInfo) {
+                    blogInfo.value = data.blog.baseInfo;
+                    updateCustomWidget();
+                }
+            } catch (error) {
+                console.error('Failed to fetch blog info:', error);
+            }
+        };
+
         // 夜间模式
         const isDarkMode = ref(document.documentElement.classList.contains('dark'));
         const toggleDarkMode = () => {
@@ -711,6 +734,48 @@ export default {
                     :host(.dark) .category-list {
                         scrollbar-color: rgba(75, 85, 99, 0.5) transparent;
                     }
+
+                    /* 自定义组件容器 */
+                    .custom-widget-container {
+                        padding: 12px 20px;
+                        margin-top: 12px;
+                        border-top: 1px solid #e5e7eb;
+                        overflow: hidden;
+                    }
+                    .custom-widget-container * {
+                        max-width: 100%;
+                        box-sizing: border-box;
+                    }
+                    .custom-widget-container img {
+                        max-width: 100%;
+                        height: auto;
+                        display: block;
+                        margin: 0 auto;
+                    }
+                    .custom-widget-container iframe {
+                        max-width: 100%;
+                        border: 0;
+                        display: block;
+                    }
+                    .custom-widget-container p,
+                    .custom-widget-container div,
+                    .custom-widget-container span {
+                        word-wrap: break-word;
+                        overflow-wrap: break-word;
+                    }
+                    .custom-widget-container a {
+                        color: #2563eb;
+                        text-decoration: none;
+                    }
+                    .custom-widget-container a:hover {
+                        text-decoration: underline;
+                    }
+                    :host(.dark) .custom-widget-container {
+                        border-color: #374151;
+                    }
+                    :host(.dark) .custom-widget-container a {
+                        color: #60a5fa;
+                    }
                 </style>
 
                 <!-- 触发区域 -->
@@ -783,6 +848,11 @@ export default {
                         <div class="nav-section-title" id="categoriesTitle">分类</div>
                         <div class="category-list" id="categoryList">
                             <!-- 动态填充 -->
+                        </div>
+
+                        <!-- 自定义组件容器 -->
+                        <div class="custom-widget-container" id="customWidgetContainer" style="display:none;">
+                            <!-- 博主配置的自定义内容将被注入这里 -->
                         </div>
                     </div>
                 </div>
@@ -930,6 +1000,32 @@ export default {
             }
         };
 
+        // 更新自定义组件
+        const updateCustomWidget = () => {
+            if (!navShadowRoot) return;
+
+            const container = navShadowRoot.getElementById('customWidgetContainer');
+            if (!container) return;
+
+            const widgetHtml = blogInfo.value?.articleSidebarWidget;
+
+            if (widgetHtml && widgetHtml.trim()) {
+                // 处理模板变量替换（可选功能）
+                let processedHtml = widgetHtml;
+                if (article.value) {
+                    processedHtml = processedHtml
+                        .replace(/\{\{articleTitle\}\}/g, article.value.title || '')
+                        .replace(/\{\{articleSlug\}\}/g, article.value.slug || '')
+                        .replace(/\{\{articleId\}\}/g, article.value.id || '');
+                }
+
+                container.innerHTML = processedHtml;
+                container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
+            }
+        };
+
         // 更新导航栏状态
         const updateNavState = () => {
             if (!navShadowRoot) return;
@@ -967,9 +1063,15 @@ export default {
             updateNavState();
         });
 
+        // 监听文章变化，更新自定义组件
+        watch(article, () => {
+            updateCustomWidget();
+        });
+
         onMounted(async () => {
             initNavShadow();
             fetchCategories();  // 异步获取分类列表
+            fetchBlogInfo();    // 异步获取博客配置
             await fetchArticle();
             updateNavState();
         });

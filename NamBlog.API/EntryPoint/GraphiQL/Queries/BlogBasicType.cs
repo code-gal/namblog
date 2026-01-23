@@ -64,6 +64,10 @@ namespace NamBlog.API.EntryPoint.GraphiQL.Queries
                 .Description("网站统计脚本（如 Umami、Google Analytics 等）")
                 .Resolve(ctx => ctx.Source.AnalyticsScript);
 
+            Field<StringGraphType>("articleSidebarWidget")
+                .Description("文章页侧边栏自定义组件（如二维码、广告等），支持 HTML 内容")
+                .Resolve(ctx => ctx.Source.ArticleSidebarWidget);
+
             #region 废弃
             // ============================================================
             // 方案 B: 使用 context.RequestServices (如果父字段没有传递 Source)

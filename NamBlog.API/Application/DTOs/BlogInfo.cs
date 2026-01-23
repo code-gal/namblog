@@ -51,6 +51,12 @@ namespace NamBlog.API.Application.DTOs
         /// 网站统计脚本（如 Umami、Google Analytics 等），将在页脚动态注入
         /// </summary>
         public string? AnalyticsScript { get; init; }
+
+        /// <summary>
+        /// 文章页侧边栏自定义组件（如二维码、广告等），显示在导航面板分类列表下方
+        /// 支持 HTML 内容（建议使用内联样式），配置为空时不显示
+        /// </summary>
+        public string? ArticleSidebarWidget { get; init; }
     }
 
     /// <summary>

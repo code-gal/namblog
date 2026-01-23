@@ -64,9 +64,11 @@
       }
     ],
     "AnalyticsScript": "<script async defer data-website-id=\"your-website-id\" src=\"https://analytics.yourdomain.com/script.js\"></script>",
+    "ArticleSidebarWidget": "<div style='text-align:center; padding:16px; background:#f9fafb; border-radius:8px;'><h4 style='font-size:14px; font-weight:600; margin:0 0 12px; color:#1f2937;'>❤️ 赞赏支持</h4><img src='/images/donate-qrcode.png' style='width:100px; height:100px; border-radius:4px; margin:0 auto;' /><p style='font-size:12px; color:#6b7280; margin:8px 0 0;'>感谢您的支持</p></div>",
     "_tip1": "Icon/Avatar/SVG 路径使用 /resources/ 开头（对应 data/resources/ 目录）",
     "_tip2": "OuterChains 是博客外链列表，可以添加 Twitter、微博、知乎等社交媒体链接",
-    "_tip3": "AnalyticsScript 用于嵌入网站统计脚本（如 Umami、Google Analytics 等），支持热重载。留空则不加载统计功能"
+    "_tip3": "AnalyticsScript 用于嵌入网站统计脚本（如 Umami、Google Analytics 等），支持热重载。留空则不加载统计功能",
+    "_tip4": "ArticleSidebarWidget 用于在文章页导航栏分类列表下方显示自定义内容（如二维码、广告等），支持热重载、模板变量（{{articleTitle}}等）。留空则不显示"
   },
   "Cors": {
     "_comment": "【跨域配置】如果前端跨域部署，请添加你的前端域名，多个域名用逗号分隔",

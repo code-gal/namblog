@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Planned
 - Skills
 
+## [0.10.4] - 2026-01-24
+
+### Added
+- ✨ 文章页导航栏支持自定义侧边栏组件配置（ArticleSidebarWidget）
+  - 支持在导航面板分类列表下方显示自定义 HTML 内容（二维码、广告、推荐链接、第三方评论组件等）
+  - 支持模板变量（`{{articleTitle}}`、`{{articleSlug}}`、`{{articleId}}`）
+  - 自动适配深色/浅色主题，响应式布局
+  - 配置支持热重载，无需重启应用
+- 📝 新增文章页侧边栏组件配置说明文档（中英双语）
+
 ## [0.10.3] - 2026-01-24
 
 ### Fixed

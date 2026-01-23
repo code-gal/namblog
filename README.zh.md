@@ -77,6 +77,7 @@
 ### 部署与扩展
 
 - **网站统计集成**：支持在页脚嵌入第三方统计脚本（如 Umami、Google Analytics）。详见：[网站统计脚本配置说明](Docs-Tools/网站统计脚本配置说明.md) | [Analytics Configuration](Docs-Tools/Analytics-Configuration.md)
+- **文章页自定义组件**：支持在文章页导航栏显示自定义内容（如二维码、广告、推荐链接等），支持模板变量、深色模式适配。详见：[文章页侧边栏组件配置说明](Docs-Tools/文章页侧边栏组件配置说明.md) | [Article Sidebar Widget Configuration](Docs-Tools/Article-Sidebar-Widget-Configuration.md)
 - **灵活配置**：博客名称、AI 参数、CORS 等配置支持热重载，部分配置可通过环境变量覆盖
 
 ## MCP 集成使用

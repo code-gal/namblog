@@ -178,6 +178,24 @@ Support embedding third-party analytics scripts in footer (e.g., Umami, Google A
   }
   ```
 
+### Article Sidebar Widget Configuration
+
+Support displaying custom HTML content below category list in article page navigation panel (e.g., QR codes, ads, recommended links, etc.):
+
+- **Configuration Item**: `Blog.ArticleSidebarWidget`
+- **Hot Reload**: ✅ Supported, takes effect immediately after modification
+- **Template Variables**: Supports `{{articleTitle}}`, `{{articleSlug}}`, `{{articleId}}`
+- **Dark Mode**: Auto-adapts, recommend using rgba and relative transparency
+- **Detailed Guide**: See [Article Sidebar Widget Configuration](Article-Sidebar-Widget-Configuration.md)
+- **Example**:
+  ```json
+  {
+    "Blog": {
+      "ArticleSidebarWidget": "<div style='text-align:center; padding:16px; background:rgba(243,244,246,0.5); border-radius:8px;'><h4 style='font-size:14px; margin:0 0 12px;'>❤️ Support</h4><img src='/images/donate.png' style='width:100px;' /><p style='font-size:12px; opacity:0.7; margin:8px 0 0;'>Thank you for your support</p></div>"
+    }
+  }
+  ```
+
 ### SEO Configuration
 
 Control search engine optimization and crawler behavior.

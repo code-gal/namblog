@@ -76,6 +76,7 @@ Focus only on content when writing your blog. Treat Markdown as a blueprint, and
 ### Deployment & Extensions
 
 - **Analytics Integration**: Support embedding third-party analytics scripts in footer (e.g., Umami, Google Analytics). See: [Analytics Configuration Guide](Docs-Tools/Analytics-Configuration.md)
+- **Article Sidebar Widget**: Support displaying custom content in article page navigation panel (e.g., QR codes, ads, recommended links), with template variables and dark mode support. See: [Article Sidebar Widget Configuration](Docs-Tools/Article-Sidebar-Widget-Configuration.md)
 - **Flexible Configuration**: Blog name, AI parameters, CORS, and other configurations support hot reload, some can be overridden via environment variables
 
 ## MCP Integration
