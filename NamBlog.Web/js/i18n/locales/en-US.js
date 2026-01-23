@@ -13,7 +13,8 @@ export default {
         openSidebar: 'Open Sidebar',
         closeSidebar: 'Close Sidebar',
         darkMode: 'Dark Mode',
-        lightMode: 'Light Mode'
+        lightMode: 'Light Mode',
+        share: 'Share'
     },
     common: {
         loading: 'Loading...',
@@ -82,6 +83,10 @@ export default {
         articleNotFound: 'Article not found',
         networkFailed: 'Network connection failed',
         loadFailed: 'Failed to load article',
+        shareNotSupported: 'System share is not supported in this browser',
+        shareFailed: 'Failed to share',
+        linkCopied: 'Link copied',
+        copyFailed: 'Copy failed',
         defaultAboutTitle: 'About This Site',
         defaultAboutWelcome: 'Welcome to this blog!',
         defaultAboutDesc1: 'This is a modern blog system powered by AI agents that render Markdown documents to HTML.',

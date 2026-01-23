@@ -12,6 +12,7 @@ import { useI18n } from 'vue-i18n';
 import { request } from '../api/client.js';
 import { store } from '../store.js';
 import { HIDDEN_CATEGORIES } from '../config.js';
+import { showToast } from '../components/Toast.js';
 
 export default {
     setup() {
@@ -33,6 +34,74 @@ export default {
         let darkModeObserver = null;
 
         const isAuthenticated = computed(() => store.isAuthenticated);
+
+        const copyToClipboard = async (text) => {
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(text);
+                return true;
+            }
+
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.setAttribute('readonly', '');
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+
+            let success = false;
+            try {
+                success = document.execCommand('copy');
+            } catch (err) {
+                success = false;
+            } finally {
+                document.body.removeChild(textarea);
+            }
+
+            return success;
+        };
+
+        const handleShare = async () => {
+            const url = window.location.href;
+            const title = article.value?.title || document.title || t('common.blog');
+
+            // 尝试从meta标签获取description作为摘要
+            let description = '';
+            const metaDesc = document.querySelector('meta[name="description"]') ||
+                           document.querySelector('meta[property="og:description"]');
+            if (metaDesc) {
+                description = metaDesc.getAttribute('content') || '';
+            }
+
+            // 构建分享文本
+            const text = description ? `${description}` : `${t('article.readMore')}：${title}`;
+            const shareData = { title, text, url };
+
+            if (!navigator.share) {
+                const copied = await copyToClipboard(url);
+                if (copied) {
+                    showToast(t('article.linkCopied'), 'success');
+                } else {
+                    showToast(t('article.copyFailed'), 'error');
+                }
+                return;
+            }
+
+            try {
+                await navigator.share(shareData);
+            } catch (err) {
+                const errorName = err?.name;
+                if (errorName === 'AbortError') {
+                    return;
+                }
+                const copied = await copyToClipboard(url);
+                if (copied) {
+                    showToast(t('article.linkCopied'), 'success');
+                } else {
+                    showToast(t('article.shareFailed'), 'error');
+                }
+            }
+        };
 
         // 获取文章数据
         const fetchArticle = async () => {
@@ -700,6 +769,14 @@ export default {
                             <span id="darkModeText">夜间模式</span>
                         </button>
 
+                        <button class="nav-item" id="shareBtn">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 8a3 3 0 11-6 0 3 3 0 016 0zM17 15a3 3 0 11-6 0 3 3 0 016 0zM7 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.5 7.5l-5 3m0 4l5 3M3.5 12l5-3m0 6l-5-3"/>
+                            </svg>
+                            <span id="shareText">分享</span>
+                        </button>
+
                         <div class="nav-divider"></div>
 
                         <!-- 分类 -->
@@ -721,6 +798,7 @@ export default {
             const editBtn = navShadowRoot.getElementById('editBtn');
             const loginBtn = navShadowRoot.getElementById('loginBtn');
             const darkModeBtn = navShadowRoot.getElementById('darkModeBtn');
+            const shareBtn = navShadowRoot.getElementById('shareBtn');
 
             // 设置国际化文本
             navShadowRoot.getElementById('navTitle').textContent = t('nav.navigation');
@@ -729,6 +807,7 @@ export default {
             navShadowRoot.getElementById('unpublishedText').textContent = t('article.unpublished');
             navShadowRoot.getElementById('loginText').textContent = t('auth.login');
             navShadowRoot.getElementById('categoriesTitle').textContent = t('nav.categories');
+            navShadowRoot.getElementById('shareText').textContent = t('nav.share');
             // 初始化夜间模式文本
             const darkModeText = navShadowRoot.getElementById('darkModeText');
             darkModeText.textContent = isDarkMode.value ? t('nav.lightMode') : t('nav.darkMode');
@@ -777,6 +856,12 @@ export default {
             });
             darkModeBtn.addEventListener('click', () => {
                 toggleDarkMode();
+            });
+            shareBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                await handleShare();
+                closePanel();
             });
 
             // 滚动时折叠指示器

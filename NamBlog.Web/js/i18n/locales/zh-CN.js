@@ -13,7 +13,8 @@ export default {
         openSidebar: '打开侧边栏',
         closeSidebar: '关闭侧边栏',
         darkMode: '夜间模式',
-        lightMode: '日间模式'
+        lightMode: '日间模式',
+        share: '分享'
     },
     common: {
         loading: '加载中...',
@@ -82,6 +83,10 @@ export default {
         articleNotFound: '文章未找到',
         networkFailed: '网络连接失败',
         loadFailed: '加载文章失败',
+        shareNotSupported: '当前浏览器不支持系统分享',
+        shareFailed: '分享失败',
+        linkCopied: '链接已复制',
+        copyFailed: '复制失败',
         defaultAboutTitle: '关于本站',
         defaultAboutWelcome: '欢迎来到本博客！',
         defaultAboutDesc1: '这是一个由 AI 智能体渲染 Markdown 文档成 HTML 的现代化博客系统。',
