@@ -10,6 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Planned
 - Skills
 
+## [0.10.5] - 2026-01-24
+
+### Changed
+- 🎨 文章页导航折叠指示器（nav-indicator）采用 Liquid Glass 拟态水滴设计
+  - 浅色模式：灰白色渐变玻璃 + 深度投影，增强立体感和可见性
+  - 深色模式：半透明白色玻璃 + 白色外发光，适配深色背景
+  - 滚动交互：水珠滚动动画（缩放+下移+轻微旋转）
+  - 悬停交互：光影增强 + 微妙弹跳效果
+  - 点击反馈：快速弹簧回弹效果
+  - 使用 `backdrop-filter` 实现毛玻璃模糊效果
+
 ## [0.10.4] - 2026-01-24
 
 ### Added
@@ -266,7 +277,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` - Bug 修复
 - `Security` - 安全性改进
 
-[Unreleased]: https://github.com/code-gal/namblog/compare/v0.10.2...HEAD
+[Unreleased]: https://github.com/code-gal/namblog/compare/v0.10.4...HEAD
+[0.10.5]: https://github.com/code-gal/namblog/releases/tag/v0.10.5
+[0.10.4]: https://github.com/code-gal/namblog/releases/tag/v0.10.4
 [0.10.2]: https://github.com/code-gal/namblog/releases/tag/v0.10.2
 [0.10.1]: https://github.com/code-gal/namblog/releases/tag/v0.10.1
 [0.10.0]: https://github.com/code-gal/namblog/releases/tag/v0.10.0
