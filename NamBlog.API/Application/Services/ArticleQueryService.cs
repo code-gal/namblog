@@ -399,6 +399,31 @@ namespace NamBlog.API.Application.Services
             return post?.MainVersion?.VersionName;
         }
 
+        /// <summary>
+        /// 获取文章的 SEO 信息（用于 SEO 中间件构造静态 HTML 路径）
+        /// 仅返回已发布且主版本验证通过的文章信息
+        /// </summary>
+        /// <param name="slug">文章 slug</param>
+        /// <returns>SEO 文章信息（包含 FilePath、FileName、VersionName），不符合条件则返回 null</returns>
+        public async Task<SeoArticleInfo?> GetSeoArticleInfoAsync(string slug)
+        {
+            var post = await _postRepository.GetBySlugAsync(slug);
+
+            // 校验：必须已发布
+            if (post == null || !post.IsPublished)
+                return null;
+
+            // 校验：必须有主版本且验证通过
+            if (post.MainVersion?.ValidationStatus != HtmlValidationStatus.Valid)
+                return null;
+
+            return new SeoArticleInfo(
+                post.FilePath,
+                post.FileName,
+                post.MainVersion.VersionName
+            );
+        }
+
         #endregion
     }
 }

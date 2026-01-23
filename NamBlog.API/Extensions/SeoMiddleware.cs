@@ -4,8 +4,12 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using NamBlog.API.Application.Common;
 using NamBlog.API.Application.Services;
+using NamBlog.API.Infrastructure.Common;
 
 namespace NamBlog.API.Extensions;
 
@@ -15,25 +19,6 @@ namespace NamBlog.API.Extensions;
 /// </summary>
 public static class SeoMiddleware
 {
-    /// <summary>
-    /// 爬虫和社交分享机器人的 User-Agent 特征
-    /// </summary>
-    private static readonly string[] _botUserAgents =
-    [
-        // 搜索引擎爬虫
-        "googlebot", "bingbot", "slurp", "duckduckbot",
-        "baiduspider", "yandexbot", "sogou", "exabot",
-        "yahoo", "msn", "teoma",
-
-        // 社交分享预览
-        "facebookexternalhit", "facebookcatalog",
-        "twitterbot", "linkedinbot", "slackbot",
-        "whatsapp", "telegram", "discordbot",
-
-        // 其他工具
-        "archive.org_bot", "ia_archiver"
-    ];
-
     /// <summary>
     /// 启用 SEO 优化中间件
     /// </summary>
@@ -46,32 +31,19 @@ public static class SeoMiddleware
 
             // 只处理文章详情页 + 爬虫/分享机器人
             if (path?.StartsWith("/article/", StringComparison.OrdinalIgnoreCase) == true
-                && IsBot(userAgent))
+                && IsBot(context, userAgent))
             {
                 var slug = path.Replace("/article/", "", StringComparison.OrdinalIgnoreCase).Trim('/');
 
                 if (!string.IsNullOrWhiteSpace(slug))
                 {
-                    var staticPath = await GetStaticPathAsync(context, slug);
+                    var staticPath = await GetStaticPathAsync(context, slug, userAgent);
 
                     if (staticPath != null)
                     {
                         // 重写路径到静态文件
                         context.Request.Path = staticPath;
-
-                        // 记录日志（改为 Information 级别，确保可见）
-                        // var logger = context.RequestServices.GetService<ILogger<Program>>();
-                        // logger?.LogDebug(
-                        //     "SEO 路径重写: {OriginalPath} -> {StaticPath} | UA: {UserAgent}",
-                        //     path, staticPath, GetShortUserAgent(userAgent));
                     }
-                    // else
-                    // {
-                    //     var logger = context.RequestServices.GetService<ILogger<Program>>();
-                    //     logger?.LogWarning(
-                    //         "SEO 中间件：未找到文章主版本，slug={Slug} | UA: {UserAgent}",
-                    //         slug, GetShortUserAgent(userAgent));
-                    // }
                 }
             }
 
@@ -84,22 +56,27 @@ public static class SeoMiddleware
     /// <summary>
     /// 检测是否是爬虫或分享机器人
     /// </summary>
-    private static bool IsBot(string userAgent)
+    private static bool IsBot(HttpContext context, string userAgent)
     {
         if (string.IsNullOrWhiteSpace(userAgent))
             return false;
 
+        var configuration = context.RequestServices.GetRequiredService<IConfiguration>();
+        var botUserAgents = configuration.GetSection("Seo:BotUserAgents").Get<string[]>() ?? [];
         var lowerUserAgent = userAgent.ToLower();
-        return _botUserAgents.Any(bot => lowerUserAgent.Contains(bot));
+
+        // 使用 StringComparison.OrdinalIgnoreCase 进行不区分大小写的比较
+        return botUserAgents.Any(bot => userAgent.Contains(bot, StringComparison.OrdinalIgnoreCase));
     }
 
     /// <summary>
     /// 获取静态文件路径（带缓存）
     /// </summary>
-    private static async Task<string?> GetStaticPathAsync(HttpContext context, string slug)
+    private static async Task<string?> GetStaticPathAsync(HttpContext context, string slug, string userAgent)
     {
         var cache = context.RequestServices.GetRequiredService<IMemoryCache>();
-        var cacheKey = $"seo:path:{slug}";
+        var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+        var cacheKey = CacheKeys.SeoPath(slug);
 
         // 尝试从缓存获取
         if (cache.TryGetValue(cacheKey, out string? cachedPath))
@@ -111,18 +88,32 @@ public static class SeoMiddleware
         {
             // 缓存未命中，查询数据库
             var articleService = context.RequestServices.GetRequiredService<ArticleQueryService>();
-            var versionName = await articleService.GetMainVersionNameAsync(slug);
+            var seoInfo = await articleService.GetSeoArticleInfoAsync(slug);
 
-            if (versionName == null)
+            if (seoInfo == null)
+            {
+                logger.LogDebug("SEO 中间件：文章不存在/未发布/版本无效，slug={Slug}", slug);
                 return null;
+            }
 
-            // 构建静态文件路径（匹配 MiddlewareExtensions 中的 /posts 配置）
-            // 注意：versionName 包含空格，需要 URL 编码
-            var encodedVersionName = Uri.EscapeDataString(versionName);
-            var staticPath = $"/posts/{slug}/{encodedVersionName}/index.html";
+            // 使用 FilePathHelper 构建正确的 HTML 相对路径
+            var htmlRelativePath = FilePathHelper.GetHtmlRelativePath(
+                seoInfo.FilePath,
+                seoInfo.FileName,
+                seoInfo.VersionName);
+
+            // 注意：版本名称包含空格，需要 URL 编码
+            var encodedPath = string.Join("/",
+                htmlRelativePath.Split('/', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(Uri.EscapeDataString));
+
+            var staticPath = $"/posts/{encodedPath}/index.html";
 
             // 缓存 10 分钟（平衡性能和实时性）
             cache.Set(cacheKey, staticPath, TimeSpan.FromMinutes(10));
+
+            logger.LogInformation("SEO 路径重写: /article/{Slug} -> {StaticPath} | UA: {UserAgent}",
+                slug, staticPath, GetShortUserAgent(userAgent));
 
             return staticPath;
         }
@@ -131,8 +122,10 @@ public static class SeoMiddleware
             // 请求被取消（通常是客户端断开连接），直接返回null
             return null;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            logger.LogError(ex, "SEO 中间件异常: slug={Slug} | UA: {UserAgent}",
+                slug, GetShortUserAgent(userAgent));
             // 其他异常也返回null，让请求继续处理（不影响正常访问）
             return null;
         }
@@ -146,13 +139,6 @@ public static class SeoMiddleware
         if (string.IsNullOrWhiteSpace(userAgent))
             return "Unknown";
 
-        // 提取关键词
-        foreach (var bot in _botUserAgents)
-        {
-            if (userAgent.Contains(bot, StringComparison.OrdinalIgnoreCase))
-                return bot;
-        }
-
         // 截取前50个字符
         return userAgent.Length > 50 ? userAgent[..50] + "..." : userAgent;
     }
@@ -162,6 +148,6 @@ public static class SeoMiddleware
     /// </summary>
     public static void InvalidateSeoCache(IMemoryCache cache, string slug)
     {
-        cache.Remove($"seo:path:{slug}");
+        cache.Remove(CacheKeys.SeoPath(slug));
     }
 }

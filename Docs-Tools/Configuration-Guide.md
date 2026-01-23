@@ -42,6 +42,7 @@ NamBlog supports **hot reload** for the following configurations (no application
 | **Cors** | ✅ Supported | CORS configuration takes effect immediately |
 | **Logging** | ✅ Supported | Log level takes effect immediately |
 | **FileWatcher** | ⚠️ Restart Needed | File monitoring configuration requires restart |
+| **Seo** | ⚠️ Restart Needed | SEO crawler configuration requires restart |
 | **Storage** | ❌ Not Configurable | Data directory path cannot be configured in config.json |
 | **Admin** | ⚠️ Restart Needed | Admin account configuration requires restart |
 | **Jwt** | ⚠️ Restart Needed | JWT configuration requires restart |
@@ -176,6 +177,53 @@ Support embedding third-party analytics scripts in footer (e.g., Umami, Google A
     }
   }
   ```
+
+### SEO Configuration
+
+Control search engine optimization and crawler behavior.
+
+| Configuration Item | Type | Description |
+|-------------------|------|-------------|
+| **BotUserAgents** | string[] | Crawler User-Agent keyword list (case-insensitive) |
+
+**Features**:
+- Automatically rewrite to static HTML when detecting User-Agents in the list accessing `/article/{slug}`
+- Support search engine crawlers (Google, Bing, Baidu, etc.)
+- Support AI crawlers (ChatGPT, Claude, Perplexity, etc.)
+- Support social sharing preview (Facebook, Twitter, LinkedIn, etc.)
+- Works with `/sitemap.xml` and `/robots.txt` to improve SEO
+
+**Default Configuration**:
+```json
+{
+  "Seo": {
+    "BotUserAgents": [
+      "googlebot", "bingbot", "baiduspider", "yandexbot",
+      "gptbot", "claudebot", "perplexitybot",
+      "facebookexternalhit", "twitterbot", "linkedinbot",
+      ...
+    ]
+  }
+}
+```
+
+**Hot Reload**: ⚠️ Requires application restart
+
+**Auto-generated SEO Endpoints**:
+- `/sitemap.xml` - Sitemap (includes all published articles)
+- `/robots.txt` - Crawler rules (points to sitemap)
+
+**How to Add New Crawlers**:
+```json
+{
+  "Seo": {
+    "BotUserAgents": [
+      ...existing configuration,
+      "new-bot-name"  // Add new crawler keyword
+    ]
+  }
+}
+```
 
 ### Frontend Configuration
 

@@ -610,8 +610,13 @@ namespace NamBlog.API.Application.Services
         /// </summary>
         private void InvalidateSeoCache(string slug)
         {
-            var cacheKey = $"seo:path:{slug}";
-            _cache.Remove(cacheKey);
+            // 清除 SEO 路径缓存
+            _cache.Remove(CacheKeys.SeoPath(slug));
+
+            // 清除 sitemap 缓存（文章列表可能变化）
+            _cache.Remove(CacheKeys.SitemapXml);
+            _cache.Remove(CacheKeys.SitemapRobots);
+
             _logger.LogDebug("SEO 缓存已清除: {Slug}", slug);
         }
     }

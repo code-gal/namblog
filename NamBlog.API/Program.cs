@@ -48,10 +48,9 @@ static void ConfigureServices(IServiceCollection services, ConfigurationManager 
     services.AddLocalization(); // 资源文件与类文件在同一目录，无需设置 ResourcesPath
     services.Configure<RequestLocalizationOptions>(options =>
     {
-        var supportedCultures = new[] { "zh-CN", "en-US" };
         options.SetDefaultCulture("en-US")
-            .AddSupportedCultures(supportedCultures)
-            .AddSupportedUICultures(supportedCultures);
+            .AddSupportedCultures(_supportedCultures)
+            .AddSupportedUICultures(_supportedCultures);
     });
 
     // ====== 1. 领域层（Domain Layer） ======
@@ -150,7 +149,21 @@ static void ConfigureMiddleware(WebApplication app, ConfigurationManager configu
     // 健康检查
     app.MapGet("/health", () => $"OK - {configuration["Blog:BlogName"]} is running");
 
+    // SEO 端点（sitemap.xml、robots.txt）
+    app.UseSeoEndpoints();
+
     // SPA 回退路由（必须放在最后）
     // 当请求不匹配任何 API 或静态文件时，返回 index.html 让前端路由处理
     app.MapFallbackToFile("index.html");
+}
+
+/// <summary>
+/// Program 类（用于定义常量和共享字段）
+/// </summary>
+internal partial class Program
+{
+    /// <summary>
+    /// 支持的语言文化列表（用于国际化配置）
+    /// </summary>
+    private static readonly string[] _supportedCultures = ["zh-CN", "en-US"];
 }

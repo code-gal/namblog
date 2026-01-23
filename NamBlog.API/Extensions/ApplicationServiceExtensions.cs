@@ -25,6 +25,7 @@ public static class ApplicationExtensions
         services.AddScoped<ArticleQueryService>();
         services.AddScoped<AuthService>();
         services.AddScoped<MarkdownService>();
+        services.AddScoped<SitemapService>();
 
         return services;
     }

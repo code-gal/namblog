@@ -2,11 +2,15 @@ using System;
 using System.IO;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using NamBlog.API.Application.DTOs;
+using NamBlog.API.Application.Services;
 using NamBlog.API.Infrastructure.Persistence;
 
 namespace NamBlog.API.Extensions;
@@ -114,6 +118,28 @@ public static class MiddlewareExtensions
             logger.LogError(ex, "❌ 数据库迁移失败");
             throw;
         }
+
+        return app;
+    }
+
+    /// <summary>
+    /// 配置 SEO 端点（sitemap.xml、robots.txt）
+    /// </summary>
+    public static WebApplication UseSeoEndpoints(this WebApplication app)
+    {
+        // Sitemap 端点
+        app.MapGet("/sitemap.xml", async (SitemapService sitemapService) =>
+        {
+            var xml = await sitemapService.GenerateSitemapXmlAsync();
+            return Results.Content(xml, "application/xml", System.Text.Encoding.UTF8);
+        });
+
+        // Robots.txt 端点
+        app.MapGet("/robots.txt", (SitemapService sitemapService) =>
+        {
+            var txt = sitemapService.GenerateRobotsTxt();
+            return Results.Content(txt, "text/plain", System.Text.Encoding.UTF8);
+        });
 
         return app;
     }
