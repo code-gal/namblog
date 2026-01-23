@@ -439,7 +439,7 @@ export default {
                         cursor: pointer;
                     }
 
-                    /* 折叠指示器 */
+                    /* 折叠指示器 - Liquid Glass 水滴效果 */
                     .nav-indicator {
                         position: fixed;
                         top: 12px;
@@ -447,31 +447,109 @@ export default {
                         width: 40px;
                         height: 40px;
                         border-radius: 50%;
-                        background: rgba(59, 130, 246, 0.8);
+                        background: linear-gradient(135deg, rgba(240, 240, 240, 0.9), rgba(255, 255, 255, 0.8));
+                        backdrop-filter: blur(20px) saturate(180%);
+                        -webkit-backdrop-filter: blur(20px) saturate(180%);
+                        border: 1px solid rgba(200, 200, 200, 0.5);
                         display: flex;
                         align-items: center;
                         justify-content: center;
                         cursor: pointer;
                         z-index: 99999;
-                        transition: all 0.3s ease;
-                        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+                        opacity: 0.85;
+                        box-shadow:
+                            0 6px 28px rgba(0, 0, 0, 0.22),
+                            0 2px 8px rgba(0, 0, 0, 0.12),
+                            0 1px 2px rgba(255, 255, 255, 0.6),
+                            inset 0 2px 4px rgba(255, 255, 255, 0.8),
+                            inset 0 -1px 2px rgba(0, 0, 0, 0.08);
+                        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+                    }
+                    .nav-indicator::before {
+                        content: '';
+                        position: absolute;
+                        inset: 0;
+                        border-radius: 50%;
+                        background: linear-gradient(
+                            135deg,
+                            rgba(255, 255, 255, 0.6) 0%,
+                            rgba(255, 255, 255, 0) 50%,
+                            rgba(255, 255, 255, 0.1) 100%
+                        );
+                        pointer-events: none;
                     }
                     .nav-indicator.collapsed {
-                        opacity: 0.4;
-                        transform: scale(0.8);
+                        opacity: 0.65;
+                        transform: scale(0.88) translateY(3px) rotate(-4deg);
+                        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                    }
+                    .nav-indicator:not(.collapsed) {
+                        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
                     }
                     .nav-indicator:hover {
                         opacity: 1 !important;
-                        transform: scale(1) !important;
+                        transform: scale(1.05) !important;
+                        box-shadow:
+                            0 10px 40px rgba(0, 0, 0, 0.28),
+                            0 3px 12px rgba(0, 0, 0, 0.16),
+                            0 2px 4px rgba(255, 255, 255, 0.7),
+                            inset 0 2px 4px rgba(255, 255, 255, 0.9),
+                            inset 0 -1px 2px rgba(0, 0, 0, 0.1);
+                    }
+                    .nav-indicator:active {
+                        transform: scale(0.92) !important;
+                        transition: transform 0.1s ease;
                     }
                     .nav-indicator svg {
                         width: 20px;
                         height: 20px;
-                        color: white;
+                        color: #374151;
+                        opacity: 0.9;
+                        transition: all 0.3s ease;
+                    }
+                    .nav-indicator:hover svg {
+                        opacity: 1;
+                        filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.2));
                     }
                     .nav-indicator.expanded {
                         opacity: 0;
                         pointer-events: none;
+                    }
+                    /* 深色模式 */
+                    :host-context(html.dark) .nav-indicator {
+                        background: rgba(255, 255, 255, 0.1);
+                        border: 1px solid rgba(255, 255, 255, 0.2);
+                        opacity: 0.85;
+                        box-shadow:
+                            0 0 0 1px rgba(255, 255, 255, 0.1),
+                            0 0 16px rgba(255, 255, 255, 0.15),
+                            0 4px 24px rgba(0, 0, 0, 0.4),
+                            inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                            inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+                    }
+                    :host-context(html.dark) .nav-indicator::before {
+                        background: linear-gradient(
+                            135deg,
+                            rgba(255, 255, 255, 0.25) 0%,
+                            rgba(255, 255, 255, 0) 50%,
+                            rgba(255, 255, 255, 0.05) 100%
+                        );
+                    }
+                    :host-context(html.dark) .nav-indicator:hover {
+                        box-shadow:
+                            0 0 0 1px rgba(255, 255, 255, 0.15),
+                            0 0 24px rgba(255, 255, 255, 0.2),
+                            0 8px 32px rgba(0, 0, 0, 0.5),
+                            0 2px 4px rgba(255, 255, 255, 0.3),
+                            inset 0 1px 0 rgba(255, 255, 255, 0.3),
+                            inset 0 -1px 0 rgba(0, 0, 0, 0.4);
+                    }
+                    :host-context(html.dark) .nav-indicator svg {
+                        color: white;
+                        filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.4));
+                    }
+                    :host-context(html.dark) .nav-indicator:hover svg {
+                        filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.6));
                     }
 
                     /* 导航面板 */
