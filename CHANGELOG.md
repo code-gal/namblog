@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Planned
+- Skills
+
+## [0.10.0] - 2026-01-23
+
+### Added
+- ✨ 实现文章分享功能
+- ✨ 添加管理员登录速率限制（基于 IP 地址的内存限流）
+- ✨ 实现 SitemapService，自动生成 sitemap.xml 和 robots.txt
+- 📝 添加 SEO 配置文档（中英双语）
+
+### Fixed
+- 🐛 修复 MCP 工具更新文章元数据时必须提供 markdown 内容的问题（现在仅创建新文章时需要 markdown，更新元数据不再需要）
+- 🐛 禁用文件变更监控以防止冗余 I/O 操作
+- 🐛 改进 SEO 爬虫支持和静态 HTML 服务可靠性
+  - SEO 中间件路径重写逻辑与 FilePathHelper 保持一致
+  - 添加已发布文章和有效 HTML 版本的严格验证
+  - 爬虫 User-Agent 列表移至 appsettings.json 以提升可维护性
+  - 增强 SEO 路径解析的日志记录和缓存机制
+
+### Changed
+- 🔧 速率限制配置项添加到 appsettings.json
 
 ## [0.9.0] - 2026-01-16
 
@@ -23,10 +45,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ♻️ 删除文章版本时自动清理 /posts/* 缓存
 - ⬆️ 发布时自动提升 Service Worker CACHE_VERSION，避免 UI 旧缓存
 - 🔄 每次访问检测 SW 更新，移除定时轮询
-
----
-### Planned
-- Skills
 
 ## [0.8.11] - 2026-01-11
 
@@ -217,7 +235,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` - Bug 修复
 - `Security` - 安全性改进
 
-[Unreleased]: https://github.com/code-gal/namblog/compare/v0.8.11...HEAD
+[Unreleased]: https://github.com/code-gal/namblog/compare/v0.10.0...HEAD
+[0.10.0]: https://github.com/code-gal/namblog/releases/tag/v0.10.0
+[0.9.0]: https://github.com/code-gal/namblog/releases/tag/v0.9.0
 [0.8.11]: https://github.com/code-gal/namblog/releases/tag/v0.8.11
 [0.8.10]: https://github.com/code-gal/namblog/releases/tag/v0.8.10
 [0.8.9]: https://github.com/code-gal/namblog/releases/tag/v0.8.9
