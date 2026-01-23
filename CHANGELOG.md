@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Planned
 - Skills
 
+## [0.10.1] - 2026-01-23
+
+### Fixed
+- 🐛 登录令牌过期时清理登录状态并跳转到登录页
+- 🐛 桌面端列表页侧边栏滚动条出现时左右间距不对称的问题
+
 ## [0.10.0] - 2026-01-23
 
 ### Added
@@ -235,7 +241,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` - Bug 修复
 - `Security` - 安全性改进
 
-[Unreleased]: https://github.com/code-gal/namblog/compare/v0.10.0...HEAD
+[Unreleased]: https://github.com/code-gal/namblog/compare/v0.10.1...HEAD
+[0.10.1]: https://github.com/code-gal/namblog/releases/tag/v0.10.1
 [0.10.0]: https://github.com/code-gal/namblog/releases/tag/v0.10.0
 [0.9.0]: https://github.com/code-gal/namblog/releases/tag/v0.9.0
 [0.8.11]: https://github.com/code-gal/namblog/releases/tag/v0.8.11
