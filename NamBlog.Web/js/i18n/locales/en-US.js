@@ -60,7 +60,9 @@ export default {
         tooManyAttempts: 'Too many login attempts, please try again after {time}',
         accountLocked: 'Account locked, remaining time: {time}',
         loginError: 'Login error, please try again',
-        attemptsRemaining: 'Login failed {used} times, {remaining} attempts remaining'
+        attemptsRemaining: 'Login failed {used} times, {remaining} attempts remaining',
+        tokenExpired: 'Session expired, please login again',
+        unauthorized: 'Not logged in or insufficient permission'
     },
     article: {
         readMore: 'Read More',

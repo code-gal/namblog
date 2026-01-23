@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Planned
 - Skills
 
+## [0.10.2] - 2026-01-23
+
+### Fixed
+- 🐛 登录令牌过期检查机制修复（GraphQL 错误码/文本，兼容 Hash ）
+- 🐛 仅在编辑器或非公开文章页提示并跳转，公开页面静默清理状态
+
 ## [0.10.1] - 2026-01-23
 
 ### Fixed
@@ -241,7 +247,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` - Bug 修复
 - `Security` - 安全性改进
 
-[Unreleased]: https://github.com/code-gal/namblog/compare/v0.10.1...HEAD
+[Unreleased]: https://github.com/code-gal/namblog/compare/v0.10.2...HEAD
+[0.10.2]: https://github.com/code-gal/namblog/releases/tag/v0.10.2
 [0.10.1]: https://github.com/code-gal/namblog/releases/tag/v0.10.1
 [0.10.0]: https://github.com/code-gal/namblog/releases/tag/v0.10.0
 [0.9.0]: https://github.com/code-gal/namblog/releases/tag/v0.9.0

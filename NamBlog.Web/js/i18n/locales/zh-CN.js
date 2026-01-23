@@ -60,7 +60,9 @@ export default {
         tooManyAttempts: '登录尝试次数过多，请在 {time} 后重试',
         accountLocked: '账户已锁定，剩余时间：{time}',
         loginError: '登录发生错误，请重试',
-        attemptsRemaining: '登录失败 {used} 次，还剩 {remaining} 次机会'
+        attemptsRemaining: '登录失败 {used} 次，还剩 {remaining} 次机会',
+        tokenExpired: '登录已过期，请重新登录',
+        unauthorized: '未登录或无权限'
     },
     article: {
         readMore: '阅读更多',

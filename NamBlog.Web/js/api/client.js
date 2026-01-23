@@ -1,15 +1,24 @@
 import { config } from '../config.js';
 import { getLocale } from '../i18n/index.js';
+import { i18n } from '../i18n/index.js';
 import { showToast } from '../components/Toast.js';
 import { store } from '../store.js';
 
 /**
- * 处理认证失败：清除登录状态并跳转到登录页
+ * 处理认证失败：清除登录状态，根据页面类型决定是否跳转
  */
 let isAuthHandling = false;
 
 function hasAuthToken() {
     return !!localStorage.getItem('auth_token');
+}
+
+function getCurrentRoutePath() {
+    const hash = window.location.hash;
+    if (hash && hash.startsWith('#/')) {
+        return hash.slice(1).split('?')[0];
+    }
+    return window.location.pathname;
 }
 
 function handleAuthenticationFailure() {
@@ -20,20 +29,26 @@ function handleAuthenticationFailure() {
     store.setToken(null);
     store.setUser(null);
 
-    // 显示友好提示
-    showToast('登录已过期，请重新登录', 'warning', 3000);
+    const routePath = getCurrentRoutePath();
 
-    // 保存当前路径，用于登录后返回
-    const currentPath = window.location.pathname + window.location.search + window.location.hash;
+    // 判断是否在需要登录的页面（需要显示提示并跳转）
+    // 包括：编辑器、查看非公开文章（只有非公开文章才会触发认证错误）
+    const requiresAuthPaths = ['/editor', '/article'];
+    const isProtectedPage = requiresAuthPaths.some(path => routePath.startsWith(path));
 
-    // 延迟跳转，让用户看到提示
-    setTimeout(() => {
-        if (currentPath !== '/' && currentPath !== '/login') {
-            window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`;
-        } else {
-            window.location.href = '/login';
-        }
-    }, 500);
+    if (isProtectedPage) {
+        // 非公开页面：显示友好提示并跳转
+        showToast(i18n.global.t('auth.tokenExpired'), 'warning', 3000);
+
+        const fullPath = window.location.pathname + window.location.search + window.location.hash;
+        setTimeout(() => {
+            window.location.href = `/login?redirect=${encodeURIComponent(fullPath)}`;
+        }, 500);
+    }
+    // 公开页面（列表、文章详情等）：静默清除，不提示，不跳转
+
+    // 重置标志，允许下次处理
+    setTimeout(() => { isAuthHandling = false; }, 1000);
 }
 
 /**
@@ -73,9 +88,9 @@ export async function request(query, variables = {}, signal = null) {
         if (response.status === 401) {
             if (hasAuthToken()) {
                 handleAuthenticationFailure();
-                throw new Error('登录已过期，请重新登录');
+                throw new Error(i18n.global.t('auth.tokenExpired'));
             }
-            throw new Error('未登录或无权限');
+            throw new Error(i18n.global.t('auth.unauthorized'));
         }
 
         const result = await response.json();
@@ -85,9 +100,11 @@ export async function request(query, variables = {}, signal = null) {
 
             // 检查 GraphQL 错误中是否包含认证失败信息
             const authError = result.errors.find(err =>
-                err.message?.includes('Unauthorized') ||
+                err.extensions?.code === 'ACCESS_DENIED' ||  // Mutation 授权失败
+                err.extensions?.code === 'UNAUTHORIZED' ||   // Query 授权失败
+                err.message?.includes('Access denied') ||
                 err.message?.includes('未授权') ||
-                err.extensions?.code === 'AUTH_NOT_AUTHENTICATED'
+                err.message?.includes('无权访问')
             );
 
             if (authError && hasAuthToken()) {

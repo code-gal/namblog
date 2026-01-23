@@ -3,6 +3,7 @@ using GraphQL;
 using GraphQL.Types;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using NamBlog.API.Application.Common;
 using NamBlog.API.Application.DTOs;
 using NamBlog.API.Application.Services;
 
@@ -146,7 +147,7 @@ namespace NamBlog.API.EntryPoint.GraphiQL.Queries
                     var isAdmin = GraphQLHelper.IsAdmin(context);
                     if (!isAdmin)
                     {
-                        context.Errors.Add(new ExecutionError("无权访问 Markdown 源文件"));
+                        GraphQLHelper.AddError(context, "无权访问 Markdown 源文件", ErrorCodes.Unauthorized);
                         return null;
                     }
 
@@ -244,7 +245,7 @@ namespace NamBlog.API.EntryPoint.GraphiQL.Queries
                     var isAdmin = GraphQLHelper.IsAdmin(context);
                     if (!isAdmin)
                     {
-                        context.Errors.Add(new ExecutionError("无权访问 Markdown 源文件"));
+                        GraphQLHelper.AddError(context, "无权访问 Markdown 源文件", ErrorCodes.Unauthorized);
                         return null;
                     }
 
